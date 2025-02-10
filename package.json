@@ -1,0 +1,43 @@
+{
+  "name": "dapp-list",
+  "version": "0.0.1",
+  "main": "index.js",
+  "repository": "git@github.com:valora-inc/dapp-list.git",
+  "author": "Valora Inc",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": "^20"
+  },
+  "scripts": {
+    "lint": "eslint --ext=.tsx,.ts,.json --fix src/",
+    "format": "prettier --loglevel error --write .",
+    "validate": "jest",
+    "test": "prettier --check . && eslint --ext=.tsx,.ts,.json src/ && jest",
+    "e2e:open": "cypress open",
+    "e2e:run": "cypress run --headless"
+  },
+  "prettier": "@valora/prettier-config",
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/node": "^17.0.45",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@valora/eslint-config-typescript": "^1.0.2",
+    "@valora/prettier-config": "^0.0.1",
+    "cypress": "^14.0.0",
+    "eslint": "^8.57.1",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-jest": "^27.9.0",
+    "eslint-plugin-json": "^3.1.0",
+    "eslint-plugin-react": "^7.37.4",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint-plugin-react-native": "^4.1.0",
+    "i18next": "~24.1.0",
+    "image-size": "^1.1.1",
+    "jest": "^29.7.0",
+    "joi": "^17.13.3",
+    "prettier": "^3.4.2",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "5.7.3"
+  }
+}
