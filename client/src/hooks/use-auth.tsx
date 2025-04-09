@@ -57,6 +57,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     setError(null);
     try {
+
+// Update function
+const update = async (data) => {
+  setIsLoading(true);
+  setError(null);
+  try {
+    const response = await fetch('/api/user/update', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      throw new Error('Update failed');
+    }
+
+    const updatedUser = await response.json();
+    setUser(updatedUser);
+  } catch (err) {
+    setError(err instanceof Error ? err : new Error('Unknown error'));
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+// Inside useAuth()
+return {
+  user,
+  isLoading,
+  error,
+  login,
+  logout,
+  register,
+  update, // Add update function to the context
+};
+
       const response = await fetch('/api/logout', {
         method: 'POST',
         credentials: 'include',

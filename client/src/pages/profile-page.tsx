@@ -147,6 +147,47 @@ export default function ProfilePage() {
               <span>{pendingProjects}</span>
             </div>
             <Progress 
+
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useAuth } from "@/hooks/use-auth";
+
+// Define the schema
+const profileUpdateSchema = z.object({
+  name: z.string().optional(),
+  username: z.string().min(3).max(50).optional(),
+  email: z.string().email().optional(),
+  password: z.string().min(6).optional(),
+});
+
+export default function ProfilePage() {
+  const { user, update } = useAuth();
+  const form = useForm({
+    resolver: zodResolver(profileUpdateSchema),
+    defaultValues: {
+      name: user?.name || '',
+      username: user?.username || '',
+      email: user?.email || '',
+      password: '',
+    },
+  });
+
+  const handleSubmit = async (values) => {
+    await update(values);
+  };
+
+  return (
+    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+      <input {...form.register('name')} placeholder="Name" />
+      <input {...form.register('username')} placeholder="Username" />
+      <input type="email" {...form.register('email')} placeholder="Email" />
+      <input type="password" {...form.register('password')} placeholder="New Password" />
+      <button type="submit">Update Profile</button>
+    </form>
+  );
+}
+
               value={totalProjects > 0 ? (pendingProjects / totalProjects) * 100 : 0} 
               className="h-2 bg-muted" 
             />
