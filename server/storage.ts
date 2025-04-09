@@ -142,10 +142,17 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getApprovedProjects(): Promise<Project[]> {
-    return db.select()
-      .from(projects)
-      .where(eq(projects.approved, true))
-      .orderBy(desc(projects.createdAt));
+    try {
+      const results = await db.select()
+        .from(projects)
+        .where(eq(projects.approved, true))
+        .orderBy(desc(projects.createdAt));
+      console.log("Fetched approved projects:", results);
+      return results;
+    } catch (error) {
+      console.error("Error in getApprovedProjects:", error);
+      return [];
+    }
   }
 
   async getPendingProjects(): Promise<Project[]> {

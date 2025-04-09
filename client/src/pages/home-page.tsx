@@ -5,7 +5,7 @@ import ProjectCard from "@/components/project/project-card";
 import { Project, Category } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
-import { ChevronRight, ArrowRight, Gift, Wallet, BarChart3, Search, Wrench, ImageIcon, TrendingUp, GitBranch, MessageCircle, CheckCircle, ExternalLink } from "lucide-react";
+import { ChevronRight, ArrowRight, Gift, Wallet, BarChart3, Search, Wrench, ImageIcon, TrendingUp, GitBranch, MessageCircle, CheckCircle, ExternalLink, Package2Icon, Wallet2Icon, ArrowRightLeftIcon, SearchIcon, ToolIcon, CoinsIcon, ArrowLeftRightIcon, RadioIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/card";
 
@@ -23,7 +23,7 @@ export default function HomePage() {
   const getProjectsByCategory = (categorySlug: string) => {
     // Get all projects for this category
     const filteredProjects = projects?.filter(project => project.category === categorySlug) || [];
-    
+
     // Add some dummy projects if we need to test pagination for wallets and exchanges
     if ((categorySlug === 'wallets' || categorySlug === 'exchanges') && filteredProjects.length < 6) {
       const dummyCount = Math.max(0, 9 - filteredProjects.length);
@@ -39,7 +39,7 @@ export default function HomePage() {
         }
       }
     }
-    
+
     // Return all projects for this category
     return filteredProjects;
   };
@@ -47,16 +47,16 @@ export default function HomePage() {
   // Category icon mapping
   const getCategoryIcon = (slug: string) => {
     switch (slug) {
-      case 'airdrop': return <Gift className="w-5 h-5" />;
-      case 'wallets': return <Wallet className="w-5 h-5" />;
-      case 'exchanges': return <BarChart3 className="w-5 h-5" />;
-      case 'explorers': return <Search className="w-5 h-5" />;
-      case 'utilities': return <Wrench className="w-5 h-5" />;
+      case 'airdrop': return <Package2Icon className="w-5 h-5" />;
+      case 'wallets': return <Wallet2Icon className="w-5 h-5" />;
+      case 'exchanges': return <ArrowRightLeftIcon className="w-5 h-5" />;
+      case 'explorers': return <SearchIcon className="w-5 h-5" />;
+      case 'utilities': return <ToolIcon className="w-5 h-5" />;
       case 'nft': return <ImageIcon className="w-5 h-5" />;
-      case 'staking': return <TrendingUp className="w-5 h-5" />;
-      case 'bridges': return <GitBranch className="w-5 h-5" />;
-      case 'channels': return <MessageCircle className="w-5 h-5" />;
-      default: return <CheckCircle className="w-5 h-5" />;
+      case 'staking': return <CoinsIcon className="w-5 h-5" />;
+      case 'bridges': return <ArrowLeftRightIcon className="w-5 h-5" />;
+      case 'channels': return <RadioIcon className="w-5 h-5" />;
+      default: return <Package2Icon className="w-5 h-5" />;
     }
   };
 
@@ -69,7 +69,7 @@ export default function HomePage() {
             Welcome to new<br />
             <span className="text-blue-500">community driven</span> catalog
           </h1>
-          
+
           <div className="mt-6 overflow-x-auto pb-2 -mx-4 px-4 hide-scrollbar">
             <div className="flex gap-3 min-w-max">
               {categories?.map((category) => (
@@ -91,7 +91,7 @@ export default function HomePage() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-medium">Featured Content</h2>
           </div>
-          
+
           <div className="flex overflow-x-auto pb-4 -mx-4 px-4 gap-4 snap-x snap-mandatory touch-pan-x hide-scrollbar">
             {/* Market Data Card */}
             <Card className="flex-shrink-0 w-full sm:w-80 min-h-[260px] snap-start overflow-hidden relative bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30">
@@ -101,7 +101,7 @@ export default function HomePage() {
                   <div className="text-2xl font-bold">$2.98</div>
                   <div className="text-red-500 text-sm">-0.81%</div>
                 </div>
-                
+
                 <div className="mt-4 text-sm text-muted-foreground">
                   <div className="flex justify-between mb-1">
                     <span>Rank</span>
@@ -116,12 +116,12 @@ export default function HomePage() {
                     <span className="font-medium">$2M</span>
                   </div>
                 </div>
-                
+
                 {/* Simplified price chart (just for visual) */}
                 <div className="h-16 mt-4 bg-gradient-to-r from-red-100 to-red-200 dark:from-red-900/20 dark:to-red-800/20 rounded-lg opacity-70"></div>
               </div>
             </Card>
-            
+
             {/* Featured Article 1 */}
             <Card className="flex-shrink-0 w-full sm:w-80 min-h-[260px] snap-start overflow-hidden relative bg-cover bg-center" style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1639322537504-6427a16b0a28?q=80&w=500&auto=format&fit=crop")' }}>
               <div className="absolute inset-0 bg-black/50"></div>
@@ -137,7 +137,7 @@ export default function HomePage() {
                 </div>
               </div>
             </Card>
-            
+
             {/* Featured Article 2 */}
             <Card className="flex-shrink-0 w-full sm:w-80 min-h-[260px] snap-start overflow-hidden relative bg-cover bg-center" style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=500&auto=format&fit=crop")' }}>
               <div className="absolute inset-0 bg-black/50"></div>
@@ -153,7 +153,7 @@ export default function HomePage() {
                 </div>
               </div>
             </Card>
-            
+
             {/* Featured Article 3 */}
             <Card className="flex-shrink-0 w-full sm:w-80 min-h-[260px] snap-start overflow-hidden relative bg-cover bg-center" style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1642104704074-907c0698cbd9?q=80&w=500&auto=format&fit=crop")' }}>
               <div className="absolute inset-0 bg-black/50"></div>
@@ -184,7 +184,7 @@ export default function HomePage() {
               </Link>
             </Button>
           </div>
-          
+
           {isProjectsLoading ? (
             <div className="space-y-6">
               {[...Array(3)].map((_, index) => (
@@ -219,7 +219,7 @@ export default function HomePage() {
                       </div>
                     )}
                   </div>
-                  
+
                   <div className="flex-1">
                     <div className="flex items-center gap-3">
                       <span className="text-xl text-gray-400">{index + 1}</span>
@@ -251,7 +251,7 @@ export default function HomePage() {
                 isLoading={isProjectsLoading}
                 projects={getProjectsByCategory('wallets')}
               />
-              
+
               <CategorySection 
                 title="NFT Services" 
                 slug="nft"
@@ -259,7 +259,7 @@ export default function HomePage() {
                 isLoading={isProjectsLoading}
                 projects={getProjectsByCategory('nft').slice(0, 3)}
               />
-              
+
               <CategorySection 
                 title="Bridges" 
                 slug="bridges"
@@ -267,7 +267,7 @@ export default function HomePage() {
                 isLoading={isProjectsLoading}
                 projects={getProjectsByCategory('bridges').slice(0, 3)}
               />
-              
+
               <CategorySection 
                 title="Utilities" 
                 slug="utilities"
@@ -276,7 +276,7 @@ export default function HomePage() {
                 projects={getProjectsByCategory('utilities').slice(0, 3)}
               />
             </div>
-            
+
             {/* Categories Column 2 */}
             <div>
               <CategorySection 
@@ -286,7 +286,7 @@ export default function HomePage() {
                 isLoading={isProjectsLoading}
                 projects={getProjectsByCategory('exchanges')}
               />
-              
+
               <CategorySection 
                 title="Staking" 
                 slug="staking"
@@ -294,7 +294,7 @@ export default function HomePage() {
                 isLoading={isProjectsLoading}
                 projects={getProjectsByCategory('staking').slice(0, 3)}
               />
-              
+
               <CategorySection 
                 title="Explorers" 
                 slug="explorers"
@@ -302,7 +302,7 @@ export default function HomePage() {
                 isLoading={isProjectsLoading}
                 projects={getProjectsByCategory('explorers').slice(0, 3)}
               />
-              
+
               <CategorySection 
                 title="Channels" 
                 slug="channels"
@@ -356,7 +356,7 @@ function CategorySection({
           <ChevronRight className="h-5 w-5" />
         </Link>
       </div>
-      
+
       {isLoading ? (
         <div className="space-y-4">
           {[...Array(3)].map((_, index) => (
@@ -388,7 +388,7 @@ function CategorySection({
                   </div>
                 )}
               </div>
-              
+
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <div className="text-muted-foreground text-sm flex items-center">
