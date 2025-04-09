@@ -205,6 +205,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Error rejecting project" });
     }
   });
+  
+  // Verify/unverify project routes
+  app.post("/api/admin/projects/:id/verify", async (req, res) => {
+    if (!req.isAuthenticated() || !req.user.isAdmin) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+    
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid project ID" });
+      }
+      
+      const project = await storage.verifyProject(id);
+      if (!project) {
+        return res.status(404).json({ message: "Project not found" });
+      }
+      
+      res.status(200).json(project);
+    } catch (error) {
+      res.status(500).json({ message: "Error verifying project" });
+    }
+  });
+  
+  app.post("/api/admin/projects/:id/unverify", async (req, res) => {
+    if (!req.isAuthenticated() || !req.user.isAdmin) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+    
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid project ID" });
+      }
+      
+      const project = await storage.unverifyProject(id);
+      if (!project) {
+        return res.status(404).json({ message: "Project not found" });
+      }
+      
+      res.status(200).json(project);
+    } catch (error) {
+      res.status(500).json({ message: "Error unverifying project" });
+    }
+  });
 
   // Categories API endpoints
   app.get("/api/categories", async (req, res) => {

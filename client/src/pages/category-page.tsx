@@ -140,7 +140,7 @@ export default function CategoryPage() {
                     <div className="flex items-center gap-2">
                       <h3 className="font-semibold text-lg">
                         {project.name}
-                        {project.approved && (
+                        {project.verified && (
                           <CheckCircle className="w-4 h-4 ml-1 text-blue-500 inline" />
                         )}
                       </h3>

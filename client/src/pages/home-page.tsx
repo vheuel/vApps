@@ -333,7 +333,6 @@ export default function HomePage() {
 function CategorySection({ 
   title, 
   slug, 
-  count = 0,
   isLoading, 
   projects = [] 
 }: { 
@@ -343,14 +342,28 @@ function CategorySection({
   isLoading: boolean; 
   projects: Project[];
 }) {
+  // Get category icon based on slug
+  const getCatIcon = (slug: string) => {
+    switch (slug) {
+      case 'airdrop': return <Gift className="w-5 h-5" />;
+      case 'wallets': return <Wallet className="w-5 h-5" />;
+      case 'exchanges': return <BarChart3 className="w-5 h-5" />;
+      case 'explorers': return <Search className="w-5 h-5" />;
+      case 'utilities': return <Wrench className="w-5 h-5" />;
+      case 'nft': return <ImageIcon className="w-5 h-5" />;
+      case 'staking': return <TrendingUp className="w-5 h-5" />;
+      case 'bridges': return <GitBranch className="w-5 h-5" />;
+      case 'channels': return <MessageCircle className="w-5 h-5" />;
+      default: return <CheckCircle className="w-5 h-5" />;
+    }
+  };
+  
   return (
     <div className="mb-8">
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-2">
+          <span className="mr-1">{getCatIcon(slug)}</span>
           <h2 className="text-xl font-medium">{title}</h2>
-          {count > 0 && (
-            <span className="text-muted-foreground text-base">{count}</span>
-          )}
         </div>
         <Link href={`/category/${slug}`} className="text-blue-500 text-sm flex items-center">
           See all <ChevronRight className="ml-1 h-4 w-4" />
@@ -393,7 +406,7 @@ function CategorySection({
                 <div className="flex-1">
                   <div className="flex items-center gap-1">
                     <h3 className="font-medium text-base">{project.name}</h3>
-                    {project.approved && (
+                    {project.verified && (
                       <CheckCircle className="h-4 w-4 text-blue-500" />
                     )}
                   </div>

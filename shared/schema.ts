@@ -60,6 +60,7 @@ export const projects = pgTable("projects", {
   userId: integer("user_id").notNull(),
   approved: boolean("approved").default(false).notNull(),
   pending: boolean("pending").default(true).notNull(),
+  verified: boolean("verified").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

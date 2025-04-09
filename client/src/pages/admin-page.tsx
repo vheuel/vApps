@@ -212,6 +212,7 @@ export default function AdminPage() {
       <Tabs defaultValue="pending">
         <TabsList className="w-full mb-4">
           <TabsTrigger value="pending" className="flex-1">Pending Projects</TabsTrigger>
+          <TabsTrigger value="approved" className="flex-1">Approved Projects</TabsTrigger>
           <TabsTrigger value="stats" className="flex-1">Category Stats</TabsTrigger>
           <TabsTrigger value="categories" className="flex-1">Manage Categories</TabsTrigger>
         </TabsList>
@@ -245,6 +246,44 @@ export default function AdminPage() {
               ) : (
                 <div className="text-center py-12">
                   <p className="text-muted-foreground">No pending projects to review.</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="approved">
+          <Card>
+            <CardHeader>
+              <CardTitle>Approved Projects</CardTitle>
+              <CardDescription>
+                Manage verification status of approved projects
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <div className="space-y-4">
+                  {[...Array(3)].map((_, index) => (
+                    <Skeleton key={index} className="h-24 w-full" />
+                  ))}
+                </div>
+              ) : allProjects && allProjects.filter(p => p.approved && !p.pending).length > 0 ? (
+                <div className="space-y-4">
+                  {allProjects
+                    .filter(p => p.approved && !p.pending)
+                    .map((project) => (
+                      <div key={project.id}>
+                        <ProjectCard 
+                          project={project}
+                          showAdminActions={true}
+                          showVerificationIcon={true}
+                        />
+                      </div>
+                    ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground">No approved projects found.</p>
                 </div>
               )}
             </CardContent>

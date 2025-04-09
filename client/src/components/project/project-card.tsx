@@ -70,6 +70,48 @@ export default function ProjectCard({
       });
     }
   });
+  
+  const verifyMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await apiRequest("POST", `/api/admin/projects/${id}/verify`, {});
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/projects"] });
+      toast({
+        title: "Project verified",
+        description: "The project has been verified and will show a verification badge.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to verify project",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+  
+  const unverifyMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await apiRequest("POST", `/api/admin/projects/${id}/unverify`, {});
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/projects"] });
+      toast({
+        title: "Project unverified",
+        description: "The verification badge has been removed from this project.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to unverify project",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
 
   return (
     <Card className="overflow-hidden hover:shadow-md transition-shadow">
@@ -92,7 +134,7 @@ export default function ProjectCard({
             <div className="ml-4 flex-1">
               <div className="flex items-center gap-2">
                 <h3 className="font-medium text-lg">{project.name}</h3>
-                {showVerificationIcon && (
+                {showVerificationIcon && project.verified && (
                   <CheckCircle className="w-4 h-4 text-blue-500" />
                 )}
                 {project.websiteUrl && (
@@ -155,34 +197,76 @@ export default function ProjectCard({
               
               {showAdminActions && (
                 <div className="mt-3 flex justify-end items-center space-x-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="border-red-200 hover:bg-red-50 hover:text-red-600"
-                    onClick={() => rejectMutation.mutate(project.id)}
-                    disabled={rejectMutation.isPending}
-                  >
-                    {rejectMutation.isPending ? (
-                      <Loader2 className="h-4 w-4 animate-spin mr-1" />
-                    ) : (
-                      <X className="h-4 w-4 mr-1" />
-                    )}
-                    Reject
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="border-green-200 hover:bg-green-50 hover:text-green-600"
-                    onClick={() => approveMutation.mutate(project.id)}
-                    disabled={approveMutation.isPending}
-                  >
-                    {approveMutation.isPending ? (
-                      <Loader2 className="h-4 w-4 animate-spin mr-1" />
-                    ) : (
-                      <Check className="h-4 w-4 mr-1" />
-                    )}
-                    Approve
-                  </Button>
+                  {/* Only show approve/reject if project is pending */}
+                  {project.pending && (
+                    <>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-red-200 hover:bg-red-50 hover:text-red-600"
+                        onClick={() => rejectMutation.mutate(project.id)}
+                        disabled={rejectMutation.isPending}
+                      >
+                        {rejectMutation.isPending ? (
+                          <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                        ) : (
+                          <X className="h-4 w-4 mr-1" />
+                        )}
+                        Reject
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-green-200 hover:bg-green-50 hover:text-green-600"
+                        onClick={() => approveMutation.mutate(project.id)}
+                        disabled={approveMutation.isPending}
+                      >
+                        {approveMutation.isPending ? (
+                          <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                        ) : (
+                          <Check className="h-4 w-4 mr-1" />
+                        )}
+                        Approve
+                      </Button>
+                    </>
+                  )}
+                  
+                  {/* Show verify/unverify for approved projects */}
+                  {project.approved && !project.pending && (
+                    <>
+                      {project.verified ? (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-red-200 hover:bg-red-50 hover:text-red-600"
+                          onClick={() => unverifyMutation.mutate(project.id)}
+                          disabled={unverifyMutation.isPending}
+                        >
+                          {unverifyMutation.isPending ? (
+                            <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                          ) : (
+                            <X className="h-4 w-4 mr-1" />
+                          )}
+                          Remove Verification
+                        </Button>
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-blue-200 hover:bg-blue-50 hover:text-blue-600"
+                          onClick={() => verifyMutation.mutate(project.id)}
+                          disabled={verifyMutation.isPending}
+                        >
+                          {verifyMutation.isPending ? (
+                            <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                          ) : (
+                            <CheckCircle className="h-4 w-4 mr-1" />
+                          )}
+                          Verify Project
+                        </Button>
+                      )}
+                    </>
+                  )}
                 </div>
               )}
             </div>

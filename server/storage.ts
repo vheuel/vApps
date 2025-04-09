@@ -28,6 +28,8 @@ export interface IStorage {
   getPendingProjects(): Promise<Project[]>;
   approveProject(id: number): Promise<Project | undefined>;
   rejectProject(id: number): Promise<Project | undefined>;
+  verifyProject(id: number): Promise<Project | undefined>;
+  unverifyProject(id: number): Promise<Project | undefined>;
   
   // Category management
   getCategories(): Promise<Category[]>;
@@ -171,6 +173,26 @@ export class DatabaseStorage implements IStorage {
       .set({
         approved: false,
         pending: false
+      })
+      .where(eq(projects.id, id))
+      .returning();
+    return updatedProject;
+  }
+  
+  async verifyProject(id: number): Promise<Project | undefined> {
+    const [updatedProject] = await db.update(projects)
+      .set({
+        verified: true
+      })
+      .where(eq(projects.id, id))
+      .returning();
+    return updatedProject;
+  }
+  
+  async unverifyProject(id: number): Promise<Project | undefined> {
+    const [updatedProject] = await db.update(projects)
+      .set({
+        verified: false
       })
       .where(eq(projects.id, id))
       .returning();
