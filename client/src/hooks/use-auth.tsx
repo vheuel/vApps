@@ -9,7 +9,7 @@ type AuthContextType = {
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   register: (user: InsertUser) => Promise<void>;
-  update: (data: any) => Promise<void>; // Added update function type
+  update: (data: Partial<User>) => Promise<void>;
 };
 
 // Create the context with default values
@@ -102,7 +102,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   // Update function
-  const update = async (data) => {
+  const update = async (data: Partial<User>) => {
     setIsLoading(true);
     setError(null);
     try {
@@ -149,16 +149,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     fetchUser();
   }, []);
 
-  // Inside useAuth()
-  return {
-    user,
-    isLoading,
-    error,
-    login,
-    logout,
-    register,
-    update, // Ensure update function is included in the context
-  };
+  // Return the AuthContext.Provider with the auth value
+  return (
+    <AuthContext.Provider 
+      value={{
+        user,
+        isLoading,
+        error,
+        login,
+        logout,
+        register,
+        update,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 // Custom hook to use the auth context

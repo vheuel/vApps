@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers.zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 import ProjectCard from "@/components/project/project-card";

@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { ChevronRight, ArrowRight, Gift, Wallet, BarChart3, Search, Wrench, ImageIcon, TrendingUp, GitBranch, MessageCircle, CheckCircle, ExternalLink } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getCategoryIcon } from '@/lib/utils'; // Import getCategoryIcon dari utils.ts
 import { Card } from "@/components/ui/card";
 
 export default function HomePage() {

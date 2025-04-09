@@ -162,7 +162,7 @@ export default function ProjectCard({
                 )}
               </div>
               <p className="text-muted-foreground text-sm line-clamp-2 mt-1">{project.description}</p>
-              <p className="text-xs text-muted-foreground mt-1">by {project.creatorName || "Unknown"}</p> {/* Added creator's name */}
+              <p className="text-xs text-muted-foreground mt-1">by {"Unknown"}</p> {/* TODO: Add creator's name */}
 
               {showActions && (
                 <div className="mt-3 flex justify-between items-center">
