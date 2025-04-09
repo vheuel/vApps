@@ -60,6 +60,7 @@ const profileSchema = z.object({
   website: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
   bio: z.string().max(200, "Bio should be less than 200 characters").optional(),
   location: z.string().max(100).optional(),
+  company: z.string().max(100).optional(),
 });
 
 // Schema for password change
@@ -106,6 +107,7 @@ export default function ProfilePage() {
       website: user?.website || "",
       bio: user?.bio || "",
       location: user?.location || "",
+      company: user?.company || "",
     },
   });
 
@@ -273,25 +275,10 @@ export default function ProfilePage() {
           </div>
         </div>
         
-        {/* Header Background - Editable by user */}
-        <div className="w-full h-64 relative overflow-hidden">
-          {/* This would be replaced with user's header image */}
-          <img 
-            src={user.headerImage || "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MDAiIGhlaWdodD0iNDAwIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImcxIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzEwMjhhNCIvPjxzdG9wIG9mZnNldD0iNTAlIiBzdG9wLWNvbG9yPSIjMjU2M2ViIi8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMzRkMzk5Ii8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNnMSkiLz48L3N2Zz4="} 
-            alt="Header background"
-            className="w-full h-full object-cover"
-          />
-          
-          {/* Overlay for text readability */}
-          <div className="absolute inset-0 bg-black bg-opacity-20"></div>
-          
-          {/* Slogan Line - Part of editable header */}
-          <div className="absolute top-16 left-0 right-0 text-center text-white">
-            <h1 className="text-xl font-mono font-bold tracking-wider">LEARN, BUILD, SELL, REPEAT</h1>
-          </div>
-          
+        {/* Header Background - Plain Gray as requested */}
+        <div className="w-full h-36 relative overflow-hidden bg-gray-300">
           {/* Username - Part of editable header */}
-          <div className="absolute bottom-10 left-0 right-0 text-center text-white">
+          <div className="absolute bottom-4 left-0 right-0 text-center text-gray-800">
             <h2 className="text-lg font-bold">{user.isAdmin ? "VHESL" : user.username.toUpperCase()}</h2>
           </div>
         </div>
@@ -314,26 +301,51 @@ export default function ProfilePage() {
           </Button>
         </div>
         
-        {/* Bio and Other Info (Hidden on this design to match reference) */}
-        <div className="hidden px-4 pt-4 pb-10">
+        {/* Bio and Other Info */}
+        <div className="px-4 pt-12 pb-4">
           <div className="flex items-center mb-1">
-            <h1 className="text-3xl font-bold">{user.username}</h1>
+            <h1 className="text-xl font-bold">{user.username}</h1>
             {user.isAdmin && (
-              <CheckCircle className="h-6 w-6 text-blue-500 ml-2" />
+              <CheckCircle className="h-5 w-5 text-blue-500 ml-2" />
             )}
           </div>
-          <p className="text-gray-500 dark:text-gray-400 text-lg mb-3">{user.email}</p>
           
-          {user.bio && (
-            <p className="text-gray-700 dark:text-gray-300 mb-4">
-              {user.bio}
-            </p>
-          )}
-          {!user.bio && (
-            <p className="text-gray-700 dark:text-gray-300 mb-4">
-              user biografi
-            </p>
-          )}
+          <p className="text-gray-500 dark:text-gray-400 mb-3">{user.email}</p>
+          
+          {/* User Bio */}
+          <p className="text-gray-700 dark:text-gray-300 mb-4">
+            {user.bio || "No bio available"}
+          </p>
+          
+          {/* User Information with Icons */}
+          <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+            {user.location && (
+              <div className="flex items-center">
+                <MailIcon className="h-4 w-4 mr-2" />
+                <span>{user.location}</span>
+              </div>
+            )}
+            
+            {/* Perusahaan/Organisasi pengguna */}
+            <div className="flex items-center">
+              <Building2 className="h-4 w-4 mr-2" />
+              <span>{user.company || 'No company information'}</span>
+            </div>
+            
+            {user.website && (
+              <div className="flex items-center">
+                <Globe className="h-4 w-4 mr-2" />
+                <a href={user.website} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                  {user.website.replace(/^https?:\/\//, '')}
+                </a>
+              </div>
+            )}
+            
+            <div className="flex items-center">
+              <CalendarIcon className="h-4 w-4 mr-2" />
+              <span>Joined {user.memberSince ? format(new Date(user.memberSince), 'MMMM yyyy') : 'Recently'}</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -610,6 +622,20 @@ export default function ProfilePage() {
                       )}
                     />
                   </div>
+                  
+                  <FormField
+                    control={profileForm.control}
+                    name="company"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Company/Organization</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="Your company or organization" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   
                   <DialogFooter className="mt-6">
                     <Button type="button" variant="outline" onClick={() => setIsProfileDialogOpen(false)}>

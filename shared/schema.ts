@@ -12,6 +12,8 @@ export const users = pgTable("users", {
   location: text("location"),
   website: text("website"),
   avatarUrl: text("avatar_url"),
+  headerImage: text("header_image"), // Menambahkan field untuk header image
+  company: text("company"), // Menambahkan field untuk nama perusahaan
   isAdmin: boolean("is_admin").default(false).notNull(),
   memberSince: timestamp("member_since").defaultNow().notNull(),
 });
