@@ -125,12 +125,6 @@ export default function Header() {
           )}
 
           {/* Language Selector */}
-          <Button variant="ghost" size="icon" className="text-muted-foreground">
-            <span className="flex items-center">
-              <GlobeIcon className="h-4 w-4 mr-1" />
-              <span className="text-sm">En</span>
-            </span>
-          </Button>
 
           <ModeToggle />
 
