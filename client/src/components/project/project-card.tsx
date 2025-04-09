@@ -159,17 +159,6 @@ export default function ProjectCard({
               </div>
               <p className="text-muted-foreground text-sm line-clamp-2 mt-1">{project.description}</p>
 
-              <div className="flex items-center mt-2 gap-2">
-                <Badge variant="outline" className="capitalize">
-                  {project.category}
-                </Badge>
-                {project.websiteUrl && isValidUrl(project.websiteUrl) && (
-                  <span className="text-xs text-muted-foreground">
-                    {new URL(project.websiteUrl).hostname}
-                  </span>
-                )}
-              </div>
-
               {showActions && (
                 <div className="mt-3 flex justify-between items-center">
                   <span className="text-xs text-muted-foreground">
@@ -183,21 +172,6 @@ export default function ProjectCard({
                         onClick={() => onEdit(project)}
                       >
                         Edit
-                      </Button>
-                    )}
-                    {project.websiteUrl && (
-                      <Button
-                        variant="default"
-                        size="sm"
-                        asChild
-                      >
-                        <a 
-                          href={project.websiteUrl} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                        >
-                          Visit
-                        </a>
                       </Button>
                     )}
                   </div>
