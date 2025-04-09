@@ -8,7 +8,6 @@ import { useAuth } from "@/hooks/use-auth";
 import { ChevronRight, ArrowRight, Gift, Wallet, BarChart3, Search, Wrench, ImageIcon, TrendingUp, GitBranch, MessageCircle, CheckCircle, ExternalLink, Package2Icon, Wallet2Icon, ArrowRightLeftIcon, SearchIcon, ToolIcon, CoinsIcon, ArrowLeftRightIcon, RadioIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/card";
-import { useRef } from 'react';
 
 
 const getCategoryIcon = (category: string) => {
