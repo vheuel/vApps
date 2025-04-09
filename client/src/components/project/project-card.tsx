@@ -27,6 +27,15 @@ export default function ProjectCard({
   const createdAt = project.createdAt ? new Date(project.createdAt) : new Date();
   const { toast } = useToast();
 
+  const isValidUrl = (stringUrl: string) => {
+    try {
+      new URL(stringUrl);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   const approveMutation = useMutation({
     mutationFn: async (id: number) => {
       const res = await apiRequest("POST", `/api/admin/projects/${id}/approve`, {});
@@ -70,7 +79,7 @@ export default function ProjectCard({
       });
     }
   });
-  
+
   const verifyMutation = useMutation({
     mutationFn: async (id: number) => {
       const res = await apiRequest("POST", `/api/admin/projects/${id}/verify`, {});
@@ -91,7 +100,7 @@ export default function ProjectCard({
       });
     }
   });
-  
+
   const unverifyMutation = useMutation({
     mutationFn: async (id: number) => {
       const res = await apiRequest("POST", `/api/admin/projects/${id}/unverify`, {});
@@ -149,12 +158,12 @@ export default function ProjectCard({
                 )}
               </div>
               <p className="text-muted-foreground text-sm line-clamp-2 mt-1">{project.description}</p>
-              
+
               <div className="flex items-center mt-2 gap-2">
                 <Badge variant="outline" className="capitalize">
                   {project.category}
                 </Badge>
-                {project.websiteUrl && (
+                {project.websiteUrl && isValidUrl(project.websiteUrl) && (
                   <span className="text-xs text-muted-foreground">
                     {new URL(project.websiteUrl).hostname}
                   </span>
@@ -194,7 +203,7 @@ export default function ProjectCard({
                   </div>
                 </div>
               )}
-              
+
               {showAdminActions && (
                 <div className="mt-3 flex justify-end items-center space-x-2">
                   {/* Only show approve/reject if project is pending */}
@@ -230,7 +239,7 @@ export default function ProjectCard({
                       </Button>
                     </>
                   )}
-                  
+
                   {/* Show verify/unverify for approved projects */}
                   {project.approved && !project.pending && (
                     <>
