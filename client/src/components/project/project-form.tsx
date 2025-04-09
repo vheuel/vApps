@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Project, insertProjectSchema, categoryEnum } from "@shared/schema";
+import { Project, insertProjectSchema, categoryEnum, SiteSettings } from "@shared/schema";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -47,7 +48,12 @@ export default function ProjectForm({
     200 - (defaultValues?.description?.length || 0)
   );
   const [iconPreview, setIconPreview] = useState<string | null>(defaultValues?.iconUrl || null);
-  const [defaultIcon, setDefaultIcon] = useState<string | null>(null);
+  
+  // Fetch site settings with useQuery
+  const { data: siteSettings } = useQuery<SiteSettings>({
+    queryKey: ['/api/site-settings'],
+    refetchOnWindowFocus: false,
+  });
 
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(insertProjectSchema),
@@ -64,25 +70,6 @@ export default function ProjectForm({
     const value = e.target.value;
     setCharactersLeft(200 - value.length);
   };
-
-  useEffect(() => {
-    // Fetch default project icon from settings
-    const fetchDefaultIcon = async () => {
-      try {
-        const response = await apiRequest("GET", "/api/site-settings");
-        if (response.ok) {
-          const data = await response.json();
-          if (data.defaultProjectIcon) {
-            setDefaultIcon(data.defaultProjectIcon);
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching default icon:", error);
-      }
-    };
-    
-    fetchDefaultIcon();
-  }, []);
 
   const handleIconUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -237,14 +224,17 @@ export default function ProjectForm({
                       <X className="h-4 w-4" />
                     </button>
                   </div>
-                ) : defaultIcon ? (
+                ) : siteSettings?.defaultProjectIcon ? (
                   <div className="flex flex-col items-start gap-2">
-                    <div className="text-sm text-muted-foreground">Current default icon:</div>
-                    <img
-                      src={defaultIcon}
-                      alt="Default Project Icon"
-                      className="w-16 h-16 object-cover rounded"
-                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="text-xs text-muted-foreground underline hover:text-primary"
+                      onClick={() => document.getElementById("project-icon-upload")?.click()}
+                    >
+                      Upload custom icon instead
+                    </Button>
                   </div>
                 ) : (
                   <div className="flex items-center justify-center h-16 w-16 border-2 border-dashed border-gray-300 rounded-md">

@@ -1,4 +1,4 @@
-import { Project } from "@shared/schema";
+import { Project, SiteSettings } from "@shared/schema";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -27,15 +27,11 @@ export default function ProjectCard({
   const createdAt = project.createdAt ? new Date(project.createdAt) : new Date();
   const { toast } = useToast();
   
-  // Fetch default project icon
-  const { data: siteSettings } = useQuery({
+  // Fetch default project icon with the correct type
+  const { data: siteSettings } = useQuery<SiteSettings>({
     queryKey: ['/api/site-settings'],
     refetchOnWindowFocus: false,
   });
-  
-  // Log the settings for debugging
-  console.log("Site settings in project card:", siteSettings);
-  console.log("Default project icon:", siteSettings?.defaultProjectIcon);
 
   const isValidUrl = (stringUrl: string) => {
     try {
