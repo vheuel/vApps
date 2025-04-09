@@ -378,27 +378,30 @@ export default function ProfilePage() {
       </div>
 
       {/* Tabs */}
-      <div className="bg-white dark:bg-gray-800 border-b dark:border-gray-700">
+      <div className="bg-white dark:bg-gray-800">
         <div className="container mx-auto">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="w-full flex rounded-none bg-transparent border-b dark:border-gray-700 justify-center">
+            <TabsList className="w-full flex rounded-none bg-transparent justify-center border-0">
+              <TabsTrigger 
+                value="project" 
+                className="w-36 py-3 rounded-none relative bg-transparent data-[state=active]:bg-[#f0f9ff] data-[state=active]:font-bold text-gray-500 dark:text-gray-400 font-medium data-[state=active]:text-black data-[state=active]:shadow-none"
+              >
+                <span>Projects</span>
+                <span className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-green-400 to-green-500 transform data-[state=active]:scale-100 scale-0 transition-transform duration-200 ease-in-out rounded-full mx-auto w-3/4"></span>
+              </TabsTrigger>
               <TabsTrigger 
                 value="activity" 
-                className="w-36 py-3 rounded-none data-[state=active]:border-b-4 data-[state=active]:border-green-500 data-[state=active]:shadow-none data-[state=active]:font-bold text-gray-500 dark:text-gray-400 font-medium data-[state=active]:text-black"
+                className="w-36 py-3 rounded-none relative bg-transparent data-[state=active]:bg-[#f0f9ff] data-[state=active]:font-bold text-gray-500 dark:text-gray-400 font-medium data-[state=active]:text-black data-[state=active]:shadow-none"
               >
-                Activity
+                <span>Activity</span>
+                <span className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-green-400 to-green-500 transform data-[state=active]:scale-100 scale-0 transition-transform duration-200 ease-in-out rounded-full mx-auto w-3/4"></span>
               </TabsTrigger>
               <TabsTrigger 
                 value="portfolio" 
-                className="w-36 py-3 rounded-none data-[state=active]:border-b-4 data-[state=active]:border-green-500 data-[state=active]:shadow-none data-[state=active]:font-bold text-gray-500 dark:text-gray-400 font-medium data-[state=active]:text-black"
+                className="w-36 py-3 rounded-none relative bg-transparent data-[state=active]:bg-[#f0f9ff] data-[state=active]:font-bold text-gray-500 dark:text-gray-400 font-medium data-[state=active]:text-black data-[state=active]:shadow-none"
               >
-                Portfolio
-              </TabsTrigger>
-              <TabsTrigger 
-                value="project" 
-                className="w-36 py-3 rounded-none data-[state=active]:border-b-4 data-[state=active]:border-green-500 data-[state=active]:shadow-none data-[state=active]:font-bold text-gray-500 dark:text-gray-400 font-medium data-[state=active]:text-black"
-              >
-                Projects
+                <span>Portfolio</span>
+                <span className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-green-400 to-green-500 transform data-[state=active]:scale-100 scale-0 transition-transform duration-200 ease-in-out rounded-full mx-auto w-3/4"></span>
               </TabsTrigger>
             </TabsList>
           </Tabs>
