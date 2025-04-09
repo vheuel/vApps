@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -20,22 +20,7 @@ const getCategoryIcon = (category: string) => {
   }
 };
 
-import { useRef } from 'react';
-
-function getCategoryIcon(category: string) {
-  switch (category.toLowerCase()) {
-    case 'defi': return '💰';
-    case 'gaming': return '🎮';
-    case 'nft': return '🎨';
-    case 'social': return '👥';
-    case 'tools': return '🛠️';
-    default: return '📱';
-  }
-}
-
 const CategorySection = () => {
-  const scrollRef = useRef<HTMLDivElement>(null);
-
   return (
     <ScrollArea className="w-full whitespace-nowrap rounded-md border">
       <div className="flex w-max space-x-4 p-4">
@@ -52,8 +37,6 @@ const CategorySection = () => {
     </ScrollArea>
   );
 };
-
-import CategorySection from '@/components/category/category-section';
 
 const HomePage = () => {
   return (
