@@ -477,7 +477,7 @@ export default function ProfilePage() {
                   <div className="space-y-1">
                     <div className="flex items-center">
                       <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
-                      <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· recently</span>
+                      <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· {formatTimeCompact(new Date(Date.now() - 3600000))}</span>
                     </div>
                     <p className="text-gray-600 dark:text-gray-300">Update foto profil</p>
                     {/* Menampilkan preview gambar avatar */}
@@ -501,7 +501,7 @@ export default function ProfilePage() {
                   <div className="space-y-1">
                     <div className="flex items-center">
                       <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
-                      <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· recently</span>
+                      <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· {formatTimeCompact(new Date(Date.now() - 7200000))}</span>
                     </div>
                     <p className="text-gray-600 dark:text-gray-300">Update header image</p>
                     {/* Menampilkan preview header image */}
@@ -525,7 +525,7 @@ export default function ProfilePage() {
                   <div className="space-y-1">
                     <div className="flex items-center">
                       <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
-                      <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· recently</span>
+                      <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· {formatTimeCompact(new Date(Date.now() - 86400000))}</span>
                     </div>
                     <p className="text-gray-600 dark:text-gray-300">Update bio</p>
                     {/* Menampilkan bio content */}
@@ -545,7 +545,7 @@ export default function ProfilePage() {
                   <div className="space-y-1">
                     <div className="flex items-center">
                       <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
-                      <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· recently</span>
+                      <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· {formatTimeCompact(new Date(Date.now() - 172800000))}</span>
                     </div>
                     <p className="text-gray-600 dark:text-gray-300">
                       Update website to <a href={user.website} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{user.website}</a>
@@ -563,7 +563,7 @@ export default function ProfilePage() {
                   <div className="space-y-1">
                     <div className="flex items-center">
                       <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
-                      <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· recently</span>
+                      <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· {formatTimeCompact(new Date(Date.now() - 259200000))}</span>
                     </div>
                     <p className="text-gray-600 dark:text-gray-300">
                       Update location to {user.location}
@@ -581,7 +581,7 @@ export default function ProfilePage() {
                   <div className="space-y-1">
                     <div className="flex items-center">
                       <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
-                      <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· recently</span>
+                      <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· {formatTimeCompact(new Date(Date.now() - 604800000))}</span>
                     </div>
                     <p className="text-gray-600 dark:text-gray-300">
                       Update perusahaan to {user.company}

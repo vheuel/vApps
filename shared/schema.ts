@@ -16,6 +16,13 @@ export const users = pgTable("users", {
   company: text("company"), // Menambahkan field untuk nama perusahaan
   isAdmin: boolean("is_admin").default(false).notNull(),
   memberSince: timestamp("member_since").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  bioUpdatedAt: timestamp("bio_updated_at"),
+  locationUpdatedAt: timestamp("location_updated_at"),
+  websiteUpdatedAt: timestamp("website_updated_at"),
+  avatarUpdatedAt: timestamp("avatar_updated_at"),
+  headerUpdatedAt: timestamp("header_updated_at"),
+  companyUpdatedAt: timestamp("company_updated_at"),
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
