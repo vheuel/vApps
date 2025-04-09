@@ -404,22 +404,22 @@ function CategorySection({
                   )}
                 </div>
                 <div className="flex-1">
-                  <div className="flex items-center gap-1">
-                    <h3 className="font-medium text-base">{project.name}</h3>
-                    {project.verified && (
-                      <CheckCircle className="h-4 w-4 text-blue-500" />
-                    )}
-                  </div>
-                  <p className="text-sm text-muted-foreground line-clamp-1">{project.description}</p>
+                  <a 
+                    href={project.websiteUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="block"
+                  >
+                    <div className="flex items-center gap-1">
+                      <h3 className="font-medium text-base">{project.name}</h3>
+                      {project.verified && (
+                        <CheckCircle className="h-4 w-4 text-blue-500" />
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground line-clamp-1">{project.description}</p>
+                  </a>
                 </div>
-                <a 
-                  href={project.websiteUrl} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-muted-foreground mt-2"
-                >
-                  <ArrowRight className="h-5 w-5" />
-                </a>
+
               </div>
             );
           })}

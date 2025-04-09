@@ -91,15 +91,7 @@ export default function CategoryPage() {
   return (
     <>
       <div className="container mx-auto py-6 px-4">
-        <div className="flex items-center mb-4">
-          <Button 
-            variant="ghost" 
-            size="sm"
-            onClick={() => navigate("/")}
-            className="mr-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </Button>
+        <div className="mb-4">
           <h1 className="text-2xl font-bold flex items-center">
             {formatCategoryName(category)}
             {categoryData && (
@@ -137,28 +129,24 @@ export default function CategoryPage() {
                   {getCategoryIcon(category)}
                   
                   <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-semibold text-lg">
-                        {project.name}
-                        {project.verified && (
-                          <CheckCircle className="w-4 h-4 ml-1 text-blue-500 inline" />
-                        )}
-                      </h3>
-                      {project.websiteUrl && (
-                        <a 
-                          href={project.websiteUrl} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          className="text-muted-foreground hover:text-primary"
-                          aria-label={`Visit ${project.name} website`}
-                        >
-                          <ExternalLink className="h-4 w-4" />
-                        </a>
-                      )}
-                    </div>
-                    <p className="text-muted-foreground text-sm mb-1">
-                      {project.description}
-                    </p>
+                    <a 
+                      href={project.websiteUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="block"
+                    >
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-semibold text-lg">
+                          {project.name}
+                          {project.verified && (
+                            <CheckCircle className="w-4 h-4 ml-1 text-blue-500 inline" />
+                          )}
+                        </h3>
+                      </div>
+                      <p className="text-muted-foreground text-sm mb-1">
+                        {project.description}
+                      </p>
+                    </a>
                   </div>
                 </div>
               ))}
