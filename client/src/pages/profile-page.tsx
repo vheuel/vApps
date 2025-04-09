@@ -262,13 +262,22 @@ export default function ProfilePage() {
                 </AvatarFallback>
               </Avatar>
               
-              <Button 
-                variant="outline" 
-                className="rounded-full h-12 px-8 text-base font-medium border-gray-200 dark:border-gray-700 bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-slate-700 dark:hover:bg-slate-600"
-                onClick={() => setIsProfileDialogOpen(true)}
-              >
-                edit profile
-              </Button>
+              <div className="flex space-x-3">
+                <Button 
+                  variant="outline" 
+                  className="rounded-full h-12 px-8 text-base font-medium border-gray-200 dark:border-gray-700 bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-slate-700 dark:hover:bg-slate-600"
+                  onClick={() => setIsProfileDialogOpen(true)}
+                >
+                  edit profile
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="rounded-full h-12 px-8 text-base font-medium border-gray-200 dark:border-gray-700 bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-slate-700 dark:hover:bg-slate-600"
+                  onClick={() => setIsPasswordDialogOpen(true)}
+                >
+                  change password
+                </Button>
+              </div>
             </div>
 
             {/* Username, Email and Bio Section */}
