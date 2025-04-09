@@ -1,0 +1,37 @@
+import { Switch, Route } from "wouter";
+import Header from "@/components/layout/header";
+import Footer from "@/components/layout/footer";
+import HomePage from "@/pages/home-page";
+import AuthPage from "@/pages/auth-page";
+import ProfilePage from "@/pages/profile-page";
+import SubmitProjectPage from "@/pages/submit-project-page";
+import CategoryPage from "@/pages/category-page";
+import AdminPage from "@/pages/admin-page";
+import NotFound from "@/pages/not-found";
+import { ProtectedRoute } from "./lib/protected-route";
+import { AdminRoute } from "./lib/protected-route";
+import { AuthProvider } from "./hooks/use-auth";
+
+function App() {
+  return (
+    <AuthProvider>
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-grow">
+          <Switch>
+            <Route path="/" component={HomePage} />
+            <Route path="/auth" component={AuthPage} />
+            <Route path="/category/:category" component={CategoryPage} />
+            <ProtectedRoute path="/profile" component={ProfilePage} />
+            <ProtectedRoute path="/submit" component={SubmitProjectPage} />
+            <AdminRoute path="/admin" component={AdminPage} />
+            <Route component={NotFound} />
+          </Switch>
+        </main>
+        <Footer />
+      </div>
+    </AuthProvider>
+  );
+}
+
+export default App;
