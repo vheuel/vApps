@@ -1,58 +1,104 @@
 
-import React from 'react';
-import { Link } from "wouter";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Gift, Wallet, BarChart3, Compass, Drill, PenTool, PieChart, ArrowLeftRight, MessageSquare } from "lucide-react";
+import { useState } from 'react';
+import { Link } from 'wouter';
+import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '../hooks/use-auth';
+import { Button } from '../components/ui/button';
+import { Card } from '../components/ui/card';
 
-const categories = [
-  { id: "airdrop", name: "Airdrop", icon: <Gift className="h-6 w-6" /> },
-  { id: "wallets", name: "Wallets", icon: <Wallet className="h-6 w-6" /> },
-  { id: "exchanges", name: "Exchanges DEX", icon: <BarChart3 className="h-6 w-6" /> },
-  { id: "explorers", name: "Explorers", icon: <Compass className="h-6 w-6" /> },
-  { id: "utilities", name: "Utilities", icon: <Drill className="h-6 w-6" /> },
-  { id: "nft", name: "NFT Services", icon: <PenTool className="h-6 w-6" /> },
-  { id: "staking", name: "Staking", icon: <PieChart className="h-6 w-6" /> },
-  { id: "bridges", name: "Bridges", icon: <ArrowLeftRight className="h-6 w-6" /> },
-  { id: "channels", name: "Channels", icon: <MessageSquare className="h-6 w-6" /> }
-];
+function getCategoryIcon(category: string) {
+  switch (category.toLowerCase()) {
+    case 'defi': return '💰';
+    case 'gaming': return '🎮';
+    case 'nft': return '🎨';
+    case 'dao': return '🏛️';
+    case 'social': return '👥';
+    case 'infrastructure': return '🔧';
+    case 'developer tools': return '🛠️';
+    default: return '📱';
+  }
+}
 
-const CategorySection = () => {
-  return (
-    <ScrollArea className="w-full whitespace-nowrap rounded-md border">
-      <div className="flex w-max space-x-4 p-4">
-        {categories.map((category) => (
-          <Link key={category.id} href={`/category/${category.id}`}>
-            <Card className="inline-flex h-32 w-48 cursor-pointer flex-col items-center justify-center space-y-2 p-4 transition-colors hover:bg-accent">
-              {category.icon}
-              <span className="font-medium">{category.name}</span>
-            </Card>
-          </Link>
-        ))}
-      </div>
-      <ScrollBar orientation="horizontal" />
-    </ScrollArea>
-  );
-};
+export default function HomePage() {
+  const { isAuthenticated } = useAuth();
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-const HomePage = () => {
+  const { data: categories = [] } = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const response = await fetch('/api/categories');
+      if (!response.ok) throw new Error('Failed to fetch categories');
+      return response.json();
+    }
+  });
+
+  const { data: projects = [] } = useQuery({
+    queryKey: ['projects', selectedCategory],
+    queryFn: async () => {
+      const url = selectedCategory 
+        ? `/api/projects/category/${selectedCategory}`  
+        : '/api/projects';
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Failed to fetch projects');
+      return response.json();
+    }
+  });
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="space-y-8">
-        <div className="text-center space-y-2">
-          <h1 className="text-4xl font-bold">Welcome to EARN App</h1>
-          <p className="text-muted-foreground">Discover opportunities in the web3 space</p>
-        </div>
-        <div className="grid gap-8">
-          <section>
-            <h2 className="text-2xl font-semibold mb-4">Browse Categories</h2>
-            <CategorySection />
-          </section>
-        </div>
+      <div className="text-center mb-12">
+        <h1 className="text-4xl font-bold mb-4">Welcome to EARN App</h1>
+        <p className="text-xl text-muted-foreground mb-8">
+          Discover and share the best Web3 projects
+        </p>
+        {!isAuthenticated && (
+          <div className="flex justify-center gap-4">
+            <Button asChild>
+              <Link href="/login">Login</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/register">Register</Link>
+            </Button>
+          </div>
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
+        {categories.map((category) => (
+          <Card 
+            key={category.id} 
+            className={`p-6 cursor-pointer transition-all ${
+              selectedCategory === category.slug ? 'border-primary' : ''
+            }`}
+            onClick={() => setSelectedCategory(
+              selectedCategory === category.slug ? null : category.slug
+            )}
+          >
+            <div className="text-4xl mb-4">
+              {getCategoryIcon(category.name)}
+            </div>
+            <h3 className="text-lg font-semibold">{category.name}</h3>
+            <p className="text-sm text-muted-foreground">{category.description}</p>
+          </Card>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {projects.map((project) => (
+          <Card key={project.id} className="p-6">
+            <h3 className="text-xl font-semibold mb-2">{project.name}</h3>
+            <p className="text-muted-foreground mb-4">{project.description}</p>
+            <div className="flex justify-between items-center">
+              <Link href={`/projects/${project.id}`}>
+                <Button variant="outline">Learn More</Button>
+              </Link>
+              {project.verified && (
+                <span className="text-green-500">✓ Verified</span>
+              )}
+            </div>
+          </Card>
+        ))}
       </div>
     </div>
   );
-};
-
-export default HomePage;
+}
