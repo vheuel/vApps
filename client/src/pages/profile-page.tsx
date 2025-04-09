@@ -86,8 +86,27 @@ function formatTimeCompact(date: Date | string | number): string {
 }
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { user, update } = useAuth();
   const { toast } = useToast();
+  
+  // Memuat ulang data pengguna saat halaman profil dibuka
+  useEffect(() => {
+    const refreshUserData = async () => {
+      try {
+        const response = await fetch('/api/user', {
+          credentials: 'include'
+        });
+        if (response.ok) {
+          const userData = await response.json();
+          update(userData);
+        }
+      } catch (error) {
+        console.error("Failed to refresh user data:", error);
+      }
+    };
+    
+    refreshUserData();
+  }, [update]);
   const [_, navigate] = useLocation();
   const [editProject, setEditProject] = useState<Project | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
