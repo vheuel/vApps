@@ -287,10 +287,60 @@ export default function EditProfilePage() {
                     name="avatarUrl"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Avatar URL</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="https://example.com/your-avatar.jpg" />
-                        </FormControl>
+                        <FormLabel>Avatar</FormLabel>
+                        <div className="space-y-2">
+                          {field.value && (
+                            <div className="mt-2 mb-4 flex justify-center">
+                              <Avatar className="h-24 w-24 border-2 border-primary">
+                                <AvatarImage src={field.value} alt="Preview" />
+                                <AvatarFallback>
+                                  <UserIcon className="h-12 w-12 text-gray-400" />
+                                </AvatarFallback>
+                              </Avatar>
+                            </div>
+                          )}
+                          <div className="flex items-center gap-4">
+                            <FormControl>
+                              <Input 
+                                type="file" 
+                                accept="image/*"
+                                className="hidden"
+                                id="avatar-input"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    const reader = new FileReader();
+                                    reader.onload = (event) => {
+                                      if (event.target?.result) {
+                                        field.onChange(event.target.result as string);
+                                      }
+                                    };
+                                    reader.readAsDataURL(file);
+                                  }
+                                }}
+                              />
+                            </FormControl>
+                            <Button 
+                              type="button" 
+                              variant="outline" 
+                              onClick={() => document.getElementById('avatar-input')?.click()}
+                            >
+                              Pilih Gambar dari Galeri
+                            </Button>
+                            {field.value && (
+                              <Button 
+                                type="button" 
+                                variant="destructive" 
+                                onClick={() => field.onChange('')}
+                              >
+                                Hapus
+                              </Button>
+                            )}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            Unggah gambar avatar Anda. Format yang didukung: JPG, PNG, GIF.
+                          </div>
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
