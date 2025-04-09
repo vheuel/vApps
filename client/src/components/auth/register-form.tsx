@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -34,9 +35,14 @@ const registerFormSchema = z
 
 type RegisterFormValues = z.infer<typeof registerFormSchema>;
 
-export function RegisterForm() {
-  const { register, isLoading } = useAuth();
+interface RegisterFormProps {
+  onRegisterSuccess?: () => void;
+}
+
+export function RegisterForm({ onRegisterSuccess }: RegisterFormProps = {}) {
+  const { register, isLoading, user, error } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
+  const [_, navigate] = useLocation();
 
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerFormSchema),
@@ -48,10 +54,22 @@ export function RegisterForm() {
     },
   });
 
-  const onSubmit = (values: RegisterFormValues) => {
+  // Pantau perubahan user, jika berhasil register, tutup modal dan arahkan ke profil
+  useEffect(() => {
+    if (user && !isLoading) {
+      // Jalankan callback onRegisterSuccess jika disediakan (untuk menutup modal)
+      if (onRegisterSuccess) {
+        onRegisterSuccess();
+      }
+      // Arahkan ke halaman profil
+      navigate('/profile');
+    }
+  }, [user, isLoading, navigate, onRegisterSuccess]);
+
+  const onSubmit = async (values: RegisterFormValues) => {
     // Remove confirmPassword before sending to API
     const { confirmPassword, ...registerData } = values;
-    register(registerData);
+    await register(registerData);
   };
 
   return (

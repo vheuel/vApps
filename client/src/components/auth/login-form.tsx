@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -24,9 +25,14 @@ const loginFormSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginFormSchema>;
 
-export function LoginForm() {
-  const { login, isLoading } = useAuth();
+interface LoginFormProps {
+  onLoginSuccess?: () => void;
+}
+
+export function LoginForm({ onLoginSuccess }: LoginFormProps = {}) {
+  const { login, isLoading, user, error } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
+  const [_, navigate] = useLocation();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
@@ -37,8 +43,20 @@ export function LoginForm() {
     },
   });
 
-  const onSubmit = (values: LoginFormValues) => {
-    login(values.email, values.password);
+  // Pantau perubahan user, jika berhasil login, tutup modal dan arahkan ke profil
+  useEffect(() => {
+    if (user && !isLoading) {
+      // Jalankan callback onLoginSuccess jika disediakan (untuk menutup modal)
+      if (onLoginSuccess) {
+        onLoginSuccess();
+      }
+      // Arahkan ke halaman profil
+      navigate('/profile');
+    }
+  }, [user, isLoading, navigate, onLoginSuccess]);
+
+  const onSubmit = async (values: LoginFormValues) => {
+    await login(values.email, values.password);
   };
 
   return (

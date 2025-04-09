@@ -234,10 +234,10 @@ export default function Header() {
               <TabsTrigger value="register">Register</TabsTrigger>
             </TabsList>
             <TabsContent value="login">
-              <LoginForm />
+              <LoginForm onLoginSuccess={() => setIsLoginModalOpen(false)} />
             </TabsContent>
             <TabsContent value="register">
-              <RegisterForm />
+              <RegisterForm onRegisterSuccess={() => setIsLoginModalOpen(false)} />
             </TabsContent>
           </Tabs>
           <div className="text-center text-sm text-muted-foreground pt-4 border-t">
