@@ -100,12 +100,12 @@ export default function ProfilePage() {
               <UserIcon className="h-12 w-12 text-primary" />
             </div>
             <div className="sm:ml-6 text-center sm:text-left">
-              <h2 className="text-2xl font-semibold">{user.username}</h2>
-              <p className="text-muted-foreground">{user.email}</p>
+              <h2 className="text-2xl font-semibold">{user?.username}</h2>
+              <p className="text-muted-foreground">{user?.email}</p>
               <div className="mt-4 space-y-2">
                 <div className="flex items-center">
                   <MailIcon className="h-4 w-4 text-muted-foreground mr-2" />
-                  <span>{user.email}</span>
+                  <span>{user?.email}</span>
                 </div>
                 <div className="flex items-center">
                   <BriefcaseIcon className="h-4 w-4 text-muted-foreground mr-2" />
@@ -113,7 +113,7 @@ export default function ProfilePage() {
                 </div>
                 <div className="flex items-center">
                   <CalendarIcon className="h-4 w-4 text-muted-foreground mr-2" />
-                  <span>Member since {formatDistanceToNow(memberSince, { addSuffix: true })}</span>
+                  <span>Member since {user?.memberSince && formatDistanceToNow(new Date(user.memberSince), { addSuffix: true })}</span>
                 </div>
               </div>
             </div>
