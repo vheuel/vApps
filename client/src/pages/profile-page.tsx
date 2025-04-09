@@ -77,12 +77,54 @@ const passwordSchema = z.object({
   path: ["confirmPassword"],
 });
 
-// Format timestamp to show actual date and time
+// Format time in natural language with best logic
 function formatTimeCompact(date: Date | string | number): string {
-  const dateToFormat = new Date(date);
+  const now = new Date();
+  const dateToCompare = new Date(date);
   
-  // Format: Apr 9, 2025
-  return format(dateToFormat, 'MMM d, yyyy');
+  const minutesDiff = differenceInMinutes(now, dateToCompare);
+  
+  // Less than a minute ago
+  if (minutesDiff < 1) {
+    return "just now";
+  }
+  
+  // Less than an hour ago
+  if (minutesDiff < 60) {
+    return `${minutesDiff} ${minutesDiff === 1 ? 'minute' : 'minutes'} ago`;
+  }
+  
+  const hoursDiff = differenceInHours(now, dateToCompare);
+  
+  // Less than a day ago
+  if (hoursDiff < 24) {
+    return `${hoursDiff} ${hoursDiff === 1 ? 'hour' : 'hours'} ago`;
+  }
+  
+  const daysDiff = differenceInDays(now, dateToCompare);
+  
+  // Less than a week ago
+  if (daysDiff < 7) {
+    return `${daysDiff} ${daysDiff === 1 ? 'day' : 'days'} ago`;
+  }
+  
+  // Less than a month ago
+  if (daysDiff < 30) {
+    const weeks = Math.floor(daysDiff / 7);
+    return `${weeks} ${weeks === 1 ? 'week' : 'weeks'} ago`;
+  }
+  
+  const monthsDiff = differenceInMonths(now, dateToCompare);
+  
+  // Less than a year ago
+  if (monthsDiff < 12) {
+    return `${monthsDiff} ${monthsDiff === 1 ? 'month' : 'months'} ago`;
+  }
+  
+  const yearsDiff = differenceInYears(now, dateToCompare);
+  
+  // More than a year ago
+  return `${yearsDiff} ${yearsDiff === 1 ? 'year' : 'years'} ago`;
 }
 
 export default function ProfilePage() {
