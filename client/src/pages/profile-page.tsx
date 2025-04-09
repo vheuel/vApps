@@ -48,7 +48,8 @@ import {
   Heart,
   RotateCw,
   Bookmark,
-  Search
+  Search,
+  MapPin
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -275,12 +276,9 @@ export default function ProfilePage() {
           </div>
         </div>
         
-        {/* Header Background - Plain Gray as requested */}
+        {/* Header Background - Plain Gray with no text */}
         <div className="w-full h-36 relative overflow-hidden bg-gray-300">
-          {/* Username - Part of editable header */}
-          <div className="absolute bottom-4 left-0 right-0 text-center text-gray-800">
-            <h2 className="text-lg font-bold">{user.username.toUpperCase()}</h2>
-          </div>
+          {/* Kosong, tidak ada tulisan */}
         </div>
         
         {/* Profile Picture and Edit Button - These are aligned and below the header */}
@@ -317,32 +315,44 @@ export default function ProfilePage() {
             {user.bio || "No bio available"}
           </p>
           
-          {/* User Information with Icons */}
-          <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+          {/* User Information with Icons - Horizontal layout with dots */}
+          <div className="flex items-center flex-wrap text-sm text-gray-600 dark:text-gray-400 space-x-2">
+            {/* Company/Organization */}
             <div className="flex items-center">
-              <MailIcon className="h-4 w-4 mr-2" />
-              <span>{user.location || 'No location information'}</span>
+              <BriefcaseIcon className="h-4 w-4 mr-1" />
+              <span>{user.company || 'No company'}</span>
             </div>
             
-            {/* Perusahaan/Organisasi pengguna */}
+            {/* Separator dot */}
+            <span className="text-gray-400">•</span>
+            
+            {/* Location */}
             <div className="flex items-center">
-              <Building2 className="h-4 w-4 mr-2" />
-              <span>{user.company || 'No company information'}</span>
+              <MailIcon className="h-4 w-4 mr-1" />
+              <span>{user.location || 'No location'}</span>
             </div>
             
+            {/* Separator dot */}
+            <span className="text-gray-400">•</span>
+            
+            {/* Website */}
             <div className="flex items-center">
-              <Globe className="h-4 w-4 mr-2" />
+              <Globe className="h-4 w-4 mr-1" />
               {user.website ? (
                 <a href={user.website} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
                   {user.website.replace(/^https?:\/\//, '')}
                 </a>
               ) : (
-                <span>No website information</span>
+                <span>No website</span>
               )}
             </div>
             
+            {/* Separator dot */}
+            <span className="text-gray-400">•</span>
+            
+            {/* Join date */}
             <div className="flex items-center">
-              <CalendarIcon className="h-4 w-4 mr-2" />
+              <CalendarIcon className="h-4 w-4 mr-1" />
               <span>Joined {user.memberSince ? format(new Date(user.memberSince), 'MMMM yyyy') : 'Recently'}</span>
             </div>
           </div>
