@@ -95,7 +95,23 @@ export default function EditProfilePage() {
   // Profile update mutation
   const updateProfileMutation = useMutation({
     mutationFn: async (data: Partial<User>) => {
+      // Log data being sent untuk debugging
+      console.log("Sending profile update data:", data);
+      
+      // Jika avatarUrl adalah base64 dan sangat panjang, potong untuk logging
+      const loggableData = {...data};
+      if (loggableData.avatarUrl && loggableData.avatarUrl.length > 100) {
+        loggableData.avatarUrl = loggableData.avatarUrl.substring(0, 100) + '...';
+      }
+      console.log("Profile update data (truncated):", loggableData);
+      
       const res = await apiRequest("PUT", "/api/user/update", data);
+      if (!res.ok) {
+        // Mencoba mendapatkan informasi error dari response
+        const errorData = await res.json();
+        console.error("Profile update error:", errorData);
+        throw new Error(errorData.message || "Failed to update profile");
+      }
       return res.json();
     },
     onSuccess: (data) => {
@@ -107,6 +123,7 @@ export default function EditProfilePage() {
       navigate("/profile");
     },
     onError: (error: Error) => {
+      console.error("Profile update mutation error:", error);
       toast({
         title: "Update failed",
         description: error.message || "Failed to update profile. Please try again.",

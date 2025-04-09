@@ -95,7 +95,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     currentPassword: z.string().optional(), // For password verification
     bio: z.string().max(200).optional(),
     location: z.string().max(100).optional(),
-    website: z.string().url().optional().or(z.literal("")),
+    website: z.string().optional(), // Menerima semua format string, termasuk string kosong
     avatarUrl: z.string().optional(),
     company: z.string().max(100).optional(),
     headerImage: z.string().optional(),

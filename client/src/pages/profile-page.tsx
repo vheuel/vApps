@@ -89,7 +89,7 @@ export default function ProfilePage() {
   const { user, update } = useAuth();
   const { toast } = useToast();
   
-  // Memuat ulang data pengguna saat halaman profil dibuka
+  // Memuat ulang data pengguna saat halaman profil dibuka - hanya sekali
   useEffect(() => {
     const refreshUserData = async () => {
       try {
@@ -98,15 +98,28 @@ export default function ProfilePage() {
         });
         if (response.ok) {
           const userData = await response.json();
-          update(userData);
+          // Cek apakah data user benar-benar berbeda sebelum update
+          if (user && userData && (
+            user.avatarUrl !== userData.avatarUrl ||
+            user.bio !== userData.bio ||
+            user.website !== userData.website ||
+            user.location !== userData.location ||
+            user.company !== userData.company ||
+            user.username !== userData.username
+          )) {
+            update(userData);
+          }
         }
       } catch (error) {
         console.error("Failed to refresh user data:", error);
       }
     };
     
+    // Kode ini hanya akan dijalankan saat komponen pertama kali di-mount
     refreshUserData();
-  }, [update]);
+    // Ini adalah efek yang berjalan sekali, jadi kita tidak memasukkan dependencies
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [_, navigate] = useLocation();
   const [editProject, setEditProject] = useState<Project | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
