@@ -13,9 +13,9 @@ export default function Footer() {
       <div className="container mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-3">
-            <h3 className="font-bold text-lg">{siteSettings?.siteName || "EARN App"}</h3>
+            <h3 className="font-bold text-lg">{siteSettings?.siteName || "vApps by Vheüel"}</h3>
             <p className="text-muted-foreground max-w-xs">
-              The cutting-edge Web3 project discovery platform connecting blockchain innovators through an intelligent, community-driven ecosystem.
+              {siteSettings?.siteDescription || "The cutting-edge Web3 project discovery platform connecting blockchain innovators through an intelligent, community-driven ecosystem."}
             </p>
             <div className="flex space-x-4 mt-4">
               <a 
@@ -61,36 +61,36 @@ export default function Footer() {
             <h4 className="font-medium">Resources</h4>
             <ul className="space-y-2">
               <li>
-                <a 
-                  href="#" 
+                <Link
+                  href="/docs" 
                   className="text-muted-foreground hover:text-primary"
                 >
                   Documentation
-                </a>
+                </Link>
               </li>
               <li>
                 <a 
-                  href="#" 
+                  href="mailto:privacy@vheuel.com" 
                   className="text-muted-foreground hover:text-primary"
                 >
-                  API
+                  Privacy Email
                 </a>
               </li>
               <li>
                 <a 
-                  href="#" 
+                  href="mailto:support@vheuel.com" 
                   className="text-muted-foreground hover:text-primary"
                 >
                   Support
                 </a>
               </li>
               <li>
-                <a 
-                  href="#" 
+                <Link 
+                  href="/" 
                   className="text-muted-foreground hover:text-primary"
                 >
                   Community
-                </a>
+                </Link>
               </li>
             </ul>
           </div>

@@ -25,6 +25,9 @@ const siteSettingsFormSchema = z.object({
   siteName: z.string().min(1, {
     message: "Site name is required",
   }),
+  siteDescription: z.string().min(10, {
+    message: "Site description should be at least 10 characters",
+  }),
   logoUrl: z.string().optional(),
   primaryColor: z.string().min(1, {
     message: "Primary color is required",
@@ -52,6 +55,7 @@ export function SiteSettingsForm({ initialData, onSettingsSaved }: SiteSettingsF
     resolver: zodResolver(siteSettingsFormSchema),
     defaultValues: {
       siteName: initialData?.siteName || "Web3 Project",
+      siteDescription: initialData?.siteDescription || "The cutting-edge Web3 project discovery platform connecting blockchain innovators.",
       logoUrl: initialData?.logoUrl || "",
       primaryColor: initialData?.primaryColor || "#3B82F6",
       footerText: initialData?.footerText || "© 2025 Web3 Project. All Rights Reserved.",
@@ -162,6 +166,27 @@ export function SiteSettingsForm({ initialData, onSettingsSaved }: SiteSettingsF
               </FormControl>
               <FormDescription>
                 This will be displayed in the header and browser tab.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="siteDescription"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Site Description</FormLabel>
+              <FormControl>
+                <Textarea 
+                  placeholder="The cutting-edge Web3 project discovery platform connecting blockchain innovators."
+                  className="min-h-[80px]"
+                  {...field} 
+                />
+              </FormControl>
+              <FormDescription>
+                This description will be displayed in the footer and may be used for SEO.
               </FormDescription>
               <FormMessage />
             </FormItem>

@@ -95,6 +95,7 @@ export const insertProjectSchema = createInsertSchema(projects)
 export const siteSettings = pgTable("site_settings", {
   id: serial("id").primaryKey(),
   siteName: text("site_name").default("Web3 Project"),
+  siteDescription: text("site_description").default("The cutting-edge Web3 project discovery platform connecting blockchain innovators."),
   logoUrl: text("logo_url").default(""),
   primaryColor: text("primary_color").default("#3B82F6"),
   footerText: text("footer_text").default("© 2025 Web3 Project. All Rights Reserved."),
