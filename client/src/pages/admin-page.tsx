@@ -1,23 +1,61 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Project } from "@shared/schema";
+import { Project, Category, InsertCategory } from "@shared/schema";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CheckIcon, XIcon, Loader2 } from "lucide-react";
+import { CheckIcon, XIcon, Loader2, PlusIcon, PencilIcon, Trash2Icon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { useState, useEffect } from "react";
+
+// Form schema for categories
+const categoryFormSchema = z.object({
+  name: z.string().min(2, { message: "Category name must be at least 2 characters" }),
+  slug: z.string().min(2, { message: "Slug must be at least 2 characters" })
+    .regex(/^[a-z0-9-]+$/, { message: "Slug can only contain lowercase letters, numbers, and hyphens" }),
+  icon: z.string().optional(),
+  description: z.string().optional(),
+});
+
+type CategoryFormValues = z.infer<typeof categoryFormSchema>;
 
 export default function AdminPage() {
   const { toast } = useToast();
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
 
-  const { data: pendingProjects, isLoading } = useQuery<Project[]>({
+  const { data: pendingProjects, isLoading, isError, error } = useQuery<Project[]>({
     queryKey: ["/api/admin/projects/pending"],
+    refetchOnWindowFocus: true,
+    retry: 3,
   });
+  
+  // Debugging untuk melihat apakah ada error
+  useEffect(() => {
+    if (isError) {
+      console.error("Error fetching pending projects:", error);
+    }
+    if (pendingProjects) {
+      console.log("Pending projects from query:", pendingProjects);
+    }
+  }, [pendingProjects, isError, error]);
 
   const { data: allProjects } = useQuery<Project[]>({
     queryKey: ["/api/projects"],
+  });
+  
+  const { data: categories, isLoading: isCategoriesLoading } = useQuery<Category[]>({
+    queryKey: ["/api/categories"],
   });
 
   const approveMutation = useMutation({
@@ -58,6 +96,74 @@ export default function AdminPage() {
     onError: (error: Error) => {
       toast({
         title: "Failed to reject project",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+  
+  // Category CRUD mutations
+  const createCategoryMutation = useMutation({
+    mutationFn: async (category: CategoryFormValues) => {
+      const res = await apiRequest("POST", "/api/admin/categories", category);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
+      toast({
+        title: "Category created",
+        description: "The new category has been created successfully.",
+      });
+      setSelectedCategory(null);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to create category",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+
+  const updateCategoryMutation = useMutation({
+    mutationFn: async ({id, data}: {id: number, data: Partial<CategoryFormValues>}) => {
+      const res = await apiRequest("PUT", `/api/admin/categories/${id}`, data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
+      toast({
+        title: "Category updated",
+        description: "The category has been updated successfully.",
+      });
+      setSelectedCategory(null);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to update category",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+
+  const deleteCategoryMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await apiRequest("DELETE", `/api/admin/categories/${id}`);
+      return res.ok;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
+      toast({
+        title: "Category deleted",
+        description: "The category has been deleted successfully.",
+      });
+      setCategoryToDelete(null);
+      setIsDeleteDialogOpen(false);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to delete category",
         description: error.message,
         variant: "destructive",
       });
@@ -106,6 +212,7 @@ export default function AdminPage() {
         <TabsList className="w-full mb-4">
           <TabsTrigger value="pending" className="flex-1">Pending Projects</TabsTrigger>
           <TabsTrigger value="stats" className="flex-1">Category Stats</TabsTrigger>
+          <TabsTrigger value="categories" className="flex-1">Manage Categories</TabsTrigger>
         </TabsList>
         
         <TabsContent value="pending">
@@ -228,7 +335,244 @@ export default function AdminPage() {
             </CardContent>
           </Card>
         </TabsContent>
+        
+        <TabsContent value="categories">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <div>
+                <CardTitle>Manage Categories</CardTitle>
+                <CardDescription>
+                  Add, edit, or remove project categories
+                </CardDescription>
+              </div>
+              <Dialog open={!!selectedCategory} onOpenChange={(open) => !open && setSelectedCategory(null)}>
+                <DialogTrigger asChild>
+                  <Button size="sm" onClick={() => setSelectedCategory({} as Category)}>
+                    <PlusIcon className="h-4 w-4 mr-1" />
+                    Add Category
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>
+                      {selectedCategory && selectedCategory.id ? "Edit Category" : "Add New Category"}
+                    </DialogTitle>
+                    <DialogDescription>
+                      {selectedCategory && selectedCategory.id
+                        ? "Update the category details below."
+                        : "Create a new category for projects."}
+                    </DialogDescription>
+                  </DialogHeader>
+                  <CategoryForm 
+                    category={selectedCategory} 
+                    onSubmit={(data) => {
+                      if (selectedCategory && selectedCategory.id) {
+                        updateCategoryMutation.mutate({
+                          id: selectedCategory.id,
+                          data
+                        });
+                      } else {
+                        createCategoryMutation.mutate(data);
+                      }
+                    }}
+                    isPending={createCategoryMutation.isPending || updateCategoryMutation.isPending}
+                  />
+                </DialogContent>
+              </Dialog>
+            </CardHeader>
+            <CardContent>
+              {isCategoriesLoading ? (
+                <div className="space-y-4">
+                  {[...Array(3)].map((_, index) => (
+                    <Skeleton key={index} className="h-16 w-full" />
+                  ))}
+                </div>
+              ) : categories && categories.length > 0 ? (
+                <div className="space-y-4">
+                  {categories.map((category) => (
+                    <div key={category.id} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex items-center gap-3">
+                        {category.icon && (
+                          <div className="flex items-center justify-center w-8 h-8 rounded-md bg-primary/10 text-primary">
+                            <span className="text-lg">{category.icon}</span>
+                          </div>
+                        )}
+                        <div>
+                          <h3 className="font-medium">{category.name}</h3>
+                          <p className="text-sm text-muted-foreground">
+                            {category.description || `Slug: ${category.slug}`}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex space-x-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setSelectedCategory(category)}
+                        >
+                          <PencilIcon className="h-4 w-4" />
+                          <span className="sr-only">Edit</span>
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-red-500 hover:bg-red-50"
+                          onClick={() => {
+                            setCategoryToDelete(category);
+                            setIsDeleteDialogOpen(true);
+                          }}
+                        >
+                          <Trash2Icon className="h-4 w-4" />
+                          <span className="sr-only">Delete</span>
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground">No categories found. Add your first category.</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+          
+          {/* Delete Confirmation Dialog */}
+          <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Confirm Deletion</DialogTitle>
+                <DialogDescription>
+                  Are you sure you want to delete the category "{categoryToDelete?.name}"? 
+                  This action cannot be undone.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsDeleteDialogOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  variant="destructive" 
+                  onClick={() => categoryToDelete && deleteCategoryMutation.mutate(categoryToDelete.id)}
+                  disabled={deleteCategoryMutation.isPending}
+                >
+                  {deleteCategoryMutation.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                  ) : null}
+                  Delete
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+// Category Form Component
+interface CategoryFormProps {
+  category: Category | null;
+  onSubmit: (data: CategoryFormValues) => void;
+  isPending: boolean;
+}
+
+function CategoryForm({ category, onSubmit, isPending }: CategoryFormProps) {
+  const form = useForm<CategoryFormValues>({
+    resolver: zodResolver(categoryFormSchema),
+    defaultValues: {
+      name: category?.name || "",
+      slug: category?.slug || "",
+      icon: category?.icon || "",
+      description: category?.description || "",
+    },
+  });
+
+  function handleSubmit(data: CategoryFormValues) {
+    onSubmit(data);
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 pt-4">
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Name</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter category name" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="slug"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Slug</FormLabel>
+              <FormControl>
+                <Input placeholder="category-slug" {...field} />
+              </FormControl>
+              <FormDescription>
+                Unique identifier used in URLs (lowercase, hyphens only)
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="icon"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Icon (Optional)</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter icon name" {...field} />
+              </FormControl>
+              <FormDescription>
+                Lucide icon name or emoji
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description (Optional)</FormLabel>
+              <FormControl>
+                <Textarea 
+                  placeholder="Enter a brief description of this category" 
+                  className="resize-none" 
+                  {...field} 
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <DialogFooter>
+          <Button type="submit" disabled={isPending}>
+            {isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin mr-1" />
+            ) : null}
+            {category && category.id ? "Update" : "Create"} Category
+          </Button>
+        </DialogFooter>
+      </form>
+    </Form>
   );
 }

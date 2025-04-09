@@ -1,4 +1,4 @@
-import { users, projects, type User, type InsertUser, type Project, type InsertProject } from "@shared/schema";
+import { users, projects, categories, type User, type InsertUser, type Project, type InsertProject, type Category, type InsertCategory } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
 import connectPg from "connect-pg-simple";
@@ -28,6 +28,14 @@ export interface IStorage {
   getPendingProjects(): Promise<Project[]>;
   approveProject(id: number): Promise<Project | undefined>;
   rejectProject(id: number): Promise<Project | undefined>;
+  
+  // Category management
+  getCategories(): Promise<Category[]>;
+  getCategory(id: number): Promise<Category | undefined>;
+  getCategoryBySlug(slug: string): Promise<Category | undefined>;
+  createCategory(category: InsertCategory): Promise<Category>;
+  updateCategory(id: number, category: Partial<InsertCategory>): Promise<Category | undefined>;
+  deleteCategory(id: number): Promise<boolean>;
   
   // Session store
   sessionStore: any; // Using any type to fix typescript error
@@ -114,7 +122,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getProjectsByUser(userId: number): Promise<Project[]> {
-    return db.select().from(projects).where(eq(projects.userId, userId));
+    console.log("getProjectsByUser called with userId:", userId);
+    const result = await db.select().from(projects).where(eq(projects.userId, userId));
+    console.log("getProjectsByUser result:", result);
+    return result;
   }
 
   async getProjectsByCategory(category: string): Promise<Project[]> {
@@ -136,9 +147,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getPendingProjects(): Promise<Project[]> {
-    return db.select()
+    const pendingProjects = await db.select()
       .from(projects)
       .where(eq(projects.pending, true));
+    
+    console.log("Pending projects:", pendingProjects);
+    return pendingProjects;
   }
 
   async approveProject(id: number): Promise<Project | undefined> {
@@ -161,6 +175,49 @@ export class DatabaseStorage implements IStorage {
       .where(eq(projects.id, id))
       .returning();
     return updatedProject;
+  }
+  
+  // Category management methods
+  async getCategories(): Promise<Category[]> {
+    return db.select().from(categories).orderBy(categories.name);
+  }
+
+  async getCategory(id: number): Promise<Category | undefined> {
+    const result = await db.select().from(categories).where(eq(categories.id, id));
+    return result.length ? result[0] : undefined;
+  }
+
+  async getCategoryBySlug(slug: string): Promise<Category | undefined> {
+    const result = await db.select().from(categories).where(eq(categories.slug, slug));
+    return result.length ? result[0] : undefined;
+  }
+
+  async createCategory(insertCategory: InsertCategory): Promise<Category> {
+    const [category] = await db.insert(categories).values(insertCategory).returning();
+    return category;
+  }
+
+  async updateCategory(id: number, updates: Partial<InsertCategory>): Promise<Category | undefined> {
+    const [updatedCategory] = await db.update(categories)
+      .set(updates)
+      .where(eq(categories.id, id))
+      .returning();
+    return updatedCategory;
+  }
+
+  async deleteCategory(id: number): Promise<boolean> {
+    // Check if there are projects using this category
+    const categoryToDelete = await this.getCategory(id);
+    if (!categoryToDelete) return false;
+    
+    const projectsWithCategory = await this.getProjectsByCategory(categoryToDelete.slug);
+    if (projectsWithCategory.length > 0) {
+      // Category is in use, cannot delete
+      return false;
+    }
+    
+    await db.delete(categories).where(eq(categories.id, id));
+    return true;
   }
 }
 

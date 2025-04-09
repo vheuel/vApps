@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth } from "./auth";
 import { z } from "zod";
-import { insertProjectSchema } from "@shared/schema";
+import { insertProjectSchema, insertCategorySchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup authentication routes
@@ -48,14 +48,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.get("/api/user/projects", async (req, res) => {
+    console.log("GET /api/user/projects - Auth status:", req.isAuthenticated());
+    
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Not authenticated" });
     }
     
     try {
+      console.log("Fetching projects for user:", req.user.id);
       const projects = await storage.getProjectsByUser(req.user.id);
+      console.log("User projects found:", projects);
       res.status(200).json(projects);
     } catch (error) {
+      console.error("Error fetching user projects:", error);
       res.status(500).json({ message: "Error fetching user projects" });
     }
   });
@@ -198,6 +203,123 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(200).json(project);
     } catch (error) {
       res.status(500).json({ message: "Error rejecting project" });
+    }
+  });
+
+  // Categories API endpoints
+  app.get("/api/categories", async (req, res) => {
+    try {
+      const categories = await storage.getCategories();
+      res.status(200).json(categories);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching categories" });
+    }
+  });
+
+  app.get("/api/categories/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid category ID" });
+      }
+      
+      const category = await storage.getCategory(id);
+      if (!category) {
+        return res.status(404).json({ message: "Category not found" });
+      }
+      
+      res.status(200).json(category);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching category" });
+    }
+  });
+
+  app.get("/api/categories/slug/:slug", async (req, res) => {
+    try {
+      const { slug } = req.params;
+      const category = await storage.getCategoryBySlug(slug);
+      if (!category) {
+        return res.status(404).json({ message: "Category not found" });
+      }
+      
+      res.status(200).json(category);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching category" });
+    }
+  });
+
+  // Admin category management endpoints
+  app.post("/api/admin/categories", async (req, res) => {
+    if (!req.isAuthenticated() || !req.user.isAdmin) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+    
+    try {
+      const validatedData = insertCategorySchema.parse(req.body);
+      const category = await storage.createCategory(validatedData);
+      res.status(201).json(category);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Validation error", 
+          errors: error.errors 
+        });
+      }
+      res.status(500).json({ message: "Error creating category" });
+    }
+  });
+
+  app.put("/api/admin/categories/:id", async (req, res) => {
+    if (!req.isAuthenticated() || !req.user.isAdmin) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+    
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid category ID" });
+      }
+      
+      const category = await storage.getCategory(id);
+      if (!category) {
+        return res.status(404).json({ message: "Category not found" });
+      }
+      
+      const validatedData = insertCategorySchema.partial().parse(req.body);
+      const updatedCategory = await storage.updateCategory(id, validatedData);
+      res.status(200).json(updatedCategory);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Validation error", 
+          errors: error.errors 
+        });
+      }
+      res.status(500).json({ message: "Error updating category" });
+    }
+  });
+
+  app.delete("/api/admin/categories/:id", async (req, res) => {
+    if (!req.isAuthenticated() || !req.user.isAdmin) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+    
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid category ID" });
+      }
+      
+      const success = await storage.deleteCategory(id);
+      if (!success) {
+        return res.status(400).json({ 
+          message: "Cannot delete this category. It may be in use by projects." 
+        });
+      }
+      
+      res.status(200).json({ message: "Category deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Error deleting category" });
     }
   });
 

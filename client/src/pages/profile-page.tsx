@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -26,9 +26,21 @@ export default function ProfilePage() {
   const [editProject, setEditProject] = useState<Project | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
-  const { data: projects, isLoading } = useQuery<Project[]>({
+  const { data: projects, isLoading, isError, error } = useQuery<Project[]>({
     queryKey: ["/api/user/projects"],
+    refetchOnWindowFocus: true,
+    retry: 3,
   });
+  
+  // Debugging untuk melihat response
+  useEffect(() => {
+    if (isError) {
+      console.error("Error fetching user projects:", error);
+    }
+    if (projects) {
+      console.log("User projects:", projects);
+    }
+  }, [projects, isError, error]);
 
   const updateProjectMutation = useMutation({
     mutationFn: async (data: { id: number; project: Partial<InsertProject> }) => {
@@ -137,7 +149,6 @@ export default function ProfilePage() {
             <Progress 
               value={totalProjects > 0 ? (pendingProjects / totalProjects) * 100 : 0} 
               className="h-2 bg-muted" 
-              indicatorClassName="bg-yellow-500"
             />
           </div>
         </CardContent>

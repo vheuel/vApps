@@ -18,7 +18,25 @@ export const insertUserSchema = createInsertSchema(users).pick({
   email: true,
 });
 
-// Categories enum
+// Categories model
+export const categories = pgTable("categories", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull().unique(),
+  slug: text("slug").notNull().unique(),
+  icon: text("icon"),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertCategorySchema = createInsertSchema(categories)
+  .pick({
+    name: true,
+    slug: true,
+    icon: true,
+    description: true
+  });
+
+// Default categories - maintained for compatibility
 export const categoryEnum = z.enum([
   'airdrop',
   'wallets',
@@ -55,7 +73,7 @@ export const insertProjectSchema = createInsertSchema(projects)
   })
   .extend({
     description: z.string().max(200, { message: "Description cannot exceed 200 characters" }),
-    category: categoryEnum
+    category: z.string()
   });
 
 // Types
@@ -63,4 +81,6 @@ export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type Project = typeof projects.$inferSelect;
 export type InsertProject = z.infer<typeof insertProjectSchema>;
-export type Category = z.infer<typeof categoryEnum>;
+export type Category = typeof categories.$inferSelect;
+export type InsertCategory = z.infer<typeof insertCategorySchema>;
+export type CategorySlug = z.infer<typeof categoryEnum>;
