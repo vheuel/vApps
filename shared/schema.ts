@@ -61,7 +61,6 @@ export const projects = pgTable("projects", {
   approved: boolean("approved").default(false).notNull(),
   pending: boolean("pending").default(true).notNull(),
   verified: boolean("verified").default(false).notNull(),
-  clicks: integer("clicks").default(0).notNull(), // Added clicks field
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
