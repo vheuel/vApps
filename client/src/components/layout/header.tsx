@@ -90,6 +90,11 @@ export default function Header() {
               Apps Catalog
             </span>
           </Link>
+          <Link href="/docs">
+            <span className={`text-sm font-medium ${location === "/docs" ? "text-primary" : "text-muted-foreground"} hover:text-primary`}>
+              Documentation
+            </span>
+          </Link>
           <Link href="/journal">
             <div className="flex items-center space-x-1">
               <span className={`text-sm font-medium text-muted-foreground hover:text-primary`}>
@@ -178,6 +183,11 @@ export default function Header() {
             <Link href="/" onClick={() => setMobileMenuOpen(false)}>
               <span className={`font-medium ${location === "/" ? "text-primary" : "text-foreground"}`}>
                 Apps Catalog
+              </span>
+            </Link>
+            <Link href="/docs" onClick={() => setMobileMenuOpen(false)}>
+              <span className={`font-medium ${location === "/docs" ? "text-primary" : "text-foreground"}`}>
+                Documentation
               </span>
             </Link>
             <Link href="/journal" onClick={() => setMobileMenuOpen(false)}>
