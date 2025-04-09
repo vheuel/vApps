@@ -67,7 +67,7 @@ export default function Header() {
                 </svg>
               </div>
             )}
-            <span className="text-lg font-semibold">{siteSettings?.siteName || "EARN App"}</span>
+            <span className="text-lg font-semibold">{siteSettings?.siteName || "vApps by Vheüel"}</span>
           </Link>
         </div>
 
@@ -273,7 +273,7 @@ export default function Header() {
             </TabsContent>
           </Tabs>
           <div className="text-center text-sm text-muted-foreground pt-4 border-t">
-            {siteSettings?.footerText || "© 2025 EARN App. All rights reserved."}
+            {siteSettings?.footerText || "© 2025 vApps by Vheüel. All rights reserved."}
           </div>
         </DialogContent>
       </Dialog>

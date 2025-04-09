@@ -23,7 +23,7 @@ export default function TermsPage() {
             </p>
             <p className="text-muted-foreground leading-relaxed mt-2">
               If you do not agree with (or cannot comply with) Agreements, then you may not use the 
-              Service, but please let us know by emailing at support@vapps.com so we can try to find a 
+              Service, but please let us know by emailing at support@vheuel.com so we can try to find a 
               solution. These Terms apply to all visitors, users and others who wish to access or use Service.
             </p>
           </section>
@@ -33,7 +33,7 @@ export default function TermsPage() {
             <p className="text-muted-foreground leading-relaxed">
               By using our Service, you agree to subscribe to newsletters, marketing or promotional 
               materials and other information we may send. However, you may opt out of receiving any, 
-              or all, of these communications from us by following the unsubscribe link or by emailing at support@vapps.com.
+              or all, of these communications from us by following the unsubscribe link or by emailing at support@vheuel.com.
             </p>
           </section>
 
@@ -104,7 +104,7 @@ export default function TermsPage() {
             </p>
             <p className="text-muted-foreground leading-relaxed mt-2">
               If you wish to terminate your account, you may simply discontinue using Service or contact 
-              us at support@vapps.com.
+              us at support@vheuel.com.
             </p>
           </section>
 
@@ -133,7 +133,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-2xl font-semibold mb-3">10. Contact Us</h2>
             <p className="text-muted-foreground leading-relaxed">
-              If you have any questions about these Terms, please contact us at support@vapps.com.
+              If you have any questions about these Terms, please contact us at support@vheuel.com.
             </p>
           </section>
 

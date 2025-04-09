@@ -124,7 +124,7 @@ export default function CookiePolicyPage() {
               preferred contact methods:
             </p>
             <p className="text-muted-foreground leading-relaxed mt-2">
-              Email: privacy@vapps.com
+              Email: privacy@vheuel.com
             </p>
           </section>
 

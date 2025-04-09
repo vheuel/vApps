@@ -165,7 +165,7 @@ export default function PrivacyPolicyPage() {
               If you have any questions about this Privacy Policy, please contact us:
             </p>
             <p className="text-muted-foreground leading-relaxed mt-2">
-              By email: privacy@vapps.com
+              By email: privacy@vheuel.com
             </p>
           </section>
 
