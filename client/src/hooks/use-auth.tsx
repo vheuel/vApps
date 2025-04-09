@@ -9,6 +9,7 @@ type AuthContextType = {
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   register: (user: InsertUser) => Promise<void>;
+  update: (data: any) => Promise<void>; // Added update function type
 };
 
 // Create the context with default values
@@ -19,6 +20,7 @@ export const AuthContext = createContext<AuthContextType>({
   login: async () => {},
   logout: async () => {},
   register: async () => {},
+  update: async () => {}, // Added update function with default implementation
 });
 
 // Auth provider component
@@ -38,11 +40,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify({ email, password }),
         credentials: 'include',
       });
-      
+
       if (!response.ok) {
         throw new Error('Login failed');
       }
-      
+
       const userData = await response.json();
       setUser(userData);
     } catch (err) {
@@ -57,52 +59,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     setError(null);
     try {
-
-// Update function
-const update = async (data) => {
-  setIsLoading(true);
-  setError(null);
-  try {
-    const response = await fetch('/api/user/update', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-      credentials: 'include',
-    });
-
-    if (!response.ok) {
-      throw new Error('Update failed');
-    }
-
-    const updatedUser = await response.json();
-    setUser(updatedUser);
-  } catch (err) {
-    setError(err instanceof Error ? err : new Error('Unknown error'));
-  } finally {
-    setIsLoading(false);
-  }
-};
-
-// Inside useAuth()
-return {
-  user,
-  isLoading,
-  error,
-  login,
-  logout,
-  register,
-  update, // Add update function to the context
-};
-
       const response = await fetch('/api/logout', {
         method: 'POST',
         credentials: 'include',
       });
-      
+
       if (!response.ok) {
         throw new Error('Logout failed');
       }
-      
+
       setUser(null);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Unknown error'));
@@ -122,13 +87,38 @@ return {
         body: JSON.stringify(userData),
         credentials: 'include',
       });
-      
+
       if (!response.ok) {
         throw new Error('Registration failed');
       }
-      
+
       const newUser = await response.json();
       setUser(newUser);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Unknown error'));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Update function
+  const update = async (data) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch('/api/user/update', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error('Update failed');
+      }
+
+      const updatedUser = await response.json();
+      setUser(updatedUser);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Unknown error'));
     } finally {
@@ -144,7 +134,7 @@ return {
         const response = await fetch('/api/user', {
           credentials: 'include',
         });
-        
+
         if (response.ok) {
           const userData = await response.json();
           setUser(userData);
@@ -155,24 +145,20 @@ return {
         setIsLoading(false);
       }
     };
-    
+
     fetchUser();
   }, []);
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isLoading,
-        error,
-        login,
-        logout,
-        register,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
+  // Inside useAuth()
+  return {
+    user,
+    isLoading,
+    error,
+    login,
+    logout,
+    register,
+    update, // Ensure update function is included in the context
+  };
 }
 
 // Custom hook to use the auth context
