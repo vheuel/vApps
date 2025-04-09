@@ -214,9 +214,18 @@ export default function ProfilePage() {
           </div>
         </div>
         
-        {/* Header Background - Plain Gray with no text */}
+        {/* Header Background - Menampilkan gambar header jika ada */}
         <div className="w-full h-36 relative overflow-hidden bg-gray-300">
-          {/* Kosong, tidak ada tulisan */}
+          {user.headerImage ? (
+            <img 
+              src={user.headerImage} 
+              alt="Profile Header" 
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            /* Kosong, tidak ada tulisan jika tidak ada gambar header */
+            <div className="w-full h-full bg-gradient-to-r from-gray-300 to-gray-400"></div>
+          )}
         </div>
         
         {/* Profile Picture and Edit Button - These are aligned and below the header */}

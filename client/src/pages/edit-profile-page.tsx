@@ -34,6 +34,7 @@ const profileSchema = z.object({
   location: z.string().max(100).optional(),
   company: z.string().max(100).optional(),
   avatarUrl: z.string().optional(),
+  headerImage: z.string().optional(),
 });
 
 // Schema for password change
@@ -64,6 +65,7 @@ export default function EditProfilePage() {
       location: user?.location || "",
       company: user?.company || "",
       avatarUrl: user?.avatarUrl || "",
+      headerImage: user?.headerImage || "",
     },
   });
 
@@ -78,6 +80,7 @@ export default function EditProfilePage() {
         location: user.location || "",
         company: user.company || "",
         avatarUrl: user.avatarUrl || "",
+        headerImage: user.headerImage || "",
       });
     }
   }, [user, profileForm]);
@@ -387,6 +390,100 @@ export default function EditProfilePage() {
                           </div>
                           <div className="text-sm text-muted-foreground">
                             Unggah gambar avatar Anda. Format yang didukung: JPG, PNG, GIF.
+                          </div>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={profileForm.control}
+                    name="headerImage"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Header Image</FormLabel>
+                        <div className="space-y-2">
+                          {field.value && (
+                            <div className="mt-2 mb-4">
+                              <div className="w-full h-32 rounded-lg overflow-hidden relative">
+                                <img 
+                                  src={field.value} 
+                                  alt="Header Preview" 
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            </div>
+                          )}
+                          <div className="flex items-center gap-4">
+                            <FormControl>
+                              <Input 
+                                type="file" 
+                                accept="image/*"
+                                className="hidden"
+                                id="header-input"
+                                onChange={async (e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    setIsCompressing(true);
+                                    try {
+                                      // Kompresi gambar
+                                      const options = {
+                                        maxSizeMB: 1, // ukuran maksimal 1MB
+                                        maxWidthOrHeight: 1920,
+                                        useWebWorker: true
+                                      };
+                                      
+                                      const compressedFile = await imageCompression(file, options);
+                                      
+                                      // Konversi ke base64
+                                      const reader = new FileReader();
+                                      reader.onload = (event) => {
+                                        if (event.target?.result) {
+                                          field.onChange(event.target.result as string);
+                                          setIsCompressing(false);
+                                        }
+                                      };
+                                      reader.readAsDataURL(compressedFile);
+                                    } catch (error) {
+                                      console.error("Gagal mengompresi gambar:", error);
+                                      toast({
+                                        title: "Error saat mengompresi gambar",
+                                        description: "Silakan coba gambar yang lebih kecil.",
+                                        variant: "destructive",
+                                      });
+                                      setIsCompressing(false);
+                                    }
+                                  }
+                                }}
+                              />
+                            </FormControl>
+                            <Button 
+                              type="button" 
+                              variant="outline" 
+                              onClick={() => document.getElementById('header-input')?.click()}
+                              disabled={isCompressing}
+                            >
+                              {isCompressing ? (
+                                <>
+                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                  Mengompresi...
+                                </>
+                              ) : "Pilih Gambar Header"}
+                            </Button>
+                            {field.value && (
+                              <Button 
+                                type="button" 
+                                variant="destructive" 
+                                onClick={() => field.onChange('')}
+                                disabled={isCompressing}
+                              >
+                                Hapus
+                              </Button>
+                            )}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            Unggah gambar header untuk profil Anda. Ukuran yang direkomendasikan: 1500x500 piksel.
                           </div>
                         </div>
                         <FormMessage />
