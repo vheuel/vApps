@@ -102,23 +102,9 @@ export default function ProfilePage() {
   
   // Memuat ulang data pengguna hanya saat komponen pertama kali dimuat
   useEffect(() => {
-    const refreshUserData = async () => {
-      try {
-        const response = await fetch('/api/user', {
-          credentials: 'include'
-        });
-        if (response.ok) {
-          const userData = await response.json();
-          // Update data user hanya pada inisialisasi awal
-          update(userData);
-        }
-      } catch (error) {
-        console.error("Failed to refresh user data:", error);
-      }
-    };
-    
-    // Refresh data hanya saat komponen pertama kali di-mount
-    refreshUserData();
+    // Kita tidak perlu secara eksplisit memperbarui data user karena sudah dihandle oleh AuthProvider
+    // Data user sudah dimuat dari /api/user saat navigasi ke halaman profil
+    // Menghapus pemanggilan update() yang menyebabkan refresh loop
   }, []);
 
   const { data: projects, isLoading, isError, error } = useQuery<Project[]>({
