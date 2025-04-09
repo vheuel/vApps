@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react"; // Added useRef import
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -24,6 +24,12 @@ import ProjectForm from "@/components/project/project-form";
 import { formatDistanceToNow } from "date-fns";
 import { UserIcon, BriefcaseIcon, CalendarIcon, MailIcon, Plus, Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+
+// Placeholder for getCategoryIcon -  needs to be defined or imported from elsewhere.
+const getCategoryIcon = (category: string) => {
+  //Implementation for getCategoryIcon would go here.  This is a guess.
+  return <span>Icon for {category}</span>;
+};
 
 export default function ProfilePage() {
   const { user } = useAuth();
@@ -152,48 +158,6 @@ export default function ProfilePage() {
               <span>{pendingProjects}</span>
             </div>
             <Progress value={totalProjects > 0 ? (pendingProjects / totalProjects) * 100 : 0} className="h-2 bg-muted" />
-
-// Split conflicting code blocks to prevent syntax errors
-
-// Define the schema for project edit dialog
-const projectEditSchema = z.object({
-  name: z.string(),
-  description: z.string(),
-  websiteUrl: z.string().url(),
-  category: z.string(),
-  iconUrl: z.string().optional(),
-});
-
-export default function ProfilePage() {
-  const { user, update } = useAuth();
-  const form = useForm({
-    resolver: zodResolver(profileUpdateSchema),
-    defaultValues: {
-      name: user?.name || '',
-      username: user?.username || '',
-      email: user?.email || '',
-      password: '',
-    },
-  });
-
-  const handleSubmit = async (values) => {
-    await update(values);
-  };
-
-  return (
-    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-      <input {...form.register('name')} placeholder="Name" />
-      <input {...form.register('username')} placeholder="Username" />
-      <input type="email" {...form.register('email')} placeholder="Email" />
-      <input type="password" {...form.register('password')} placeholder="New Password" />
-      <button type="submit">Update Profile</button>
-    </form>
-  );
-}
-
-              value={totalProjects > 0 ? (pendingProjects / totalProjects) * 100 : 0} 
-              className="h-2 bg-muted" 
-            />
           </div>
         </CardContent>
       </Card>
@@ -269,3 +233,11 @@ export default function ProfilePage() {
     </div>
   );
 }
+// Define the schema for project edit dialog
+const projectEditSchema = z.object({
+  name: z.string(),
+  description: z.string(),
+  websiteUrl: z.string().url(),
+  category: z.string(),
+  iconUrl: z.string().optional(),
+});

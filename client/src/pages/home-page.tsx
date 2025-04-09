@@ -1,3 +1,6 @@
+
+import { getCategoryIcon } from '@/lib/utils';
+
 import { useEffect, useState, useRef } from "react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
@@ -418,4 +421,7 @@ function CategorySection({
       )}
     </div>
   );
+
+import { useRef } from 'react';
+
 }
