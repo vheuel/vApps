@@ -4,6 +4,7 @@ import Footer from "@/components/layout/footer";
 import HomePage from "@/pages/home-page";
 import AuthPage from "@/pages/auth-page";
 import ProfilePage from "@/pages/profile-page";
+import EditProfilePage from "@/pages/edit-profile-page";
 import SubmitProjectPage from "@/pages/submit-project-page";
 import CategoryPage from "@/pages/category-page";
 import AdminPage from "@/pages/admin-page";
@@ -23,6 +24,7 @@ function App() {
             <Route path="/auth" component={AuthPage} />
             <Route path="/category/:category" component={CategoryPage} />
             <ProtectedRoute path="/profile" component={ProfilePage} />
+            <ProtectedRoute path="/profile/edit" component={EditProfilePage} />
             <ProtectedRoute path="/submit" component={SubmitProjectPage} />
             <AdminRoute path="/admin" component={AdminPage} />
             <Route component={NotFound} />
