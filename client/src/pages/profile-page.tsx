@@ -251,54 +251,59 @@ export default function ProfilePage() {
 
       {/* Profile Header */}
       <div className="relative">
-        {/* Header with Background Image */}
-        <div className="relative h-48 overflow-hidden">
-          {/* Background - ini adalah placeholder, seharusnya gambar yang bisa diganti pengguna */}
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-900 via-blue-700 to-green-400"></div>
-        </div>
-        
-        {/* Nav Bar with Back Button */}
-        <div className="absolute top-0 left-0 right-0 px-4 py-2 flex justify-between text-white z-10">
+        {/* Nav Bar with Back and Search Button (fixed position on top) */}
+        <div className="fixed top-0 left-0 right-0 px-4 py-2 flex justify-between z-20 bg-black bg-opacity-30">
           <button 
             onClick={() => navigate("/")} 
             className="bg-blue-900 bg-opacity-60 rounded-full p-3"
           >
-            <ArrowLeft className="h-6 w-6" />
+            <ArrowLeft className="h-6 w-6 text-white" />
           </button>
           
           <div className="flex space-x-2">
             <button className="bg-green-800 bg-opacity-60 rounded-full p-3">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
               </svg>
             </button>
             <button className="bg-green-800 bg-opacity-60 rounded-full p-3">
-              <MoreVertical className="h-6 w-6" />
+              <MoreVertical className="h-6 w-6 text-white" />
             </button>
           </div>
         </div>
         
-        {/* Slogan Line */}
-        <div className="absolute top-14 left-0 right-0 text-center text-white z-10">
-          <h1 className="text-xl font-mono font-bold tracking-wider">LEARN, BUILD, SELL, REPEAT</h1>
+        {/* Header Background - Editable by user */}
+        <div className="w-full h-64 relative overflow-hidden">
+          {/* This would be replaced with user's header image */}
+          <img 
+            src={user.headerImage || "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MDAiIGhlaWdodD0iNDAwIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImcxIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzEwMjhhNCIvPjxzdG9wIG9mZnNldD0iNTAlIiBzdG9wLWNvbG9yPSIjMjU2M2ViIi8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMzRkMzk5Ii8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNnMSkiLz48L3N2Zz4="} 
+            alt="Header background"
+            className="w-full h-full object-cover"
+          />
+          
+          {/* Overlay for text readability */}
+          <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+          
+          {/* Slogan Line - Part of editable header */}
+          <div className="absolute top-16 left-0 right-0 text-center text-white">
+            <h1 className="text-xl font-mono font-bold tracking-wider">LEARN, BUILD, SELL, REPEAT</h1>
+          </div>
+          
+          {/* Username - Part of editable header */}
+          <div className="absolute bottom-10 left-0 right-0 text-center text-white">
+            <h2 className="text-lg font-bold">{user.isAdmin ? "VHESL" : user.username.toUpperCase()}</h2>
+          </div>
         </div>
         
-        {/* Username */}
-        <div className="absolute bottom-14 left-0 right-0 text-center text-white z-10">
-          <h2 className="text-lg font-bold">{user.isAdmin ? "VHESL" : user.username.toUpperCase()}</h2>
-        </div>
-
-        {/* Profile Picture and Buttons */}
-        <div className="relative px-4 flex justify-between items-center mt-4 z-10">
-          <div className="-mt-16">
-            <Avatar className="h-24 w-24 bg-gray-100 border-4 border-white dark:border-gray-800 shadow-lg">
-              {user.avatarUrl && <AvatarImage src={user.avatarUrl} />}
-              <AvatarFallback className="bg-gray-200">
-                <UserIcon className="h-12 w-12 text-gray-500" />
-              </AvatarFallback>
-            </Avatar>
-          </div>
+        {/* Profile Picture and Edit Button - These are aligned and below the header */}
+        <div className="px-4 flex justify-between items-center -mt-8 relative z-10">
+          <Avatar className="h-24 w-24 bg-gray-100 border-4 border-white dark:border-gray-800 shadow-lg">
+            {user.avatarUrl && <AvatarImage src={user.avatarUrl} />}
+            <AvatarFallback className="bg-gray-200">
+              <UserIcon className="h-12 w-12 text-gray-500" />
+            </AvatarFallback>
+          </Avatar>
           
           <Button 
             variant="outline" 
