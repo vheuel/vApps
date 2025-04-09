@@ -53,6 +53,7 @@ import {
   Link as LinkIcon,
   MapPinIcon
 } from "lucide-react";
+import { ProfileCompletion } from "@/components/profile/profile-completion";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -402,6 +403,12 @@ export default function ProfilePage() {
       <div className="container mx-auto py-4 px-4">
         {activeTab === "project" ? (
           <>
+            {/* Profile Completion Card */}
+            <ProfileCompletion 
+              user={user} 
+              onEditProfile={() => setIsProfileDialogOpen(true)} 
+            />
+
             {isLoading ? (
               <div className="space-y-4">
                 {[...Array(3)].map((_, index) => (
