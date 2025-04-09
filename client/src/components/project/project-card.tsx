@@ -83,10 +83,10 @@ export default function ProjectCard({
   const verifyMutation = useMutation({
     mutationFn: async (id: number) => {
       const res = await apiRequest("POST", `/api/admin/projects/${id}/verify`, {});
-      return res.json();
+      return await res.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/projects"] });
+    onSuccess: (updatedProject) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/projects", updatedProject.id] });
       toast({
         title: "Project verified",
         description: "The project has been verified and will show a verification badge.",
@@ -104,10 +104,10 @@ export default function ProjectCard({
   const unverifyMutation = useMutation({
     mutationFn: async (id: number) => {
       const res = await apiRequest("POST", `/api/admin/projects/${id}/unverify`, {});
-      return res.json();
+      return await res.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/projects"] });
+    onSuccess: (updatedProject) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/projects", updatedProject.id] });
       toast({
         title: "Project unverified",
         description: "The verification badge has been removed from this project.",
