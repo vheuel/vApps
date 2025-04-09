@@ -363,68 +363,71 @@ function CategorySection({
   };
   
   return (
-    <div className="mb-8">
+    <div className="mb-10">
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-2">
-          <span className="mr-1">{getCatIcon(slug)}</span>
-          <h2 className="text-xl font-medium">{title}</h2>
+          <h2 className="text-2xl font-bold">{title}</h2>
+          <span className="text-gray-400 text-lg">{projects.length}</span>
         </div>
-        <Link href={`/category/${slug}`} className="text-blue-500 text-sm flex items-center">
-          See all <ChevronRight className="ml-1 h-4 w-4" />
+        <Link href={`/category/${slug}`} className="text-gray-500 text-sm flex items-center">
+          <ChevronRight className="ml-1 h-5 w-5" />
         </Link>
       </div>
       
       {isLoading ? (
-        <div className="space-y-4">
+        <div className="flex overflow-x-auto pb-4 -mx-4 px-4 gap-4 hide-scrollbar">
           {[...Array(3)].map((_, index) => (
-            <div key={index} className="flex items-center gap-2">
-              <Skeleton className="w-5 h-5 rounded-full" />
-              <Skeleton className="h-12 w-12 rounded-lg flex-shrink-0" />
-              <div className="flex-1">
-                <Skeleton className="h-5 w-full mb-1" />
-                <Skeleton className="h-4 w-3/4" />
-              </div>
-              <Skeleton className="h-4 w-4 rounded-full" />
+            <div key={index} className="flex-shrink-0 w-64">
+              <Skeleton className="w-16 h-16 rounded-lg mb-3" />
+              <Skeleton className="h-5 w-full mb-2" />
+              <Skeleton className="h-4 w-3/4" />
             </div>
           ))}
         </div>
       ) : projects.length > 0 ? (
-        <div className="space-y-4">
-          {projects.slice(0, 3).map((project, index) => {
+        <div className="flex overflow-x-auto pb-4 -mx-4 px-4 gap-6 hide-scrollbar">
+          {projects.slice(0, 5).map((project, index) => {
             return (
-              <div key={project.id} className="flex items-start gap-3">
-                <div className="text-muted-foreground text-gray-400 font-medium flex items-center mt-2">
-                  <span className="text-sm font-serif">
-                    {index + 1}
-                  </span>
-                </div>
-                <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center flex-shrink-0">
-                  {project.iconUrl ? (
-                    <img src={project.iconUrl} alt={project.name} className="w-10 h-10 object-cover rounded-md" />
-                  ) : (
-                    <div className="text-lg font-bold text-primary">
-                      {project.name.charAt(0).toUpperCase()}
+              <a
+                key={project.id}
+                href={project.websiteUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-shrink-0 w-64"
+              >
+                <div className="flex items-start gap-2 mb-2">
+                  {index < 3 && (
+                    <div className="text-gray-400 border border-gray-300 dark:border-gray-600 rounded-full p-1 mt-1 flex items-center justify-center">
+                      <span className="text-xs">
+                        #{index + 1}
+                      </span>
                     </div>
                   )}
+                  
+                  <div className={index < 3 ? "text-xl font-medium" : "text-lg font-medium"}>
+                    {project.name}
+                    {project.verified && (
+                      <CheckCircle className="h-4 w-4 ml-1 text-blue-500 inline-block" />
+                    )}
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <a 
-                    href={project.websiteUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="block"
-                  >
-                    <div className="flex items-center gap-1">
-                      <h3 className="font-medium text-base">{project.name}</h3>
-                      {project.verified && (
-                        <CheckCircle className="h-4 w-4 text-blue-500" />
-                      )}
-                    </div>
-                    <p className="text-sm text-muted-foreground line-clamp-1">{project.description}</p>
-                  </a>
+                
+                <div className="flex gap-3">
+                  <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+                    {project.iconUrl ? (
+                      <img src={project.iconUrl} alt={project.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="text-lg font-bold text-primary">
+                        {project.name.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="flex-1">
+                    <p className="text-gray-500 text-sm line-clamp-2">{project.description}</p>
+                  </div>
                 </div>
-
-              </div>
+              </a>
             );
           })}
         </div>
