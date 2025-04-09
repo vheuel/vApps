@@ -22,6 +22,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { useQuery } from "@tanstack/react-query";
+import { SiteSettings } from "@shared/schema";
 
 export default function Header() {
   const [location] = useLocation();
@@ -29,6 +31,11 @@ export default function Header() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [activeAuthTab, setActiveAuthTab] = useState("login");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  // Get site settings
+  const { data: siteSettings } = useQuery<SiteSettings>({
+    queryKey: ["/api/site-settings"],
+  });
 
   const handleAuthClick = () => {
     if (user) {
@@ -47,12 +54,20 @@ export default function Header() {
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         <div className="flex items-center space-x-4">
           <Link href="/" className="flex items-center space-x-2">
-            <div className="text-blue-500">
-              <svg viewBox="0 0 30 30" width="30" height="30" fill="currentColor">
-                <circle cx="15" cy="15" r="15" />
-              </svg>
-            </div>
-            <span className="text-lg font-semibold">EARN App</span>
+            {siteSettings?.logoUrl ? (
+              <img 
+                src={siteSettings.logoUrl} 
+                alt={siteSettings.siteName || "Site Logo"}
+                className="h-8" 
+              />
+            ) : (
+              <div className="text-blue-500">
+                <svg viewBox="0 0 30 30" width="30" height="30" fill="currentColor">
+                  <circle cx="15" cy="15" r="15" />
+                </svg>
+              </div>
+            )}
+            <span className="text-lg font-semibold">{siteSettings?.siteName || "EARN App"}</span>
           </Link>
         </div>
 
@@ -118,7 +133,11 @@ export default function Header() {
               variant="default"
               size="sm"
               onClick={handleAuthClick}
-              className="rounded-full px-4 bg-blue-500 hover:bg-blue-600 text-white"
+              className="rounded-full px-4"
+              style={{ 
+                backgroundColor: siteSettings?.primaryColor || "#3B82F6",
+                color: "white" 
+              }}
             >
               Log In
             </Button>
@@ -206,7 +225,10 @@ export default function Header() {
                   setIsLoginModalOpen(true);
                   setMobileMenuOpen(false);
                 }}
-                className="bg-blue-500 hover:bg-blue-600 text-white"
+                className="text-white"
+                style={{ 
+                  backgroundColor: siteSettings?.primaryColor || "#3B82F6",
+                }}
               >
                 Login / Register
               </Button>
@@ -241,7 +263,7 @@ export default function Header() {
             </TabsContent>
           </Tabs>
           <div className="text-center text-sm text-muted-foreground pt-4 border-t">
-            © 2025 EARN App. All rights reserved.
+            {siteSettings?.footerText || "© 2025 EARN App. All rights reserved."}
           </div>
         </DialogContent>
       </Dialog>

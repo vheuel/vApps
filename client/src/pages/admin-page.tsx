@@ -1,7 +1,8 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Project, Category, InsertCategory } from "@shared/schema";
+import { Project, Category, InsertCategory, SiteSettings } from "@shared/schema";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { SiteSettingsForm } from "@/components/admin/site-settings-form";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CheckIcon, XIcon, Loader2, PlusIcon, PencilIcon, Trash2Icon } from "lucide-react";
@@ -34,6 +35,11 @@ export default function AdminPage() {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
+  
+  // Site settings query
+  const { data: siteSettings, isLoading: isSettingsLoading, refetch: refetchSettings } = useQuery<SiteSettings>({
+    queryKey: ["/api/site-settings"],
+  });
 
   const { data: pendingProjects, isLoading, isError, error } = useQuery<Project[]>({
     queryKey: ["/api/admin/projects/pending"],
@@ -215,6 +221,7 @@ export default function AdminPage() {
           <TabsTrigger value="approved" className="flex-1">Approved Projects</TabsTrigger>
           <TabsTrigger value="stats" className="flex-1">Category Stats</TabsTrigger>
           <TabsTrigger value="categories" className="flex-1">Manage Categories</TabsTrigger>
+          <TabsTrigger value="settings" className="flex-1">Site Settings</TabsTrigger>
         </TabsList>
         
         <TabsContent value="pending">
@@ -460,6 +467,45 @@ export default function AdminPage() {
               </DialogFooter>
             </DialogContent>
           </Dialog>
+        </TabsContent>
+        
+        <TabsContent value="settings">
+          <Card>
+            <CardHeader>
+              <CardTitle>Website Settings</CardTitle>
+              <CardDescription>
+                Customize appearance and content of your website
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isSettingsLoading ? (
+                <div className="space-y-4">
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-24 w-full" />
+                  <Skeleton className="h-12 w-full" />
+                </div>
+              ) : (
+                <SiteSettingsForm 
+                  initialData={siteSettings || {
+                    id: 0,
+                    siteName: "Web3 Project",
+                    logoUrl: "",
+                    primaryColor: "#3B82F6",
+                    footerText: "© 2025 Web3 Project. All Rights Reserved.",
+                    createdAt: null,
+                    updatedAt: null
+                  } as SiteSettings}
+                  onSettingsSaved={() => {
+                    refetchSettings();
+                    // Also refresh the client to apply theme changes
+                    setTimeout(() => {
+                      window.location.reload();
+                    }, 1000);
+                  }}
+                />
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>

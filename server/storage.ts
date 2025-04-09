@@ -1,4 +1,4 @@
-import { users, projects, categories, type User, type InsertUser, type Project, type InsertProject, type Category, type InsertCategory } from "@shared/schema";
+import { users, projects, categories, siteSettings, type User, type InsertUser, type Project, type InsertProject, type Category, type InsertCategory, type SiteSettings, type InsertSiteSettings } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
 import connectPg from "connect-pg-simple";
@@ -39,6 +39,10 @@ export interface IStorage {
   createCategory(category: InsertCategory): Promise<Category>;
   updateCategory(id: number, category: Partial<InsertCategory>): Promise<Category | undefined>;
   deleteCategory(id: number): Promise<boolean>;
+  
+  // Site settings management
+  getSiteSettings(): Promise<SiteSettings | undefined>;
+  updateSiteSettings(settings: Partial<InsertSiteSettings>): Promise<SiteSettings>;
   
   // Session store
   sessionStore: any; // Using any type to fix typescript error
@@ -249,6 +253,41 @@ export class DatabaseStorage implements IStorage {
     
     await db.delete(categories).where(eq(categories.id, id));
     return true;
+  }
+  
+  // Site settings management methods
+  async getSiteSettings(): Promise<SiteSettings | undefined> {
+    const result = await db.select().from(siteSettings).limit(1);
+    return result.length ? result[0] : undefined;
+  }
+  
+  async updateSiteSettings(settings: Partial<InsertSiteSettings>): Promise<SiteSettings> {
+    // Check if settings already exist
+    const existingSettings = await this.getSiteSettings();
+    
+    if (existingSettings) {
+      // Update existing settings
+      const [updatedSettings] = await db.update(siteSettings)
+        .set({
+          ...settings,
+          updatedAt: new Date()
+        })
+        .where(eq(siteSettings.id, existingSettings.id))
+        .returning();
+      return updatedSettings;
+    } else {
+      // Create new settings
+      const [newSettings] = await db.insert(siteSettings)
+        .values({
+          ...settings,
+          siteName: settings.siteName || "Web3 Project",
+          logoUrl: settings.logoUrl || "",
+          primaryColor: settings.primaryColor || "#3B82F6",
+          footerText: settings.footerText || "© 2025 Web3 Project. All Rights Reserved."
+        })
+        .returning();
+      return newSettings;
+    }
   }
 }
 

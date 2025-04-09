@@ -1,13 +1,19 @@
 import { Link } from "wouter";
 import { Github, Twitter, Facebook, Instagram } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { SiteSettings } from "@shared/schema";
 
 export default function Footer() {
+  // Get site settings
+  const { data: siteSettings } = useQuery<SiteSettings>({
+    queryKey: ["/api/site-settings"],
+  });
   return (
     <footer className="bg-background border-t border-border/40 py-8 px-4">
       <div className="container mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-3">
-            <h3 className="font-bold text-lg">EARN App</h3>
+            <h3 className="font-bold text-lg">{siteSettings?.siteName || "EARN App"}</h3>
             <p className="text-muted-foreground max-w-xs">
               The community-driven catalog for web3 applications and services.
             </p>
@@ -147,7 +153,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-border/40 mt-8 pt-6 text-center text-sm text-muted-foreground">
-          <p>© 2025 EARN App. All rights reserved.</p>
+          <p>{siteSettings?.footerText || "© 2025 EARN App. All rights reserved."}</p>
         </div>
       </div>
     </footer>

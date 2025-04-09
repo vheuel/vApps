@@ -84,6 +84,23 @@ export const insertProjectSchema = createInsertSchema(projects)
   });
 
 // Types
+// Schema untuk pengaturan website
+export const siteSettings = pgTable("site_settings", {
+  id: serial("id").primaryKey(),
+  siteName: text("site_name").default("Web3 Project"),
+  logoUrl: text("logo_url").default(""),
+  primaryColor: text("primary_color").default("#3B82F6"),
+  footerText: text("footer_text").default("© 2025 Web3 Project. All Rights Reserved."),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertSiteSettingsSchema = createInsertSchema(siteSettings).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type Project = typeof projects.$inferSelect;
@@ -91,3 +108,5 @@ export type InsertProject = z.infer<typeof insertProjectSchema>;
 export type Category = typeof categories.$inferSelect;
 export type InsertCategory = z.infer<typeof insertCategorySchema>;
 export type CategorySlug = z.infer<typeof categoryEnum>;
+export type SiteSettings = typeof siteSettings.$inferSelect;
+export type InsertSiteSettings = z.infer<typeof insertSiteSettingsSchema>;

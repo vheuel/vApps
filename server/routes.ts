@@ -4,7 +4,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, hashPassword, comparePasswords } from "./auth";
 import { z } from "zod";
-import { insertProjectSchema, insertCategorySchema } from "@shared/schema";
+import { insertProjectSchema, insertCategorySchema, insertSiteSettingsSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup authentication routes
@@ -428,6 +428,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(200).json({ message: "Category deleted successfully" });
     } catch (error) {
       res.status(500).json({ message: "Error deleting category" });
+    }
+  });
+  
+  // Site Settings API endpoints
+  app.get("/api/site-settings", async (req, res) => {
+    try {
+      const settings = await storage.getSiteSettings();
+      res.status(200).json(settings || {});
+    } catch (error) {
+      console.error("Error fetching site settings:", error);
+      res.status(500).json({ message: "Error fetching site settings" });
+    }
+  });
+  
+  app.put("/api/admin/site-settings", async (req, res) => {
+    if (!req.isAuthenticated() || !req.user.isAdmin) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+    
+    try {
+      const validatedData = insertSiteSettingsSchema.parse(req.body);
+      const updatedSettings = await storage.updateSiteSettings(validatedData);
+      res.status(200).json(updatedSettings);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          message: "Validation error",
+          errors: error.errors
+        });
+      }
+      console.error("Error updating site settings:", error);
+      res.status(500).json({ message: "Error updating site settings" });
     }
   });
 
