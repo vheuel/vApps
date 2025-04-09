@@ -3,22 +3,73 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatDistanceToNow } from "date-fns";
-import { Globe, CheckCircle } from "lucide-react";
+import { ExternalLink, CheckCircle, XCircle, Check, X, Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { useMutation } from "@tanstack/react-query";
+import { queryClient, apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 interface ProjectCardProps {
   project: Project;
   showActions?: boolean;
   showVerificationIcon?: boolean;
   onEdit?: (project: Project) => void;
+  showAdminActions?: boolean;
 }
 
 export default function ProjectCard({ 
   project, 
   showActions = false, 
   showVerificationIcon = false,
-  onEdit 
+  onEdit,
+  showAdminActions = false
 }: ProjectCardProps) {
   const createdAt = project.createdAt ? new Date(project.createdAt) : new Date();
+  const { toast } = useToast();
+
+  const approveMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await apiRequest("POST", `/api/admin/projects/${id}/approve`, {});
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/projects/pending"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/projects"] });
+      toast({
+        title: "Project approved",
+        description: "The project has been approved and is now live.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to approve project",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+
+  const rejectMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await apiRequest("POST", `/api/admin/projects/${id}/reject`, {});
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/projects/pending"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/projects"] });
+      toast({
+        title: "Project rejected",
+        description: "The project has been rejected.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to reject project",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
 
   return (
     <Card className="overflow-hidden hover:shadow-md transition-shadow">
@@ -39,27 +90,34 @@ export default function ProjectCard({
               )}
             </div>
             <div className="ml-4 flex-1">
-              <div className="flex items-center">
+              <div className="flex items-center gap-2">
                 <h3 className="font-medium text-lg">{project.name}</h3>
                 {showVerificationIcon && (
-                  <CheckCircle className="w-4 h-4 ml-1 text-blue-500" />
+                  <CheckCircle className="w-4 h-4 text-blue-500" />
                 )}
-              </div>
-              <p className="text-muted-foreground text-sm line-clamp-2">{project.description}</p>
-              
-              {project.websiteUrl && (
-                <div className="flex items-center mt-1">
-                  <Globe className="h-3 w-3 text-muted-foreground mr-1" />
+                {project.websiteUrl && (
                   <a 
                     href={project.websiteUrl} 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="text-primary text-sm hover:underline"
+                    className="text-muted-foreground hover:text-primary"
                   >
-                    {new URL(project.websiteUrl).hostname}
+                    <ExternalLink className="h-4 w-4" />
                   </a>
-                </div>
-              )}
+                )}
+              </div>
+              <p className="text-muted-foreground text-sm line-clamp-2 mt-1">{project.description}</p>
+              
+              <div className="flex items-center mt-2 gap-2">
+                <Badge variant="outline" className="capitalize">
+                  {project.category}
+                </Badge>
+                {project.websiteUrl && (
+                  <span className="text-xs text-muted-foreground">
+                    {new URL(project.websiteUrl).hostname}
+                  </span>
+                )}
+              </div>
 
               {showActions && (
                 <div className="mt-3 flex justify-between items-center">
@@ -92,6 +150,39 @@ export default function ProjectCard({
                       </Button>
                     )}
                   </div>
+                </div>
+              )}
+              
+              {showAdminActions && (
+                <div className="mt-3 flex justify-end items-center space-x-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="border-red-200 hover:bg-red-50 hover:text-red-600"
+                    onClick={() => rejectMutation.mutate(project.id)}
+                    disabled={rejectMutation.isPending}
+                  >
+                    {rejectMutation.isPending ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                    ) : (
+                      <X className="h-4 w-4 mr-1" />
+                    )}
+                    Reject
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="border-green-200 hover:bg-green-50 hover:text-green-600"
+                    onClick={() => approveMutation.mutate(project.id)}
+                    disabled={approveMutation.isPending}
+                  >
+                    {approveMutation.isPending ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                    ) : (
+                      <Check className="h-4 w-4 mr-1" />
+                    )}
+                    Approve
+                  </Button>
                 </div>
               )}
             </div>

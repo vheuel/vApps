@@ -16,6 +16,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { useState, useEffect } from "react";
+import ProjectCard from "@/components/project/project-card";
 
 // Form schema for categories
 const categoryFormSchema = z.object({
@@ -233,58 +234,11 @@ export default function AdminPage() {
               ) : pendingProjects && pendingProjects.length > 0 ? (
                 <div className="space-y-4">
                   {pendingProjects.map((project) => (
-                    <div key={project.id} className="border rounded-lg p-4">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="font-medium text-lg">{project.name}</h3>
-                          <p className="text-muted-foreground text-sm">{project.description}</p>
-                          <div className="mt-2 flex items-center gap-2">
-                            <Badge variant="outline" className="capitalize">
-                              {project.category}
-                            </Badge>
-                            {project.websiteUrl && (
-                              <a
-                                href={project.websiteUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-primary text-sm hover:underline"
-                              >
-                                Visit website
-                              </a>
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex space-x-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="border-red-200 hover:bg-red-50 hover:text-red-600"
-                            onClick={() => rejectMutation.mutate(project.id)}
-                            disabled={rejectMutation.isPending}
-                          >
-                            {rejectMutation.isPending ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <XIcon className="h-4 w-4 mr-1" />
-                            )}
-                            Reject
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="border-green-200 hover:bg-green-50 hover:text-green-600"
-                            onClick={() => approveMutation.mutate(project.id)}
-                            disabled={approveMutation.isPending}
-                          >
-                            {approveMutation.isPending ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <CheckIcon className="h-4 w-4 mr-1" />
-                            )}
-                            Approve
-                          </Button>
-                        </div>
-                      </div>
+                    <div key={project.id}>
+                      <ProjectCard 
+                        project={project}
+                        showAdminActions={project.pending && !project.approved}
+                      />
                     </div>
                   ))}
                 </div>
