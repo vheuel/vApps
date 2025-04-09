@@ -97,6 +97,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     location: z.string().max(100).optional(),
     website: z.string().url().optional().or(z.literal("")),
     avatarUrl: z.string().optional(),
+    company: z.string().max(100).optional(),
+    headerImage: z.string().optional(),
   });
 
   app.put("/api/user/update", async (req, res) => {

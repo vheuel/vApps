@@ -279,7 +279,7 @@ export default function ProfilePage() {
         <div className="w-full h-36 relative overflow-hidden bg-gray-300">
           {/* Username - Part of editable header */}
           <div className="absolute bottom-4 left-0 right-0 text-center text-gray-800">
-            <h2 className="text-lg font-bold">{user.isAdmin ? "VHESL" : user.username.toUpperCase()}</h2>
+            <h2 className="text-lg font-bold">{user.username.toUpperCase()}</h2>
           </div>
         </div>
         
@@ -319,12 +319,10 @@ export default function ProfilePage() {
           
           {/* User Information with Icons */}
           <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-            {user.location && (
-              <div className="flex items-center">
-                <MailIcon className="h-4 w-4 mr-2" />
-                <span>{user.location}</span>
-              </div>
-            )}
+            <div className="flex items-center">
+              <MailIcon className="h-4 w-4 mr-2" />
+              <span>{user.location || 'No location information'}</span>
+            </div>
             
             {/* Perusahaan/Organisasi pengguna */}
             <div className="flex items-center">
@@ -332,14 +330,16 @@ export default function ProfilePage() {
               <span>{user.company || 'No company information'}</span>
             </div>
             
-            {user.website && (
-              <div className="flex items-center">
-                <Globe className="h-4 w-4 mr-2" />
+            <div className="flex items-center">
+              <Globe className="h-4 w-4 mr-2" />
+              {user.website ? (
                 <a href={user.website} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
                   {user.website.replace(/^https?:\/\//, '')}
                 </a>
-              </div>
-            )}
+              ) : (
+                <span>No website information</span>
+              )}
+            </div>
             
             <div className="flex items-center">
               <CalendarIcon className="h-4 w-4 mr-2" />
