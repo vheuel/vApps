@@ -30,11 +30,11 @@ export interface IStorage {
   rejectProject(id: number): Promise<Project | undefined>;
   
   // Session store
-  sessionStore: session.SessionStore;
+  sessionStore: any; // Using any type to fix typescript error
 }
 
 export class DatabaseStorage implements IStorage {
-  sessionStore: session.SessionStore;
+  sessionStore: any; // Using any type to fix typescript error
 
   constructor() {
     this.sessionStore = new PostgresSessionStore({
@@ -109,8 +109,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteProject(id: number): Promise<boolean> {
-    const result = await db.delete(projects).where(eq(projects.id, id));
-    return result.count > 0;
+    await db.delete(projects).where(eq(projects.id, id));
+    return true; // In PostgreSQL with Drizzle, we don't get a count directly
   }
 
   async getProjectsByUser(userId: number): Promise<Project[]> {

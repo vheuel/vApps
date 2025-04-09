@@ -24,7 +24,7 @@ import {
 
 export default function Header() {
   const [location] = useLocation();
-  const { user, logoutMutation } = useAuth();
+  const { user, logout } = useAuth();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [activeAuthTab, setActiveAuthTab] = useState("login");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -38,7 +38,7 @@ export default function Header() {
   };
 
   const handleLogout = () => {
-    logoutMutation.mutate();
+    logout();
   };
 
   return (
