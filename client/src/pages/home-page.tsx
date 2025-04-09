@@ -1,34 +1,32 @@
+
 import React from 'react';
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { BookOpen, Building2, Compass, Globe2, Wallet } from "lucide-react";
+import { Gift, Wallet, BarChart3, Compass, Drill, PenTool, PieChart, ArrowLeftRight, MessageSquare } from "lucide-react";
 
-const getCategoryIcon = (category: string) => {
-  switch (category.toLowerCase()) {
-    case 'education':
-      return <BookOpen className="h-6 w-6" />;
-    case 'business':
-      return <Building2 className="h-6 w-6" />;
-    case 'travel':
-      return <Compass className="h-6 w-6" />;
-    case 'finance':
-      return <Wallet className="h-6 w-6" />;
-    default:
-      return <Globe2 className="h-6 w-6" />;
-  }
-};
+const categories = [
+  { id: "airdrop", name: "Airdrop", icon: <Gift className="h-6 w-6" /> },
+  { id: "wallets", name: "Wallets", icon: <Wallet className="h-6 w-6" /> },
+  { id: "exchanges", name: "Exchanges DEX", icon: <BarChart3 className="h-6 w-6" /> },
+  { id: "explorers", name: "Explorers", icon: <Compass className="h-6 w-6" /> },
+  { id: "utilities", name: "Utilities", icon: <Drill className="h-6 w-6" /> },
+  { id: "nft", name: "NFT Services", icon: <PenTool className="h-6 w-6" /> },
+  { id: "staking", name: "Staking", icon: <PieChart className="h-6 w-6" /> },
+  { id: "bridges", name: "Bridges", icon: <ArrowLeftRight className="h-6 w-6" /> },
+  { id: "channels", name: "Channels", icon: <MessageSquare className="h-6 w-6" /> }
+];
 
 const CategorySection = () => {
   return (
     <ScrollArea className="w-full whitespace-nowrap rounded-md border">
       <div className="flex w-max space-x-4 p-4">
-        {['Education', 'Business', 'Travel', 'Finance'].map((category) => (
-          <Link key={category} href={`/category/${category.toLowerCase()}`}>
+        {categories.map((category) => (
+          <Link key={category.id} href={`/category/${category.id}`}>
             <Card className="inline-flex h-32 w-48 cursor-pointer flex-col items-center justify-center space-y-2 p-4 transition-colors hover:bg-accent">
-              {getCategoryIcon(category)}
-              <span className="font-medium">{category}</span>
+              {category.icon}
+              <span className="font-medium">{category.name}</span>
             </Card>
           </Link>
         ))}
