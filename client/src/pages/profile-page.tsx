@@ -252,50 +252,71 @@ export default function ProfilePage() {
       {/* Profile Header */}
       <div className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 pb-8">
         <div className="container mx-auto px-4 pt-8">
-          <div className="flex flex-col items-center">
-            <div className="mb-5 relative">
+          <div className="relative max-w-3xl mx-auto mb-8">
+            {/* Avatar and Edit Profile Button */}
+            <div className="flex items-start justify-between">
               <Avatar className="h-24 w-24 bg-gray-100 dark:bg-gray-700 border-[6px] border-white dark:border-gray-800 shadow-lg">
                 {user.avatarUrl && <AvatarImage src={user.avatarUrl} />}
                 <AvatarFallback className="bg-gray-200 dark:bg-gray-700">
                   <UserIcon className="h-12 w-12 text-gray-500 dark:text-gray-400" />
                 </AvatarFallback>
               </Avatar>
+              
+              <Button 
+                variant="outline" 
+                className="rounded-full h-12 px-8 text-base font-medium border-gray-200 dark:border-gray-700 bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-slate-700 dark:hover:bg-slate-600"
+                onClick={() => setIsProfileDialogOpen(true)}
+              >
+                edit profile
+              </Button>
             </div>
 
-            <div className="text-center mb-3">
-              <div className="flex items-center justify-center mb-1">
+            {/* Username, Email and Bio Section */}
+            <div className="mt-4">
+              <div className="flex items-center mb-1">
                 <h1 className="text-3xl font-bold">{user.username}</h1>
                 {user.isAdmin && (
                   <CheckCircle className="h-6 w-6 text-blue-500 ml-2" />
                 )}
               </div>
-              <p className="text-gray-500 dark:text-gray-400 text-lg">{user.email}</p>
-            </div>
+              <p className="text-gray-500 dark:text-gray-400 text-lg mb-3">{user.email}</p>
+              
+              {user.bio && (
+                <p className="text-gray-700 dark:text-gray-300 mb-4">
+                  {user.bio || "user biografi"}
+                </p>
+              )}
+              {!user.bio && (
+                <p className="text-gray-700 dark:text-gray-300 mb-4">
+                  user biografi
+                </p>
+              )}
 
-            <div className="flex justify-center items-center mt-4 mb-6 space-x-8 text-gray-500 dark:text-gray-400">
-              <div className="flex items-center">
-                <Globe className="h-5 w-5 mr-2 text-gray-400" />
-                <a href={user.website || "#"} target="_blank" rel="noopener noreferrer" 
-                  className="text-blue-500 hover:underline">
-                  {user.website && user.website.trim() !== "" ? 
-                    new URL(user.website).hostname : 
-                    "userwebsite.com"}
-                </a>
+              {/* User Details */}
+              <div className="flex flex-wrap items-center text-sm text-gray-500 dark:text-gray-400 mb-4 gap-y-2">
+                <div className="flex items-center mr-6">
+                  <BriefcaseIcon className="h-4 w-4 mr-1 text-gray-400" />
+                  <span className="text-gray-500">User office</span>
+                </div>
+                <div className="flex items-center mr-6">
+                  <Building2 className="h-4 w-4 mr-1 text-gray-400" />
+                  <span className="text-gray-500">US</span>
+                </div>
+                <div className="flex items-center mr-6">
+                  <Globe className="h-4 w-4 mr-1 text-gray-400" />
+                  <a href={user.website || "#"} target="_blank" rel="noopener noreferrer" 
+                    className="text-blue-500 hover:underline">
+                    {user.website && user.website.trim() !== "" ? 
+                      new URL(user.website).hostname : 
+                      "userwebsite.com"}
+                  </a>
+                </div>
               </div>
-              <div className="flex items-center">
-                <CalendarIcon className="h-5 w-5 mr-2 text-gray-400" />
-                <span>Joined {user.memberSince ? format(new Date(user.memberSince), "MMM yyyy") : "Apr 2025"}</span>
+              
+              <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                <CalendarIcon className="h-4 w-4 mr-1 text-gray-400" />
+                <span>Joined {user.memberSince ? format(new Date(user.memberSince), "MMM yyyy") : "since march 2013"}</span>
               </div>
-            </div>
-
-            <div className="w-full max-w-md">
-              <Button 
-                variant="outline" 
-                className="w-full rounded-full h-12 text-base font-medium border-gray-200 dark:border-gray-700 bg-blue-50 hover:bg-blue-100 text-gray-700 dark:bg-slate-700 dark:hover:bg-slate-600"
-                onClick={() => setIsProfileDialogOpen(true)}
-              >
-                edit profile
-              </Button>
             </div>
           </div>
         </div>
