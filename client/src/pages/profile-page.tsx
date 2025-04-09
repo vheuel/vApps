@@ -40,7 +40,6 @@ import {
   ArrowLeft,
   Globe,
   Building2,
-  CheckCircle,
   Pencil,
   MoreVertical,
   MessageSquare,
@@ -53,6 +52,7 @@ import {
   Link as LinkIcon,
   MapPinIcon
 } from "lucide-react";
+import { MdVerified } from "react-icons/md";
 import PortfolioTab from "@/components/profile/portfolio-tab";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -307,7 +307,7 @@ export default function ProfilePage() {
           <div className="flex items-center mb-1">
             <h1 className="text-xl font-bold">{user.username}</h1>
             {user.isAdmin && (
-              <CheckCircle className="h-5 w-5 text-blue-500 ml-2" />
+              <MdVerified className="h-5 w-5 text-blue-500 ml-2" />
             )}
           </div>
           
