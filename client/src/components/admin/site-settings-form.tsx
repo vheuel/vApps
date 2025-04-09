@@ -149,203 +149,193 @@ export function SiteSettingsForm({ initialData, onSettingsSaved }: SiteSettingsF
   };
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle>Website Settings</CardTitle>
-        <CardDescription>
-          Customize the appearance and branding of your website.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="siteName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Site Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="My Web3 Project" {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    This will be displayed in the header and browser tab.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <FormField
+          control={form.control}
+          name="siteName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Site Name</FormLabel>
+              <FormControl>
+                <Input placeholder="My Web3 Project" {...field} />
+              </FormControl>
+              <FormDescription>
+                This will be displayed in the header and browser tab.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-            <FormField
-              control={form.control}
-              name="logoUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Logo</FormLabel>
-                  <div className="space-y-2">
-                    {logoPreview ? (
-                      <div className="relative inline-block">
-                        <img
-                          src={logoPreview}
-                          alt="Site Logo"
-                          className="max-h-16 rounded"
-                        />
-                        <button
-                          type="button"
-                          onClick={removeLogo}
-                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="flex items-center justify-center h-16 w-32 border-2 border-dashed border-gray-300 rounded-md">
-                        <p className="text-sm text-gray-500">No logo</p>
-                      </div>
-                    )}
-                    <div>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => document.getElementById("logo-upload")?.click()}
-                        className="flex items-center"
-                      >
-                        <Upload className="h-4 w-4 mr-2" />
-                        Upload Logo
-                      </Button>
-                      <input
-                        id="logo-upload"
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleLogoUpload}
-                      />
-                    </div>
-                  </div>
-                  <FormDescription>
-                    Recommended size: 200x50px. Max file size: 2MB.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="primaryColor"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Primary Color</FormLabel>
-                  <div className="flex space-x-2">
-                    <FormControl>
-                      <Input type="text" placeholder="#3B82F6" {...field} />
-                    </FormControl>
-                    <div
-                      className="w-10 h-10 rounded border"
-                      style={{ backgroundColor: field.value }}
+        <FormField
+          control={form.control}
+          name="logoUrl"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Logo</FormLabel>
+              <div className="space-y-2">
+                {logoPreview ? (
+                  <div className="relative inline-block">
+                    <img
+                      src={logoPreview}
+                      alt="Site Logo"
+                      className="max-h-16 rounded"
                     />
-                    <FormControl>
-                      <Input
-                        type="color"
-                        className="w-10 h-10 p-1 cursor-pointer"
-                        value={field.value}
-                        onChange={(e) => field.onChange(e.target.value)}
-                      />
-                    </FormControl>
+                    <button
+                      type="button"
+                      onClick={removeLogo}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
                   </div>
-                  <FormDescription>
-                    This color will be used for buttons, links, and accent elements.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="footerText"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Footer Text</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="© 2025 My Web3 Project. All Rights Reserved."
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Copyright and legal text shown in the website footer.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="defaultProjectIcon"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Default Project Icon</FormLabel>
-                  <div className="space-y-2">
-                    {defaultIconPreview ? (
-                      <div className="relative inline-block">
-                        <img
-                          src={defaultIconPreview}
-                          alt="Default Project Icon"
-                          className="w-16 h-16 object-cover rounded"
-                        />
-                        <button
-                          type="button"
-                          onClick={removeDefaultIcon}
-                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="flex items-center justify-center h-16 w-16 border-2 border-dashed border-gray-300 rounded-md">
-                        <p className="text-sm text-gray-500">No icon</p>
-                      </div>
-                    )}
-                    <div>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => document.getElementById("default-icon-upload")?.click()}
-                        className="flex items-center"
-                      >
-                        <Upload className="h-4 w-4 mr-2" />
-                        Upload Default Icon
-                      </Button>
-                      <input
-                        id="default-icon-upload"
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleDefaultIconUpload}
-                      />
-                    </div>
+                ) : (
+                  <div className="flex items-center justify-center h-16 w-32 border-2 border-dashed border-gray-300 rounded-md">
+                    <p className="text-sm text-gray-500">No logo</p>
                   </div>
-                  <FormDescription>
-                    This icon will be used for projects without a custom icon. Recommended size: 60x60px. Max file size: 2MB.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="flex justify-end">
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting && (
-                  <AiOutlineLoading className="mr-2 h-4 w-4 animate-spin" />
                 )}
-                Save Settings
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+                <div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => document.getElementById("logo-upload")?.click()}
+                    className="flex items-center"
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    Upload Logo
+                  </Button>
+                  <input
+                    id="logo-upload"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleLogoUpload}
+                  />
+                </div>
+              </div>
+              <FormDescription>
+                Recommended size: 200x50px. Max file size: 2MB.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="primaryColor"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Primary Color</FormLabel>
+              <div className="flex space-x-2">
+                <FormControl>
+                  <Input type="text" placeholder="#3B82F6" {...field} />
+                </FormControl>
+                <div
+                  className="w-10 h-10 rounded border"
+                  style={{ backgroundColor: field.value }}
+                />
+                <FormControl>
+                  <Input
+                    type="color"
+                    className="w-10 h-10 p-1 cursor-pointer"
+                    value={field.value}
+                    onChange={(e) => field.onChange(e.target.value)}
+                  />
+                </FormControl>
+              </div>
+              <FormDescription>
+                This color will be used for buttons, links, and accent elements.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="footerText"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Footer Text</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="© 2025 My Web3 Project. All Rights Reserved."
+                  {...field}
+                />
+              </FormControl>
+              <FormDescription>
+                Copyright and legal text shown in the website footer.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="defaultProjectIcon"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Default Project Icon</FormLabel>
+              <div className="space-y-2">
+                {defaultIconPreview ? (
+                  <div className="relative inline-block">
+                    <img
+                      src={defaultIconPreview}
+                      alt="Default Project Icon"
+                      className="w-16 h-16 object-cover rounded"
+                    />
+                    <button
+                      type="button"
+                      onClick={removeDefaultIcon}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center h-16 w-16 border-2 border-dashed border-gray-300 rounded-md">
+                    <p className="text-sm text-gray-500">No icon</p>
+                  </div>
+                )}
+                <div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => document.getElementById("default-icon-upload")?.click()}
+                    className="flex items-center"
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    Upload Default Icon
+                  </Button>
+                  <input
+                    id="default-icon-upload"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleDefaultIconUpload}
+                  />
+                </div>
+              </div>
+              <FormDescription>
+                This icon will be used for projects without a custom icon. Recommended size: 60x60px. Max file size: 2MB.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <div className="flex justify-end">
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting && (
+              <AiOutlineLoading className="mr-2 h-4 w-4 animate-spin" />
+            )}
+            Save Settings
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 }
