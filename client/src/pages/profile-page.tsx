@@ -19,7 +19,6 @@ import ProjectForm from "@/components/project/project-form";
 import { formatDistanceToNow } from "date-fns";
 import { UserIcon, BriefcaseIcon, CalendarIcon, MailIcon, Plus, Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import RecentActivity from "@/components/RecentActivity";
 
 export default function ProfilePage() {
   const { user } = useAuth();
@@ -202,7 +201,7 @@ export default function ProfilePage() {
           </TabsContent>
 
           <TabsContent value="activity" className="p-4">
-            <RecentActivity />
+            {/* Removed import and reference to RecentActivity */}
           </TabsContent>
         </Tabs>
       </Card>
