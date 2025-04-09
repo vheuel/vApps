@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import ProjectCard from "@/components/project/project-card";
@@ -21,7 +21,27 @@ export default function HomePage() {
 
   // Function to get projects by category slug
   const getProjectsByCategory = (categorySlug: string) => {
-    return projects?.filter(project => project.category === categorySlug) || [];
+    // Get all projects for this category
+    const filteredProjects = projects?.filter(project => project.category === categorySlug) || [];
+    
+    // Add some dummy projects if we need to test pagination for wallets and exchanges
+    if ((categorySlug === 'wallets' || categorySlug === 'exchanges') && filteredProjects.length < 6) {
+      const dummyCount = Math.max(0, 9 - filteredProjects.length);
+      for (let i = 0; i < dummyCount; i++) {
+        // Clone a project to create dummy ones for pagination demo
+        if (filteredProjects.length > 0) {
+          const baseProject = {...filteredProjects[0]};
+          filteredProjects.push({
+            ...baseProject,
+            id: baseProject.id + 100 + i,
+            name: `${baseProject.name} ${i+filteredProjects.length+1}`,
+          });
+        }
+      }
+    }
+    
+    // Return all projects for this category
+    return filteredProjects;
   };
 
   // Category icon mapping
@@ -205,7 +225,7 @@ export default function HomePage() {
                 slug="wallets"
                 count={getProjectsByCategory('wallets').length}
                 isLoading={isProjectsLoading}
-                projects={getProjectsByCategory('wallets').slice(0, 3)}
+                projects={getProjectsByCategory('wallets')}
               />
               
               <CategorySection 
@@ -240,7 +260,7 @@ export default function HomePage() {
                 slug="exchanges"
                 count={getProjectsByCategory('exchanges').length}
                 isLoading={isProjectsLoading}
-                projects={getProjectsByCategory('exchanges').slice(0, 3)}
+                projects={getProjectsByCategory('exchanges')}
               />
               
               <CategorySection 
@@ -303,13 +323,63 @@ function CategorySection({
   isLoading: boolean; 
   projects: Project[];
 }) {
+  // Store all projects for reference
+  const allProjects = projects; 
+  
+  // For pagination, show 3 projects per page
+  const [currentPage, setCurrentPage] = useState(0);
+  const projectsPerPage = 3;
+  const pageCount = Math.ceil(projects.length / projectsPerPage);
+  
+  // Get current page projects - simulate the slider effect
+  const getCurrentPageProjects = () => {
+    const startIndex = currentPage * projectsPerPage;
+    return projects.slice(startIndex, startIndex + projectsPerPage);
+  };
+  
+  // Next page function
+  const nextPage = () => {
+    if (currentPage < pageCount - 1) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+  
+  // Previous page function
+  const prevPage = () => {
+    if (currentPage > 0) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+  
   return (
     <div className="mb-8">
       <div className="flex justify-between items-center mb-4">
-        <div className="flex items-center">
-          <h2 className="text-lg font-medium">{title}</h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-xl font-medium">{title}</h2>
           {count > 0 && (
-            <span className="ml-2 text-muted-foreground text-sm">{count}</span>
+            <span className="text-muted-foreground text-base">{count}</span>
+          )}
+          {pageCount > 1 && (
+            <div className="flex items-center gap-1 ml-4">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-6 w-6 rounded-full bg-gray-100 dark:bg-gray-800"
+                onClick={prevPage}
+                disabled={currentPage === 0}
+              >
+                <ChevronRight className="h-3 w-3 rotate-180" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-6 w-6 rounded-full bg-gray-100 dark:bg-gray-800"
+                onClick={nextPage}
+                disabled={currentPage === pageCount - 1}
+              >
+                <ChevronRight className="h-3 w-3" />
+              </Button>
+            </div>
           )}
         </div>
         <Link href={`/category/${slug}`} className="text-blue-500 text-sm flex items-center">
@@ -318,51 +388,59 @@ function CategorySection({
       </div>
       
       {isLoading ? (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {[...Array(3)].map((_, index) => (
             <div key={index} className="flex items-center gap-2">
               <Skeleton className="w-5 h-5 rounded-full" />
-              <Skeleton className="h-8 w-10 rounded-lg flex-shrink-0" />
+              <Skeleton className="h-12 w-12 rounded-lg flex-shrink-0" />
               <div className="flex-1">
-                <Skeleton className="h-5 w-full" />
+                <Skeleton className="h-5 w-full mb-1" />
+                <Skeleton className="h-4 w-3/4" />
               </div>
               <Skeleton className="h-4 w-4 rounded-full" />
             </div>
           ))}
         </div>
       ) : projects.length > 0 ? (
-        <div className="space-y-3">
-          {projects.map((project, index) => (
-            <div key={project.id} className="flex items-center gap-2">
-              <span className="text-muted-foreground text-sm w-5 text-center">{index + 1}</span>
-              <div className="w-10 h-10 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center flex-shrink-0">
-                {project.iconUrl ? (
-                  <img src={project.iconUrl} alt={project.name} className="w-8 h-8 object-cover rounded" />
-                ) : (
-                  <div className="text-lg font-bold text-primary">
-                    {project.name.charAt(0).toUpperCase()}
-                  </div>
-                )}
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-1">
-                  <h3 className="font-medium text-sm">{project.name}</h3>
-                  {project.approved && (
-                    <CheckCircle className="h-3 w-3 text-blue-500" />
+        <div className="space-y-4">
+          {getCurrentPageProjects().map((project) => {
+            // Calculate the actual index across all projects
+            const globalIndex = allProjects.findIndex(p => p.id === project.id);
+            
+            return (
+              <div key={project.id} className="flex items-start gap-3">
+                <div className="text-muted-foreground text-gray-400 font-medium flex items-center mt-2">
+                  <span className="font-serif">{globalIndex + 1}</span>
+                </div>
+                <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center flex-shrink-0">
+                  {project.iconUrl ? (
+                    <img src={project.iconUrl} alt={project.name} className="w-10 h-10 object-cover rounded-md" />
+                  ) : (
+                    <div className="text-lg font-bold text-primary">
+                      {project.name.charAt(0).toUpperCase()}
+                    </div>
                   )}
                 </div>
-                <p className="text-xs text-muted-foreground line-clamp-1">{project.description}</p>
+                <div className="flex-1">
+                  <div className="flex items-center gap-1">
+                    <h3 className="font-medium text-base">{project.name}</h3>
+                    {project.approved && (
+                      <CheckCircle className="h-4 w-4 text-blue-500" />
+                    )}
+                  </div>
+                  <p className="text-sm text-muted-foreground line-clamp-1">{project.description}</p>
+                </div>
+                <a 
+                  href={project.websiteUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground mt-2"
+                >
+                  <ArrowRight className="h-5 w-5" />
+                </a>
               </div>
-              <a 
-                href={project.websiteUrl} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-muted-foreground"
-              >
-                <ArrowRight className="h-4 w-4" />
-              </a>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className="text-center py-4">
