@@ -53,7 +53,6 @@ import {
   Link as LinkIcon,
   MapPinIcon
 } from "lucide-react";
-import { ProfileCompletion } from "@/components/profile/profile-completion";
 import PortfolioTab from "@/components/profile/portfolio-tab";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -384,22 +383,22 @@ export default function ProfilePage() {
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="w-full flex rounded-none bg-transparent border-b dark:border-gray-700 justify-center">
               <TabsTrigger 
-                value="project" 
-                className="w-36 py-3 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:shadow-none data-[state=active]:text-blue-500 text-gray-700 dark:text-gray-300 font-medium"
-              >
-                project
-              </TabsTrigger>
-              <TabsTrigger 
                 value="activity" 
-                className="w-36 py-3 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:shadow-none data-[state=active]:text-blue-500 text-gray-700 dark:text-gray-300 font-medium"
+                className="w-36 py-3 rounded-none data-[state=active]:border-b-4 data-[state=active]:border-green-500 data-[state=active]:shadow-none data-[state=active]:font-bold text-gray-500 dark:text-gray-400 font-medium data-[state=active]:text-black"
               >
-                activity
+                Activity
               </TabsTrigger>
               <TabsTrigger 
                 value="portfolio" 
-                className="w-36 py-3 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:shadow-none data-[state=active]:text-blue-500 text-gray-700 dark:text-gray-300 font-medium"
+                className="w-36 py-3 rounded-none data-[state=active]:border-b-4 data-[state=active]:border-green-500 data-[state=active]:shadow-none data-[state=active]:font-bold text-gray-500 dark:text-gray-400 font-medium data-[state=active]:text-black"
               >
-                portfolio
+                Portfolio
+              </TabsTrigger>
+              <TabsTrigger 
+                value="project" 
+                className="w-36 py-3 rounded-none data-[state=active]:border-b-4 data-[state=active]:border-green-500 data-[state=active]:shadow-none data-[state=active]:font-bold text-gray-500 dark:text-gray-400 font-medium data-[state=active]:text-black"
+              >
+                Projects
               </TabsTrigger>
             </TabsList>
           </Tabs>
@@ -410,12 +409,6 @@ export default function ProfilePage() {
       <div className="container mx-auto py-4 px-4">
         {activeTab === "project" ? (
           <>
-            {/* Profile Completion Card */}
-            <ProfileCompletion 
-              user={user} 
-              onEditProfile={() => setIsProfileDialogOpen(true)} 
-            />
-
             {isLoading ? (
               <div className="space-y-4">
                 {[...Array(3)].map((_, index) => (
