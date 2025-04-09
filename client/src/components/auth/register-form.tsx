@@ -75,6 +75,12 @@ export function RegisterForm({ onRegisterSuccess }: RegisterFormProps = {}) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {error && (
+          <div className="bg-destructive/15 text-destructive px-4 py-2 rounded-md text-sm">
+            {error.message}
+          </div>
+        )}
+      
         <FormField
           control={form.control}
           name="username"

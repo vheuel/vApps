@@ -41,13 +41,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         credentials: 'include',
       });
 
+      const data = await response.json();
+      
       if (!response.ok) {
-        throw new Error('Login failed');
+        console.error("Login error:", data);
+        throw new Error(data.message || 'Login failed');
       }
 
-      const userData = await response.json();
-      setUser(userData);
+      setUser(data);
     } catch (err) {
+      console.error("Auth error:", err);
       setError(err instanceof Error ? err : new Error('Unknown error'));
     } finally {
       setIsLoading(false);
@@ -88,13 +91,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         credentials: 'include',
       });
 
+      const data = await response.json();
+      
       if (!response.ok) {
-        throw new Error('Registration failed');
+        console.error("Registration error:", data);
+        throw new Error(data.message || 'Registration failed');
       }
 
-      const newUser = await response.json();
-      setUser(newUser);
+      setUser(data);
     } catch (err) {
+      console.error("Registration error:", err);
       setError(err instanceof Error ? err : new Error('Unknown error'));
     } finally {
       setIsLoading(false);
