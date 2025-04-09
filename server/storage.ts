@@ -133,7 +133,7 @@ export class DatabaseStorage implements IStorage {
 
   async getProjectsByCategory(category: string): Promise<Project[]> {
     return await db.select().from(projects).where(eq(projects.category, category));
-  }
+  },
 
   async incrementProjectClicks(id: number): Promise<void> {
     await db
