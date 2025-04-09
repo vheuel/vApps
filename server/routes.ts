@@ -93,6 +93,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     password: z.string().min(6).optional(),
     email: z.string().email().optional(),
     currentPassword: z.string().optional(), // For password verification
+    bio: z.string().max(200).optional(),
+    location: z.string().max(100).optional(),
+    website: z.string().url().optional().or(z.literal("")),
+    avatarUrl: z.string().optional(),
   });
 
   app.put("/api/user/update", async (req, res) => {

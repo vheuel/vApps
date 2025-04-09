@@ -6,8 +6,6 @@ import { Project, InsertProject, User } from "@shared/schema";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import {
   Dialog,
   DialogContent,
@@ -29,32 +27,38 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Textarea } from "@/components/ui/textarea";
 
 import ProjectCard from "@/components/project/project-card";
 import ProjectForm from "@/components/project/project-form";
-import { formatDistanceToNow } from "date-fns";
+import { format, formatDistanceToNow } from "date-fns";
 import { 
   UserIcon, 
   BriefcaseIcon, 
   CalendarIcon, 
   MailIcon, 
-  Plus, 
-  Loader2, 
-  Pencil, 
-  Settings, 
-  LockKeyhole, 
-  Save, 
-  AlertCircle,
-  ShieldCheck
+  ArrowLeft,
+  Globe,
+  Building2,
+  CheckCircle,
+  Pencil,
+  MoreVertical,
+  MessageSquare,
+  Zap,
+  Heart,
+  RotateCw,
+  Bookmark
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Separator } from "@/components/ui/separator";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 // Schema for profile edit
 const profileSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters").max(50),
   email: z.string().email("Please enter a valid email address"),
+  website: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
+  bio: z.string().max(200, "Bio should be less than 200 characters").optional(),
+  location: z.string().max(100).optional(),
 });
 
 // Schema for password change
@@ -75,7 +79,7 @@ export default function ProfilePage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("projects");
+  const [activeTab, setActiveTab] = useState("project");
 
   const { data: projects, isLoading, isError, error } = useQuery<Project[]>({
     queryKey: ["/api/user/projects"],
@@ -99,6 +103,9 @@ export default function ProfilePage() {
     defaultValues: {
       username: user?.username || "",
       email: user?.email || "",
+      website: user?.website || "",
+      bio: user?.bio || "",
+      location: user?.location || "",
     },
   });
 
@@ -223,149 +230,138 @@ export default function ProfilePage() {
   const verifiedProjects = projects?.filter(p => p.verified).length || 0;
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        {/* User Info Card */}
-        <Card className="md:col-span-2">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-2xl">Profile</CardTitle>
-              <div className="flex space-x-2">
-                <Button variant="outline" size="sm" onClick={() => setIsProfileDialogOpen(true)}>
-                  <Pencil className="h-4 w-4 mr-2" />
-                  Edit Profile
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => setIsPasswordDialogOpen(true)}>
-                  <LockKeyhole className="h-4 w-4 mr-2" />
-                  Change Password
-                </Button>
-              </div>
+    <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
+      {/* Header */}
+      <div className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 shadow-sm">
+        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+          <button onClick={() => navigate("/")} className="text-gray-500 dark:text-gray-400">
+            <ArrowLeft className="h-6 w-6" />
+          </button>
+          <div className="flex">
+            <button className="text-gray-500 dark:text-gray-400 mr-4">
+              <Globe className="h-6 w-6" />
+            </button>
+            <button className="text-gray-500 dark:text-gray-400">
+              <MoreVertical className="h-6 w-6" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Profile Header */}
+      <div className="bg-white dark:bg-gray-800 border-b dark:border-gray-700">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex flex-col items-center">
+            <div className="mb-4 relative">
+              <Avatar className="h-24 w-24 border-4 border-white dark:border-gray-800 shadow-lg">
+                {user.avatarUrl && <AvatarImage src={user.avatarUrl} />}
+                <AvatarFallback className="bg-gray-200 dark:bg-gray-700">
+                  <UserIcon className="h-12 w-12 text-gray-500 dark:text-gray-400" />
+                </AvatarFallback>
+              </Avatar>
             </div>
-            <Separator className="mt-4" />
-          </CardHeader>
-          <CardContent className="pt-4">
-            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-              <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
-                <UserIcon className="h-12 w-12 text-white" />
+
+            <div className="text-center mb-6">
+              <div className="flex items-center justify-center">
+                <h1 className="text-2xl font-bold">{user.username}</h1>
+                {user.isAdmin && (
+                  <CheckCircle className="h-5 w-5 text-blue-500 ml-1" />
+                )}
               </div>
-              <div className="flex-1">
-                <h2 className="text-2xl font-bold">{user?.username}</h2>
-                <p className="text-muted-foreground">{user?.email}</p>
-                
-                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-muted/40 rounded-lg p-4">
-                    <div className="flex items-center mb-2">
-                      <BriefcaseIcon className="h-5 w-5 text-blue-500 mr-2" />
-                      <h3 className="font-medium">Projects</h3>
-                    </div>
-                    <div className="text-3xl font-bold">{totalProjects}</div>
-                    <div className="flex mt-2 text-sm text-muted-foreground">
-                      <span className="flex items-center mr-4">
-                        <span className="h-2 w-2 rounded-full bg-green-500 mr-1"></span> {approvedProjects} approved
-                      </span>
-                      <span className="flex items-center">
-                        <span className="h-2 w-2 rounded-full bg-amber-500 mr-1"></span> {pendingProjects} pending
-                      </span>
-                    </div>
+              <p className="text-gray-500 dark:text-gray-400 mt-1">{user.email}</p>
+
+              {user.bio && (
+                <p className="mt-3 text-gray-700 dark:text-gray-300 max-w-md text-center">
+                  {user.bio || "user biografi"}
+                </p>
+              )}
+
+              <div className="flex items-center justify-center mt-3 text-sm text-gray-500 dark:text-gray-400 space-x-4">
+                {user.location && (
+                  <div className="flex items-center">
+                    <Building2 className="h-4 w-4 mr-1" />
+                    <span>{user.location || "User office"}</span>
                   </div>
-                  
-                  <div className="bg-muted/40 rounded-lg p-4">
-                    <div className="flex items-center mb-2">
-                      <ShieldCheck className="h-5 w-5 text-blue-500 mr-2" />
-                      <h3 className="font-medium">Verified Projects</h3>
-                    </div>
-                    <div className="text-3xl font-bold">{verifiedProjects}</div>
-                    <div className="mt-2 text-sm text-muted-foreground">
-                      {verifiedProjects > 0 
-                        ? `${Math.round((verifiedProjects / totalProjects) * 100)}% of your projects are verified`
-                        : "No verified projects yet"}
-                    </div>
-                  </div>
+                )}
+                <div className="flex items-center">
+                  <Globe className="h-4 w-4 mr-1" />
+                  <a href={user.website || "#"} target="_blank" rel="noopener noreferrer" 
+                     className="text-blue-500 hover:underline">
+                    {user.website && user.website.trim() !== "" ? 
+                      new URL(user.website).hostname : 
+                      "userwebsite.com"}
+                  </a>
+                </div>
+                <div className="flex items-center">
+                  <CalendarIcon className="h-4 w-4 mr-1" />
+                  <span>Joined {user.memberSince ? format(new Date(user.memberSince), "MMM yyyy") : "March 2013"}</span>
                 </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Membership Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Membership</CardTitle>
-            <CardDescription>Your account information</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium">Member since</span>
-              <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 px-2 py-1 rounded text-xs">
-                {user?.memberSince && formatDistanceToNow(new Date(user.memberSince), { addSuffix: true })}
-              </span>
-            </div>
-            
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium">Status</span>
-              <div className="flex items-center">
-                <span className="h-2 w-2 rounded-full bg-green-500 mr-2"></span>
-                <span className="text-sm">Active</span>
-              </div>
-            </div>
-            
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium">Role</span>
-              <span className="text-sm">
-                {user?.isAdmin ? (
-                  <span className="bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 px-2 py-1 rounded text-xs">
-                    Administrator
-                  </span>
-                ) : (
-                  <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 px-2 py-1 rounded text-xs">
-                    Standard User
-                  </span>
-                )}
-              </span>
-            </div>
-            
-            <div className="pt-2">
-              <Button asChild className="w-full">
-                <Link href="/submit">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Submit New Project
-                </Link>
+            <div className="w-full max-w-md">
+              <Button 
+                variant="outline" 
+                className="w-full rounded-full"
+                onClick={() => setIsProfileDialogOpen(true)}
+              >
+                edit profile
               </Button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
-      {/* Tabs Section */}
-      <Card>
-        <Tabs 
-          defaultValue="projects" 
-          value={activeTab} 
-          onValueChange={setActiveTab}
-          className="w-full"
-        >
-          <TabsList className="w-full border-b rounded-none">
-            <TabsTrigger value="projects" className="flex-1">
-              <BriefcaseIcon className="h-4 w-4 mr-2" />
-              My Projects
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="flex-1">
-              <Settings className="h-4 w-4 mr-2" />
-              Account Settings
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="projects" className="p-4">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-semibold">My Projects</h3>
-              <Button asChild>
-                <Link href="/submit">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Project
-                </Link>
-              </Button>
+      {/* Stats */}
+      <div className="bg-white dark:bg-gray-800 border-b dark:border-gray-700">
+        <div className="container mx-auto">
+          <div className="grid grid-cols-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="py-4 text-center">
+              <p className="text-2xl font-bold">{totalProjects}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">project</p>
             </div>
+            <div className="py-4 text-center">
+              <p className="text-2xl font-bold">{verifiedProjects}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">verified project</p>
+            </div>
+            <div className="py-4 text-center">
+              <p className="text-2xl font-bold">{pendingProjects}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">pending</p>
+            </div>
+            <div className="py-4 text-center">
+              <p className="text-2xl font-bold">{approvedProjects}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">approved</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
+      {/* Tabs */}
+      <div className="bg-white dark:bg-gray-800 border-b dark:border-gray-700">
+        <div className="container mx-auto">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="w-full grid grid-cols-2 rounded-none bg-transparent border-b dark:border-gray-700">
+              <TabsTrigger 
+                value="project" 
+                className={`py-3 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:shadow-none data-[state=active]:text-blue-500 text-gray-700 dark:text-gray-300 font-medium`}
+              >
+                project
+              </TabsTrigger>
+              <TabsTrigger 
+                value="activity" 
+                className={`py-3 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:shadow-none data-[state=active]:text-blue-500 text-gray-700 dark:text-gray-300 font-medium`}
+              >
+                activity
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+      </div>
+
+      {/* Tab Content */}
+      <div className="container mx-auto py-4 px-4">
+        {activeTab === "project" ? (
+          <>
             {isLoading ? (
               <div className="space-y-4">
                 {[...Array(3)].map((_, index) => (
@@ -373,84 +369,109 @@ export default function ProfilePage() {
                 ))}
               </div>
             ) : projects && projects.length > 0 ? (
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {projects.map((project) => (
-                  <ProjectCard 
-                    key={project.id} 
-                    project={project} 
-                    showActions 
-                    onEdit={handleEditProject}
-                    showVerificationIcon
-                  />
+                  <div key={project.id} className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex">
+                        <Avatar className="h-10 w-10 mr-3">
+                          <AvatarFallback>{user.username.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="flex items-center">
+                            <span className="font-semibold">{user.username}</span>
+                            <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">
+                              • {formatDistanceToNow(new Date(project.createdAt), { addSuffix: true })}
+                            </span>
+                          </div>
+                          <div className="mt-2">
+                            <span className="font-semibold">{user.username}</span> just added a{' '}
+                            <Link
+                              href={`/category/${project.category}`}
+                              className="text-blue-500 hover:underline"
+                            >
+                              project name
+                            </Link>{' '}
+                            to{' '}
+                            <Link
+                              href={`/category/${project.category}`}
+                              className="text-blue-500 hover:underline"
+                            >
+                              the category
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                      <button onClick={() => handleEditProject(project)}>
+                        <MoreVertical className="h-5 w-5 text-gray-500" />
+                      </button>
+                    </div>
+                    
+                    {/* Project Card */}
+                    <div className="mt-4 p-3 border dark:border-gray-700 rounded-lg">
+                      <div className="flex items-start">
+                        <Avatar className="h-10 w-10 mr-3">
+                          <AvatarFallback>{project.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <h3 className="font-semibold">{project.name}</h3>
+                          <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">{project.description}</p>
+                          <div className="mt-2">
+                            <a 
+                              href={project.websiteUrl} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-blue-500 text-sm hover:underline"
+                            >
+                              {project.websiteUrl}
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Interaction Buttons */}
+                    <div className="mt-3 flex items-center justify-between text-gray-500 dark:text-gray-400">
+                      <div className="flex items-center">
+                        <button className="p-2 hover:text-blue-500 flex items-center">
+                          <MessageSquare className="h-5 w-5 mr-1" />
+                          <span>1</span>
+                        </button>
+                        <button className="p-2 hover:text-blue-500 flex items-center">
+                          <Zap className="h-5 w-5 mr-1" />
+                          <span>1</span>
+                        </button>
+                      </div>
+                      <div className="flex items-center">
+                        <button className="p-2 hover:text-red-500">
+                          <Heart className="h-5 w-5" />
+                        </button>
+                        <button className="p-2 hover:text-blue-500">
+                          <RotateCw className="h-5 w-5" />
+                        </button>
+                        <button className="p-2 hover:text-yellow-500">
+                          <Bookmark className="h-5 w-5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground mb-4">You haven't submitted any projects yet.</p>
+              <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow">
+                <p className="text-gray-500 dark:text-gray-400 mb-4">You haven't submitted any projects yet.</p>
                 <Button asChild>
                   <Link href="/submit">Submit Your First Project</Link>
                 </Button>
               </div>
             )}
-          </TabsContent>
-
-          <TabsContent value="settings" className="p-6">
-            <div className="max-w-2xl mx-auto">
-              <h3 className="text-2xl font-bold mb-6">Account Settings</h3>
-              
-              <div className="space-y-8">
-                {/* Profile Information */}
-                <div>
-                  <h4 className="text-lg font-medium mb-4 flex items-center">
-                    <UserIcon className="h-5 w-5 mr-2 text-blue-500" />
-                    Profile Information
-                  </h4>
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                          <h5 className="text-sm font-medium text-muted-foreground mb-1">Username</h5>
-                          <p className="font-medium">{user.username}</p>
-                        </div>
-                        <div>
-                          <h5 className="text-sm font-medium text-muted-foreground mb-1">Email</h5>
-                          <p className="font-medium">{user.email}</p>
-                        </div>
-                      </div>
-                      <div className="mt-6">
-                        <Button variant="outline" onClick={() => setIsProfileDialogOpen(true)}>
-                          <Pencil className="h-4 w-4 mr-2" />
-                          Edit Profile
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* Security Settings */}
-                <div>
-                  <h4 className="text-lg font-medium mb-4 flex items-center">
-                    <LockKeyhole className="h-5 w-5 mr-2 text-blue-500" />
-                    Security
-                  </h4>
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="mb-6">
-                        <h5 className="text-sm font-medium text-muted-foreground mb-1">Password</h5>
-                        <p className="font-medium">••••••••</p>
-                      </div>
-                      <Button variant="outline" onClick={() => setIsPasswordDialogOpen(true)}>
-                        <LockKeyhole className="h-4 w-4 mr-2" />
-                        Change Password
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-        </Tabs>
-      </Card>
+          </>
+        ) : (
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 text-center">
+            <p className="text-gray-500 dark:text-gray-400">No recent activities.</p>
+          </div>
+        )}
+      </div>
 
       {/* Edit Project Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
@@ -480,7 +501,7 @@ export default function ProfilePage() {
           </DialogHeader>
           
           <Form {...profileForm}>
-            <form onSubmit={profileForm.handleSubmit(onProfileSubmit)} className="space-y-6">
+            <form onSubmit={profileForm.handleSubmit(onProfileSubmit)} className="space-y-4">
               <FormField
                 control={profileForm.control}
                 name="username"
@@ -509,7 +530,56 @@ export default function ProfilePage() {
                 )}
               />
               
-              <DialogFooter>
+              <FormField
+                control={profileForm.control}
+                name="bio"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Bio</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        {...field} 
+                        placeholder="Tell a little about yourself" 
+                        className="resize-none"
+                        rows={3}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={profileForm.control}
+                  name="location"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Location</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Your location" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={profileForm.control}
+                  name="website"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Website</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="https://yourwebsite.com" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              
+              <DialogFooter className="mt-6">
                 <Button type="button" variant="outline" onClick={() => setIsProfileDialogOpen(false)}>
                   Cancel
                 </Button>
@@ -517,17 +587,7 @@ export default function ProfilePage() {
                   type="submit"
                   disabled={updateProfileMutation.isPending}
                 >
-                  {updateProfileMutation.isPending ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Saving...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="mr-2 h-4 w-4" />
-                      Save Changes
-                    </>
-                  )}
+                  {updateProfileMutation.isPending ? "Saving..." : "Save Changes"}
                 </Button>
               </DialogFooter>
             </form>
@@ -546,7 +606,7 @@ export default function ProfilePage() {
           </DialogHeader>
           
           <Form {...passwordForm}>
-            <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-6">
+            <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-4">
               <FormField
                 control={passwordForm.control}
                 name="currentPassword"
@@ -589,14 +649,7 @@ export default function ProfilePage() {
                 )}
               />
               
-              <Alert variant="destructive" className="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800">
-                <AlertCircle className="h-4 w-4 mr-2" />
-                <AlertDescription>
-                  Make sure your password is at least 6 characters and includes numbers or special characters for better security.
-                </AlertDescription>
-              </Alert>
-              
-              <DialogFooter>
+              <DialogFooter className="mt-6">
                 <Button type="button" variant="outline" onClick={() => setIsPasswordDialogOpen(false)}>
                   Cancel
                 </Button>
@@ -604,17 +657,7 @@ export default function ProfilePage() {
                   type="submit"
                   disabled={updatePasswordMutation.isPending}
                 >
-                  {updatePasswordMutation.isPending ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Updating...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="mr-2 h-4 w-4" />
-                      Update Password
-                    </>
-                  )}
+                  {updatePasswordMutation.isPending ? "Updating..." : "Update Password"}
                 </Button>
               </DialogFooter>
             </form>
