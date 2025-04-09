@@ -229,8 +229,7 @@ export default function ProjectForm({
                     onClick={() => document.getElementById("project-icon-upload")?.click()}
                     className="cursor-pointer flex items-center justify-center h-16 w-16 border-2 border-dashed border-gray-300 rounded-md">
                     <div className="text-gray-400 text-center">
-                      <div className="text-sm font-light">No icon</div>
-                      <div className="mt-1">+</div>
+                      <div className="text-2xl font-bold">+</div>
                     </div>
                   </div>
                 )}
