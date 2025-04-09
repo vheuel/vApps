@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import ProjectCard from "@/components/project/project-card";
@@ -323,34 +323,6 @@ function CategorySection({
   isLoading: boolean; 
   projects: Project[];
 }) {
-  // Store all projects for reference
-  const allProjects = projects; 
-  
-  // For pagination, show 3 projects per page
-  const [currentPage, setCurrentPage] = useState(0);
-  const projectsPerPage = 3;
-  const pageCount = Math.ceil(projects.length / projectsPerPage);
-  
-  // Get current page projects - simulate the slider effect
-  const getCurrentPageProjects = () => {
-    const startIndex = currentPage * projectsPerPage;
-    return projects.slice(startIndex, startIndex + projectsPerPage);
-  };
-  
-  // Next page function
-  const nextPage = () => {
-    if (currentPage < pageCount - 1) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
-  
-  // Previous page function
-  const prevPage = () => {
-    if (currentPage > 0) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
-  
   return (
     <div className="mb-8">
       <div className="flex justify-between items-center mb-4">
@@ -358,28 +330,6 @@ function CategorySection({
           <h2 className="text-xl font-medium">{title}</h2>
           {count > 0 && (
             <span className="text-muted-foreground text-base">{count}</span>
-          )}
-          {pageCount > 1 && (
-            <div className="flex items-center gap-1 ml-4">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="h-6 w-6 rounded-full bg-gray-100 dark:bg-gray-800"
-                onClick={prevPage}
-                disabled={currentPage === 0}
-              >
-                <ChevronRight className="h-3 w-3 rotate-180" />
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="h-6 w-6 rounded-full bg-gray-100 dark:bg-gray-800"
-                onClick={nextPage}
-                disabled={currentPage === pageCount - 1}
-              >
-                <ChevronRight className="h-3 w-3" />
-              </Button>
-            </div>
           )}
         </div>
         <Link href={`/category/${slug}`} className="text-blue-500 text-sm flex items-center">
@@ -403,14 +353,13 @@ function CategorySection({
         </div>
       ) : projects.length > 0 ? (
         <div className="space-y-4">
-          {getCurrentPageProjects().map((project) => {
-            // Calculate the actual index across all projects
-            const globalIndex = allProjects.findIndex(p => p.id === project.id);
-            
+          {projects.slice(0, 3).map((project, index) => {
             return (
               <div key={project.id} className="flex items-start gap-3">
                 <div className="text-muted-foreground text-gray-400 font-medium flex items-center mt-2">
-                  <span className="font-serif">{globalIndex + 1}</span>
+                  <span className="text-sm font-serif">
+                    {index + 1}
+                  </span>
                 </div>
                 <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center flex-shrink-0">
                   {project.iconUrl ? (
