@@ -2,13 +2,12 @@ import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation, useParams } from "wouter";
 import { Project, Category } from "@shared/schema";
-import CategoryTabs from "@/components/project/category-tabs";
 import ProjectCard from "@/components/project/project-card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { Link } from "wouter";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, ArrowLeft } from "lucide-react";
 
 // Kategori deskripsi hardcoded (sebagai alternatif dari pemanggilan API)
 const categoryDescriptions: Record<string, string> = {
@@ -62,15 +61,26 @@ export default function CategoryPage() {
   return (
     <>
       <div className="container mx-auto py-6 px-4">
-        <h1 className="text-3xl font-bold mb-2">{formatCategoryName(category)}</h1>
+        <div className="flex items-center mb-4">
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={() => navigate("/")}
+            className="mr-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </Button>
+          <h1 className="text-3xl font-bold">{formatCategoryName(category)}</h1>
+          {categoryData && (
+            <span className="ml-3 text-muted-foreground text-sm">{projects?.length || 0}</span>
+          )}
+        </div>
         
         {categoryDescription && (
           <p className="text-muted-foreground mb-6">{categoryDescription}</p>
         )}
         
-        <CategoryTabs />
-        
-        <div className="mt-6">
+        <div className="mt-4">
           {isLoading ? (
             <div className="space-y-4">
               {[...Array(5)].map((_, index) => (
