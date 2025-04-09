@@ -2,7 +2,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, hashPassword } from "./auth";
+import { setupAuth, hashPassword, comparePasswords } from "./auth";
 import { z } from "zod";
 import { insertProjectSchema, insertCategorySchema } from "@shared/schema";
 
@@ -92,6 +92,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     username: z.string().min(3).max(50).optional(),
     password: z.string().min(6).optional(),
     email: z.string().email().optional(),
+    currentPassword: z.string().optional(), // For password verification
   });
 
   app.put("/api/user/update", async (req, res) => {
@@ -106,9 +107,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         validatedData.password = await hashPassword(validatedData.password);
       }
 
-      // For now, since updateUser isn't implemented in storage, we'll return the user
-      // This should be updated when implementing updateUser in storage
-      const updatedUser = req.user; // Temporary solution
+      // Verifikasi password lama jika ada perubahan password
+      if (validatedData.password && validatedData.currentPassword) {
+        // Check if current password is correct
+        const isPasswordValid = await comparePasswords(validatedData.currentPassword, req.user.password);
+        
+        if (!isPasswordValid) {
+          return res.status(401).json({ message: "Current password is incorrect" });
+        }
+        
+        // Remove the currentPassword field to avoid storing it
+        delete validatedData.currentPassword;
+      }
+      
+      // Update user in database
+      const updatedUser = await storage.updateUser(req.user.id, validatedData);
       res.status(200).json(updatedUser);
     } catch (error) {
       if (error instanceof z.ZodError) {
