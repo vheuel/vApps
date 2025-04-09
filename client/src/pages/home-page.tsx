@@ -86,9 +86,13 @@ export default function HomePage() {
       {/* Featured Articles/News Section (TON.app uses for market info) */}
       <section className="py-6 px-4">
         <div className="container mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-medium">Featured Content</h2>
+          </div>
+          
+          <div className="flex overflow-x-auto pb-4 -mx-4 px-4 gap-4 snap-x snap-mandatory touch-pan-x hide-scrollbar">
             {/* Market Data Card */}
-            <Card className="overflow-hidden relative bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30">
+            <Card className="flex-shrink-0 w-full sm:w-80 min-h-[260px] snap-start overflow-hidden relative bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30">
               <div className="p-4">
                 <div className="mb-4">
                   <div className="text-lg font-bold">TON</div>
@@ -117,7 +121,7 @@ export default function HomePage() {
             </Card>
             
             {/* Featured Article 1 */}
-            <Card className="overflow-hidden relative bg-cover bg-center" style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1639322537504-6427a16b0a28?q=80&w=500&auto=format&fit=crop")' }}>
+            <Card className="flex-shrink-0 w-full sm:w-80 min-h-[260px] snap-start overflow-hidden relative bg-cover bg-center" style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1639322537504-6427a16b0a28?q=80&w=500&auto=format&fit=crop")' }}>
               <div className="absolute inset-0 bg-black/50"></div>
               <div className="relative p-4 text-white h-full flex flex-col justify-between">
                 <div className="bg-white/20 text-white px-2 py-1 rounded-md text-xs self-start backdrop-blur-sm">
@@ -133,7 +137,7 @@ export default function HomePage() {
             </Card>
             
             {/* Featured Article 2 */}
-            <Card className="overflow-hidden relative bg-cover bg-center" style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=500&auto=format&fit=crop")' }}>
+            <Card className="flex-shrink-0 w-full sm:w-80 min-h-[260px] snap-start overflow-hidden relative bg-cover bg-center" style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=500&auto=format&fit=crop")' }}>
               <div className="absolute inset-0 bg-black/50"></div>
               <div className="relative p-4 text-white h-full flex flex-col justify-between">
                 <div className="bg-white/20 text-white px-2 py-1 rounded-md text-xs self-start backdrop-blur-sm">
@@ -143,6 +147,22 @@ export default function HomePage() {
                   <h3 className="text-lg font-bold mb-1">How Blockchain Technology Makes Crypto More Accessible</h3>
                   <p className="text-sm text-white/80 line-clamp-2">
                     A conversation about improving blockchain accessibility and user experience.
+                  </p>
+                </div>
+              </div>
+            </Card>
+            
+            {/* Featured Article 3 */}
+            <Card className="flex-shrink-0 w-full sm:w-80 min-h-[260px] snap-start overflow-hidden relative bg-cover bg-center" style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1642104704074-907c0698cbd9?q=80&w=500&auto=format&fit=crop")' }}>
+              <div className="absolute inset-0 bg-black/50"></div>
+              <div className="relative p-4 text-white h-full flex flex-col justify-between">
+                <div className="bg-white/20 text-white px-2 py-1 rounded-md text-xs self-start backdrop-blur-sm">
+                  News
+                </div>
+                <div className="mt-auto">
+                  <h3 className="text-lg font-bold mb-1">The Rise of DeFi: Transforming Financial Landscape</h3>
+                  <p className="text-sm text-white/80 line-clamp-2">
+                    Exploring how decentralized finance is changing traditional financial systems and creating new opportunities.
                   </p>
                 </div>
               </div>
