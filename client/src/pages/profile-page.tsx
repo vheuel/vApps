@@ -54,6 +54,7 @@ import {
   MapPinIcon
 } from "lucide-react";
 import { ProfileCompletion } from "@/components/profile/profile-completion";
+import PortfolioTab from "@/components/profile/portfolio-tab";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -394,6 +395,12 @@ export default function ProfilePage() {
               >
                 activity
               </TabsTrigger>
+              <TabsTrigger 
+                value="portfolio" 
+                className="w-36 py-3 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:shadow-none data-[state=active]:text-blue-500 text-gray-700 dark:text-gray-300 font-medium"
+              >
+                portfolio
+              </TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
@@ -513,10 +520,13 @@ export default function ProfilePage() {
               </div>
             )}
           </>
-        ) : (
+        ) : activeTab === "activity" ? (
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 text-center">
             <p className="text-gray-500 dark:text-gray-400">No recent activities.</p>
           </div>
+        ) : (
+          // Portfolio Tab Content
+          <PortfolioTab />
         )}
       </div>
 
