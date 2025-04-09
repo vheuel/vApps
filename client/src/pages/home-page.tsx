@@ -174,56 +174,58 @@ export default function HomePage() {
       {/* Promoted Apps section */}
       <section className="py-6 px-4">
         <div className="container mx-auto">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-bold">Promoted Apps</h2>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold">Promoted Apps</h2>
             <Button variant="ghost" size="sm" asChild className="text-blue-500 hover:text-blue-600">
-              <Link href="/submit" className="flex items-center gap-1">
-                Add Your Project <span className="ml-1">+</span>
+              <Link href="/submit" className="flex items-center text-base">
+                Add Your Project
               </Link>
             </Button>
           </div>
           
           {isProjectsLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+            <div className="space-y-6">
               {[...Array(3)].map((_, index) => (
-                <div key={index} className="flex items-center gap-3 p-3 border rounded-lg">
-                  <Skeleton className="w-10 h-10 rounded-md flex-shrink-0" />
+                <div key={index} className="flex items-start gap-4">
+                  <Skeleton className="w-16 h-16 rounded-lg flex-shrink-0" />
                   <div className="space-y-2 flex-1">
-                    <Skeleton className="h-5 w-24" />
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="h-5 w-6" />
+                      <Skeleton className="h-6 w-24" />
+                    </div>
                     <Skeleton className="h-4 w-40" />
                   </div>
                 </div>
               ))}
             </div>
           ) : projects && projects.filter(p => p.approved).length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+            <div className="space-y-5">
               {projects.filter(p => p.approved).slice(0, 3).map((project, index) => (
-                <div key={project.id} className="flex items-center gap-3 p-3 border rounded-lg">
-                  <div className="w-10 h-10 bg-gray-100 dark:bg-gray-800 rounded-md flex items-center justify-center flex-shrink-0">
+                <a
+                  key={project.id}
+                  href={project.websiteUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-start gap-4 group"
+                >
+                  <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
                     {project.iconUrl ? (
-                      <img src={project.iconUrl} alt={project.name} className="w-full h-full object-cover rounded-md" />
+                      <img src={project.iconUrl} alt={project.name} className="w-full h-full object-cover" />
                     ) : (
-                      <div className="text-lg font-bold text-primary">
+                      <div className="text-2xl font-bold text-primary">
                         {project.name.charAt(0).toUpperCase()}
                       </div>
                     )}
                   </div>
+                  
                   <div className="flex-1">
-                    <div className="flex items-center">
-                      <span className="text-muted-foreground mr-2">{index + 1}</span>
-                      <h3 className="font-medium">{project.name}</h3>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl text-gray-400">{index + 1}</span>
+                      <h3 className="text-xl font-medium group-hover:underline">{project.name}</h3>
                     </div>
-                    <p className="text-xs text-muted-foreground line-clamp-1">{project.description}</p>
+                    <p className="text-gray-500 text-base line-clamp-1">{project.description}</p>
                   </div>
-                  <a 
-                    href={project.websiteUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-muted-foreground"
-                  >
-                    <ArrowRight className="h-4 w-4" />
-                  </a>
-                </div>
+                </a>
               ))}
             </div>
           ) : (
