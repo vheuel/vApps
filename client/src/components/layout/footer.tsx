@@ -15,7 +15,7 @@ export default function Footer() {
           <div className="space-y-3">
             <h3 className="font-bold text-lg">{siteSettings?.siteName || "EARN App"}</h3>
             <p className="text-muted-foreground max-w-xs">
-              The community-driven catalog for web3 applications and services.
+              The cutting-edge Web3 project discovery platform connecting blockchain innovators through an intelligent, community-driven ecosystem.
             </p>
             <div className="flex space-x-4 mt-4">
               <a 
@@ -125,35 +125,35 @@ export default function Footer() {
             <h4 className="font-medium">Legal</h4>
             <ul className="space-y-2">
               <li>
-                <a 
-                  href="#" 
+                <Link
+                  href="/terms" 
                   className="text-muted-foreground hover:text-primary"
                 >
                   Terms of Service
-                </a>
+                </Link>
               </li>
               <li>
-                <a 
-                  href="#" 
+                <Link
+                  href="/privacy" 
                   className="text-muted-foreground hover:text-primary"
                 >
                   Privacy Policy
-                </a>
+                </Link>
               </li>
               <li>
-                <a 
-                  href="#" 
+                <Link
+                  href="/cookies" 
                   className="text-muted-foreground hover:text-primary"
                 >
                   Cookie Policy
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
         </div>
 
         <div className="border-t border-border/40 mt-8 pt-6 text-center text-sm text-muted-foreground">
-          <p>{siteSettings?.footerText || "© 2025 EARN App. All rights reserved."}</p>
+          <p>{siteSettings?.footerText || "© 2025 vApps by Vheüel. All rights reserved."}</p>
         </div>
       </div>
     </footer>

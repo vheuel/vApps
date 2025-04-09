@@ -9,6 +9,9 @@ import SubmitProjectPage from "@/pages/submit-project-page";
 import CategoryPage from "@/pages/category-page";
 import AdminPage from "@/pages/admin-page";
 import DocumentationPage from "@/pages/documentation-page";
+import TermsPage from "@/pages/terms-page";
+import PrivacyPolicyPage from "@/pages/privacy-policy-page";
+import CookiePolicyPage from "@/pages/cookie-policy-page";
 import NotFound from "@/pages/not-found";
 import { ProtectedRoute } from "./lib/protected-route";
 import { AdminRoute } from "./lib/protected-route";
@@ -25,6 +28,9 @@ function App() {
             <Route path="/auth" component={AuthPage} />
             <Route path="/category/:category" component={CategoryPage} />
             <Route path="/docs" component={DocumentationPage} />
+            <Route path="/terms" component={TermsPage} />
+            <Route path="/privacy" component={PrivacyPolicyPage} />
+            <Route path="/cookies" component={CookiePolicyPage} />
             <ProtectedRoute path="/profile" component={ProfilePage} />
             <ProtectedRoute path="/profile/edit" component={EditProfilePage} />
             <ProtectedRoute path="/submit" component={SubmitProjectPage} />
