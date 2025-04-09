@@ -140,7 +140,7 @@ export class DatabaseStorage implements IStorage {
       .update(projects)
       .set({ clicks: sql`clicks + 1` })
       .where(eq(projects.id, id));
-  },
+  }
 
   async getApprovedProjects(): Promise<Project[]> {
     return db.select()
