@@ -249,75 +249,95 @@ export default function ProfilePage() {
       */}
 
       {/* Profile Header */}
-      <div className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 pb-8">
-        <div className="container mx-auto px-4 pt-8">
-          <div className="relative max-w-3xl mx-auto mb-8">
-            {/* Avatar and Edit Profile Button */}
-            <div className="flex items-start justify-between">
-              <Avatar className="h-24 w-24 bg-gray-100 dark:bg-gray-700 border-[6px] border-white dark:border-gray-800 shadow-lg">
-                {user.avatarUrl && <AvatarImage src={user.avatarUrl} />}
-                <AvatarFallback className="bg-gray-200 dark:bg-gray-700">
-                  <UserIcon className="h-12 w-12 text-gray-500 dark:text-gray-400" />
-                </AvatarFallback>
-              </Avatar>
-              
-              <Button 
-                variant="outline" 
-                className="rounded-full h-12 px-8 text-base font-medium border-gray-200 dark:border-gray-700 bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-slate-700 dark:hover:bg-slate-600"
-                onClick={() => setIsProfileDialogOpen(true)}
-              >
-                edit profile
-              </Button>
+      <div className="relative">
+        {/* Gradient Background with Pattern */}
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-900 via-blue-700 to-green-400 h-48">
+          <div className="absolute inset-0 opacity-20 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDQwIDQwIj48cGF0aCBmaWxsPSIjZmZmZmZmIiBkPSJNMjMgMjBsLTMtMy0xLjQxIDEuNDFMMjAuMTcgMjAgMTguNTkgMjEuNTkgMjAgMjNsMyAzIDEuNDEtMS40MUwyMi44MyAyM2wxLjU4LTEuNTl6Ii8+PHBhdGggZmlsbD0iI2ZmZmZmZiIgZD0iTTIwIDE0YzMuMzEgMCA2IDIuNjkgNiA2cy0yLjY5IDYtNiA2LTYtMi42OS02LTZjMC0zLjMyIDIuNjktNiA2LTZ6TTExIDIwbDMgMyAxLjQxLTEuNDFMMTMuODMgMjBsMS41OC0xLjU5TDE0IDE3bC0zLTMtMS40MSAxLjQxTDExLjE3IDE3IDkuNTkgMTguNTl6Ii8+PC9zdmc+')]"></div>
+        </div>
+        
+        {/* Nav Bar with Back Button */}
+        <div className="relative px-4 py-2 flex justify-between text-white z-10">
+          <button 
+            onClick={() => navigate("/")} 
+            className="bg-blue-900 bg-opacity-60 rounded-full p-3"
+          >
+            <ArrowLeft className="h-6 w-6" />
+          </button>
+          
+          <div className="flex space-x-2">
+            <div className="bg-green-800 bg-opacity-60 rounded-full p-3">
+              <Globe className="h-6 w-6" />
             </div>
-
-            {/* Username, Email and Bio Section */}
-            <div className="mt-4">
-              <div className="flex items-center mb-1">
-                <h1 className="text-3xl font-bold">{user.username}</h1>
-                {user.isAdmin && (
-                  <CheckCircle className="h-6 w-6 text-blue-500 ml-2" />
-                )}
-              </div>
-              <p className="text-gray-500 dark:text-gray-400 text-lg mb-3">{user.email}</p>
-              
-              {user.bio && (
-                <p className="text-gray-700 dark:text-gray-300 mb-4">
-                  {user.bio || "user biografi"}
-                </p>
-              )}
-              {!user.bio && (
-                <p className="text-gray-700 dark:text-gray-300 mb-4">
-                  user biografi
-                </p>
-              )}
-
-              {/* User Details */}
-              <div className="flex flex-wrap items-center text-sm text-gray-500 dark:text-gray-400 mb-4 gap-y-2">
-                <div className="flex items-center mr-6">
-                  <BriefcaseIcon className="h-4 w-4 mr-1 text-gray-400" />
-                  <span className="text-gray-500">User office</span>
-                </div>
-                <div className="flex items-center mr-6">
-                  <Building2 className="h-4 w-4 mr-1 text-gray-400" />
-                  <span className="text-gray-500">US</span>
-                </div>
-                <div className="flex items-center mr-6">
-                  <Globe className="h-4 w-4 mr-1 text-gray-400" />
-                  <a href={user.website || "#"} target="_blank" rel="noopener noreferrer" 
-                    className="text-blue-500 hover:underline">
-                    {user.website && user.website.trim() !== "" ? 
-                      new URL(user.website).hostname : 
-                      "userwebsite.com"}
-                  </a>
-                </div>
-              </div>
-              
-              <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                <CalendarIcon className="h-4 w-4 mr-1 text-gray-400" />
-                <span>Joined {user.memberSince ? format(new Date(user.memberSince), "MMM yyyy") : "since march 2013"}</span>
-              </div>
+            <div className="bg-green-800 bg-opacity-60 rounded-full p-3">
+              <Search className="h-6 w-6" />
+            </div>
+            <div className="bg-green-800 bg-opacity-60 rounded-full p-3">
+              <MoreVertical className="h-6 w-6" />
             </div>
           </div>
+        </div>
+        
+        {/* Slogan Line */}
+        <div className="relative text-center text-white pt-2 pb-6 z-10">
+          <h1 className="text-xl font-mono font-bold tracking-wider">LEARN, BUILD, SELL, REPEAT</h1>
+        </div>
+        
+        {/* Username */}
+        <div className="relative text-center text-white z-10 mb-2">
+          <h2 className="text-lg font-bold">{user.isAdmin ? "VHESL" : user.username.toUpperCase()}</h2>
+        </div>
+
+        {/* Profile Picture and Buttons */}
+        <div className="relative px-4 flex justify-between items-center mt-4 z-10">
+          <div className="-mt-16">
+            <Avatar className="h-24 w-24 bg-gray-100 border-4 border-white dark:border-gray-800 shadow-lg">
+              {user.avatarUrl && <AvatarImage src={user.avatarUrl} />}
+              <AvatarFallback className="bg-gray-200">
+                <UserIcon className="h-12 w-12 text-gray-500" />
+              </AvatarFallback>
+            </Avatar>
+          </div>
+          
+          <div className="flex space-x-3">
+            <div className="bg-white bg-opacity-90 rounded-full p-3 shadow-md">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="4" y="5" width="16" height="16" rx="2" />
+                <line x1="16" y1="3" x2="16" y2="7" />
+                <line x1="8" y1="3" x2="8" y2="7" />
+                <rect x="8" y="11" width="8" height="5" rx="1" />
+              </svg>
+            </div>
+            
+            <Button 
+              variant="outline" 
+              className="rounded-full px-6 bg-white text-black border-0 shadow-md font-medium"
+              onClick={() => setIsProfileDialogOpen(true)}
+            >
+              Edit profil
+            </Button>
+          </div>
+        </div>
+        
+        {/* Bio and Other Info (Hidden on this design to match reference) */}
+        <div className="hidden px-4 pt-4 pb-10">
+          <div className="flex items-center mb-1">
+            <h1 className="text-3xl font-bold">{user.username}</h1>
+            {user.isAdmin && (
+              <CheckCircle className="h-6 w-6 text-blue-500 ml-2" />
+            )}
+          </div>
+          <p className="text-gray-500 dark:text-gray-400 text-lg mb-3">{user.email}</p>
+          
+          {user.bio && (
+            <p className="text-gray-700 dark:text-gray-300 mb-4">
+              {user.bio}
+            </p>
+          )}
+          {!user.bio && (
+            <p className="text-gray-700 dark:text-gray-300 mb-4">
+              user biografi
+            </p>
+          )}
         </div>
       </div>
 
