@@ -77,33 +77,33 @@ const passwordSchema = z.object({
   path: ["confirmPassword"],
 });
 
-// Custom compact time format (1H, 1D, 1M, etc.)
+// Time format in natural language (1 hour, 2 days, 1 year, etc.)
 function formatTimeCompact(date: Date | string | number): string {
   const now = new Date();
   const dateToCompare = new Date(date);
   
   const minutesDiff = differenceInMinutes(now, dateToCompare);
   if (minutesDiff < 60) {
-    return `${minutesDiff}M`;
+    return `${minutesDiff} ${minutesDiff === 1 ? 'minute' : 'minutes'}`;
   }
   
   const hoursDiff = differenceInHours(now, dateToCompare);
   if (hoursDiff < 24) {
-    return `${hoursDiff}H`;
+    return `${hoursDiff} ${hoursDiff === 1 ? 'hour' : 'hours'}`;
   }
   
   const daysDiff = differenceInDays(now, dateToCompare);
   if (daysDiff < 30) {
-    return `${daysDiff}D`;
+    return `${daysDiff} ${daysDiff === 1 ? 'day' : 'days'}`;
   }
   
   const monthsDiff = differenceInMonths(now, dateToCompare);
   if (monthsDiff < 12) {
-    return `${monthsDiff}M`;
+    return `${monthsDiff} ${monthsDiff === 1 ? 'month' : 'months'}`;
   }
   
   const yearsDiff = differenceInYears(now, dateToCompare);
-  return `${yearsDiff}Y`;
+  return `${yearsDiff} ${yearsDiff === 1 ? 'year' : 'years'}`;
 }
 
 export default function ProfilePage() {
