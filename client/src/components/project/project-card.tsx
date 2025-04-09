@@ -32,6 +32,10 @@ export default function ProjectCard({
     queryKey: ['/api/site-settings'],
     refetchOnWindowFocus: false,
   });
+  
+  // Log the settings for debugging
+  console.log("Site settings in project card:", siteSettings);
+  console.log("Default project icon:", siteSettings?.defaultProjectIcon);
 
   const isValidUrl = (stringUrl: string) => {
     try {
