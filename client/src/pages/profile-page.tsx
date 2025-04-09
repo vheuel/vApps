@@ -31,7 +31,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 import ProjectCard from "@/components/project/project-card";
 import ProjectForm from "@/components/project/project-form";
-import { format, formatDistanceToNow } from "date-fns";
+import { format, formatDistanceToNow, differenceInMinutes, differenceInHours, differenceInDays, differenceInMonths, differenceInYears } from "date-fns";
 import { 
   UserIcon, 
   BriefcaseIcon, 
@@ -76,6 +76,35 @@ const passwordSchema = z.object({
   message: "Passwords don't match",
   path: ["confirmPassword"],
 });
+
+// Custom compact time format (1H, 1D, 1M, etc.)
+function formatTimeCompact(date: Date | string | number): string {
+  const now = new Date();
+  const dateToCompare = new Date(date);
+  
+  const minutesDiff = differenceInMinutes(now, dateToCompare);
+  if (minutesDiff < 60) {
+    return `${minutesDiff}M`;
+  }
+  
+  const hoursDiff = differenceInHours(now, dateToCompare);
+  if (hoursDiff < 24) {
+    return `${hoursDiff}H`;
+  }
+  
+  const daysDiff = differenceInDays(now, dateToCompare);
+  if (daysDiff < 30) {
+    return `${daysDiff}D`;
+  }
+  
+  const monthsDiff = differenceInMonths(now, dateToCompare);
+  if (monthsDiff < 12) {
+    return `${monthsDiff}M`;
+  }
+  
+  const yearsDiff = differenceInYears(now, dateToCompare);
+  return `${yearsDiff}Y`;
+}
 
 export default function ProfilePage() {
   const { user, update } = useAuth();
@@ -431,23 +460,23 @@ export default function ProfilePage() {
                           <div className="flex items-center">
                             <span className="font-semibold">{user.username}</span>
                             <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">
-                              • {formatDistanceToNow(new Date(project.createdAt), { addSuffix: true })}
+                              • {formatTimeCompact(project.createdAt)}
                             </span>
                           </div>
                           <div className="mt-2">
-                            <span className="font-semibold">{user.username}</span> just added a{' '}
+                            Just added {' '}
                             <Link
                               href={`/category/${project.category}`}
                               className="text-blue-500 hover:underline"
                             >
-                              project name
+                              {project.name}
                             </Link>{' '}
                             to{' '}
                             <Link
                               href={`/category/${project.category}`}
                               className="text-blue-500 hover:underline"
                             >
-                              the category
+                              {project.category}
                             </Link>
                           </div>
                         </div>
