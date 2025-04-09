@@ -34,6 +34,7 @@ import {
   Share2,
   Edit,
   Eye,
+  Link2
 } from "lucide-react";
 import { MdVerified } from "react-icons/md";
 import PortfolioTab from "@/components/profile/portfolio-tab";
@@ -99,7 +100,7 @@ export default function ProfilePage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("project");
   
-  // Memuat ulang data pengguna saat halaman profil dibuka atau tab berubah
+  // Memuat ulang data pengguna hanya saat komponen pertama kali dimuat atau saat tab berganti
   useEffect(() => {
     const refreshUserData = async () => {
       try {
@@ -108,16 +109,8 @@ export default function ProfilePage() {
         });
         if (response.ok) {
           const userData = await response.json();
-          // Cek apakah data user benar-benar berbeda sebelum update
-          if (user && userData && (
-            user.avatarUrl !== userData.avatarUrl ||
-            user.bio !== userData.bio ||
-            user.website !== userData.website ||
-            user.location !== userData.location ||
-            user.company !== userData.company ||
-            user.username !== userData.username ||
-            user.headerImage !== userData.headerImage
-          )) {
+          // Hanya update data saat tab aktivitas dipilih untuk mengurangi refresh berlebihan
+          if (activeTab === "activity") {
             update(userData);
           }
         }
@@ -128,7 +121,7 @@ export default function ProfilePage() {
     
     // Refresh data saat komponen pertama kali di-mount dan saat tab berubah
     refreshUserData();
-  }, [activeTab, update, user]);
+  }, [activeTab]);
 
   const { data: projects, isLoading, isError, error } = useQuery<Project[]>({
     queryKey: ["/api/user/projects"],
@@ -457,11 +450,14 @@ export default function ProfilePage() {
                         <button className="p-2 hover:text-red-500">
                           <Heart className="h-5 w-5" />
                         </button>
-                        <button className="p-2 hover:text-blue-500">
-                          <RotateCw className="h-5 w-5" />
-                        </button>
                         <button className="p-2 hover:text-yellow-500">
+                          <Star className="h-5 w-5" />
+                        </button>
+                        <button className="p-2 hover:text-blue-500">
                           <Bookmark className="h-5 w-5" />
+                        </button>
+                        <button className="p-2 hover:text-green-500">
+                          <RotateCw className="h-5 w-5" />
                         </button>
                       </div>
                     </div>
@@ -469,153 +465,198 @@ export default function ProfilePage() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow">
+              <div className="text-center py-10">
+                <div className="flex justify-center mb-4">
+                  <Eye className="h-12 w-12 text-gray-400" />
+                </div>
+                <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">No projects found</h3>
                 <p className="text-gray-500 dark:text-gray-400 mb-4">You haven't submitted any projects yet.</p>
-                <Button asChild>
-                  <Link href="/submit">Submit Your First Project</Link>
+                <Button onClick={() => navigate("/submit-project")}>
+                  Submit a project
                 </Button>
               </div>
             )}
           </>
         ) : activeTab === "activity" ? (
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold mb-4">Recent Activities</h3>
-            {projects && projects.length > 0 ? (
-              <div className="space-y-4">
-                {/* Activity list for profile updates */}
-                {user.avatarUrl && (
-                  <div className="flex items-start space-x-3 pb-4 border-b dark:border-gray-700">
-                    <div className="p-2 rounded-full bg-blue-100 dark:bg-blue-900">
-                      <Image className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex items-center">
-                        <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
-                        <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· recently</span>
-                      </div>
-                      <p className="text-gray-600 dark:text-gray-300">Updated profile picture</p>
-                    </div>
-                  </div>
-                )}
-
-                {user.headerImage && (
-                  <div className="flex items-start space-x-3 pb-4 border-b dark:border-gray-700">
-                    <div className="p-2 rounded-full bg-purple-100 dark:bg-purple-900">
-                      <Image className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex items-center">
-                        <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
-                        <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· recently</span>
-                      </div>
-                      <p className="text-gray-600 dark:text-gray-300">Updated profile header image</p>
-                    </div>
-                  </div>
-                )}
-
-                {user.bio && (
-                  <div className="flex items-start space-x-3 pb-4 border-b dark:border-gray-700">
-                    <div className="p-2 rounded-full bg-green-100 dark:bg-green-900">
-                      <Edit className="h-5 w-5 text-green-600 dark:text-green-400" />
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex items-center">
-                        <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
-                        <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· recently</span>
-                      </div>
-                      <p className="text-gray-600 dark:text-gray-300">Updated profile bio</p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Activity list for each project */}
-                {[...projects]
-                  .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-                  .slice(0, 5) // Show only the last 5 projects
-                  .map((project) => (
-                    <div key={`activity-${project.id}`} className="flex items-start space-x-3 pb-4 border-b dark:border-gray-700">
-                      <div className="p-2 rounded-full bg-indigo-100 dark:bg-indigo-900">
-                        {project.verified ? (
-                          <Star className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
-                        ) : (
-                          <Share2 className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                        )}
-                      </div>
-                      <div className="space-y-1">
-                        <div className="flex items-center">
-                          <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
-                          <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· {formatTimeCompact(project.createdAt)}</span>
-                        </div>
-                        <p className="text-gray-600 dark:text-gray-300">
-                          {project.verified ? "Got verified for " : "Submitted "} 
-                          <Link href={`/category/${project.category}`} className="text-blue-500 hover:underline">{project.name}</Link>
-                        </p>
-                        {project.verified && (
-                          <div className="mt-1 text-sm text-green-600 dark:text-green-400 flex items-center">
-                            <Check className="h-4 w-4 mr-1" /> Verified project
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))
-                }
-
-                {/* Website or location updated */}
-                {user.website && (
-                  <div className="flex items-start space-x-3 pb-4 border-b dark:border-gray-700">
-                    <div className="p-2 rounded-full bg-pink-100 dark:bg-pink-900">
-                      <LinkIcon className="h-5 w-5 text-pink-600 dark:text-pink-400" />
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex items-center">
-                        <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
-                        <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· recently</span>
-                      </div>
-                      <p className="text-gray-600 dark:text-gray-300">
-                        Added website: <a href={user.website} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
-                          {user.website.replace(/^https?:\/\//, '')}
-                        </a>
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {user.location && (
-                  <div className="flex items-start space-x-3 pb-4 border-b dark:border-gray-700">
-                    <div className="p-2 rounded-full bg-amber-100 dark:bg-amber-900">
-                      <MapPin className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex items-center">
-                        <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
-                        <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· recently</span>
-                      </div>
-                      <p className="text-gray-600 dark:text-gray-300">
-                        Updated location to {user.location}
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Joined activity */}
-                <div className="flex items-start space-x-3">
-                  <div className="p-2 rounded-full bg-cyan-100 dark:bg-cyan-900">
-                    <UserIcon className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
+            <div className="space-y-4">
+              {/* Activity untuk avatar */}
+              {user.avatarUrl && (
+                <div className="flex items-start space-x-3 pb-4 border-b dark:border-gray-700">
+                  <div className="p-2 rounded-full bg-blue-100 dark:bg-blue-900">
+                    <Image className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                   </div>
                   <div className="space-y-1">
                     <div className="flex items-center">
                       <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
-                      <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· {user.memberSince ? format(new Date(user.memberSince), 'MMMM yyyy') : 'Recently'}</span>
+                      <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· recently</span>
+                    </div>
+                    <p className="text-gray-600 dark:text-gray-300">Update foto profil</p>
+                    {/* Menampilkan preview gambar avatar */}
+                    <div className="mt-2 overflow-hidden rounded-md">
+                      <img 
+                        src={user.avatarUrl} 
+                        alt="Profile Avatar" 
+                        className="w-16 h-16 object-cover"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Activity untuk header image */}
+              {user.headerImage && (
+                <div className="flex items-start space-x-3 pb-4 border-b dark:border-gray-700">
+                  <div className="p-2 rounded-full bg-purple-100 dark:bg-purple-900">
+                    <Image className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center">
+                      <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
+                      <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· recently</span>
+                    </div>
+                    <p className="text-gray-600 dark:text-gray-300">Update header image</p>
+                    {/* Menampilkan preview header image */}
+                    <div className="mt-2 overflow-hidden rounded-md">
+                      <img 
+                        src={user.headerImage} 
+                        alt="Header Image" 
+                        className="w-full h-32 object-cover"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Activity untuk bio */}
+              {user.bio && (
+                <div className="flex items-start space-x-3 pb-4 border-b dark:border-gray-700">
+                  <div className="p-2 rounded-full bg-green-100 dark:bg-green-900">
+                    <Edit className="h-5 w-5 text-green-600 dark:text-green-400" />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center">
+                      <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
+                      <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· recently</span>
+                    </div>
+                    <p className="text-gray-600 dark:text-gray-300">Update bio</p>
+                    {/* Menampilkan bio content */}
+                    <div className="mt-2 p-3 bg-gray-50 dark:bg-gray-700 rounded-md">
+                      <p className="text-gray-700 dark:text-gray-300">{user.bio}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Activity untuk website */}
+              {user.website && (
+                <div className="flex items-start space-x-3 pb-4 border-b dark:border-gray-700">
+                  <div className="p-2 rounded-full bg-pink-100 dark:bg-pink-900">
+                    <Link2 className="h-5 w-5 text-pink-600 dark:text-pink-400" />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center">
+                      <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
+                      <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· recently</span>
                     </div>
                     <p className="text-gray-600 dark:text-gray-300">
-                      Joined the platform
+                      Update website to <a href={user.website} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{user.website}</a>
                     </p>
                   </div>
                 </div>
+              )}
+
+              {/* Activity untuk location */}
+              {user.location && (
+                <div className="flex items-start space-x-3 pb-4 border-b dark:border-gray-700">
+                  <div className="p-2 rounded-full bg-amber-100 dark:bg-amber-900">
+                    <MapPin className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center">
+                      <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
+                      <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· recently</span>
+                    </div>
+                    <p className="text-gray-600 dark:text-gray-300">
+                      Update location to {user.location}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Activity untuk company */}
+              {user.company && (
+                <div className="flex items-start space-x-3 pb-4 border-b dark:border-gray-700">
+                  <div className="p-2 rounded-full bg-cyan-100 dark:bg-cyan-900">
+                    <BriefcaseIcon className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center">
+                      <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
+                      <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· recently</span>
+                    </div>
+                    <p className="text-gray-600 dark:text-gray-300">
+                      Update perusahaan to {user.company}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Project activities */}
+              {projects && projects.length > 0 && (
+                [...projects]
+                .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                .slice(0, 5) // Show only the last 5 projects
+                .map((project) => (
+                  <div key={`activity-${project.id}`} className="flex items-start space-x-3 pb-4 border-b dark:border-gray-700">
+                    <div className="p-2 rounded-full bg-indigo-100 dark:bg-indigo-900">
+                      {project.verified ? (
+                        <Star className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+                      ) : (
+                        <Share2 className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                      )}
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex items-center">
+                        <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
+                        <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· {formatTimeCompact(project.createdAt)}</span>
+                      </div>
+                      <p className="text-gray-600 dark:text-gray-300">
+                        {project.verified ? "Got verified for " : "Submitted "} 
+                        <Link href={`/category/${project.category}`} className="text-blue-500 hover:underline">{project.name}</Link>
+                      </p>
+                      {project.verified && (
+                        <div className="mt-1 text-sm text-green-600 dark:text-green-400 flex items-center">
+                          <Check className="h-4 w-4 mr-1" /> Verified project
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
+
+              {/* Joined activity */}
+              <div className="flex items-start space-x-3">
+                <div className="p-2 rounded-full bg-teal-100 dark:bg-teal-900">
+                  <UserIcon className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+                </div>
+                <div className="space-y-1">
+                  <div className="flex items-center">
+                    <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
+                    <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· {user.memberSince ? format(new Date(user.memberSince), 'MMMM yyyy') : 'Recently'}</span>
+                  </div>
+                  <p className="text-gray-600 dark:text-gray-300">
+                    Joined the platform
+                  </p>
+                </div>
               </div>
-            ) : (
-              <p className="text-gray-500 dark:text-gray-400 text-center py-4">No activities found. Start by submitting a project or updating your profile.</p>
-            )}
+
+              {/* Show empty state if no activity */}
+              {(!user.avatarUrl && !user.bio && !user.location && !user.website && !user.company && 
+                (!projects || projects.length === 0)) && (
+                <p className="text-gray-500 dark:text-gray-400 text-center py-4">Belum ada aktivitas.</p>
+              )}
+            </div>
           </div>
         ) : (
           // Portfolio Tab Content

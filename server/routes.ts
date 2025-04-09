@@ -127,14 +127,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Membersihkan data gambar kosong (jika user menghapus gambar)
-      // Saat avatarUrl empty string, kita set nilainya null untuk benar-benar menghapus dari database
+      // Saat avatarUrl empty string, kita set nilainya undefined untuk benar-benar menghapus dari database
       if (validatedData.avatarUrl === '') {
-        validatedData.avatarUrl = null;
+        validatedData.avatarUrl = undefined;
       }
       
-      // Saat headerImage empty string, kita set nilainya null untuk benar-benar menghapus dari database
+      // Saat headerImage empty string, kita set nilainya undefined untuk benar-benar menghapus dari database
       if (validatedData.headerImage === '') {
-        validatedData.headerImage = null;
+        validatedData.headerImage = undefined;
       }
       
       // Update user in database
