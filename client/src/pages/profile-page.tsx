@@ -350,16 +350,16 @@ export default function ProfilePage() {
       <div className="bg-white dark:bg-gray-800 border-b dark:border-gray-700">
         <div className="container mx-auto">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="w-full grid grid-cols-2 rounded-none bg-transparent border-b dark:border-gray-700">
+            <TabsList className="w-full flex rounded-none bg-transparent border-b dark:border-gray-700 justify-center">
               <TabsTrigger 
                 value="project" 
-                className={`py-3 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:shadow-none data-[state=active]:text-blue-500 text-gray-700 dark:text-gray-300 font-medium`}
+                className="w-36 py-3 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:shadow-none data-[state=active]:text-blue-500 text-gray-700 dark:text-gray-300 font-medium"
               >
                 project
               </TabsTrigger>
               <TabsTrigger 
                 value="activity" 
-                className={`py-3 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:shadow-none data-[state=active]:text-blue-500 text-gray-700 dark:text-gray-300 font-medium`}
+                className="w-36 py-3 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:shadow-none data-[state=active]:text-blue-500 text-gray-700 dark:text-gray-300 font-medium"
               >
                 activity
               </TabsTrigger>
