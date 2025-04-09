@@ -8,21 +8,11 @@ import { useAuth } from "@/hooks/use-auth";
 import { ChevronRight, ArrowRight, Gift, Wallet, BarChart3, Search, Wrench, ImageIcon, TrendingUp, GitBranch, MessageCircle, CheckCircle, ExternalLink, Package2Icon, Wallet2Icon, ArrowRightLeftIcon, SearchIcon, ToolIcon, CoinsIcon, ArrowLeftRightIcon, RadioIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/card";
+import { LucideIcon, Icons } from 'lucide-react'; // Added import
 
 
-const getCategoryIcon = (category: string) => {
-  switch (category.toLowerCase()) {
-    case 'airdrop': return <Package2Icon className="w-5 h-5" />;
-      case 'wallets': return <Wallet2Icon className="w-5 h-5" />;
-      case 'exchanges': return <ArrowRightLeftIcon className="w-5 h-5" />;
-      case 'explorers': return <SearchIcon className="w-5 h-5" />;
-      case 'utilities': return <ToolIcon className="w-5 h-5" />;
-      case 'nft': return <ImageIcon className="w-5 h-5" />;
-      case 'staking': return <CoinsIcon className="w-5 h-5" />;
-      case 'bridges': return <ArrowLeftRightIcon className="w-5 h-5" />;
-      case 'channels': return <RadioIcon className="w-5 h-5" />;
-      default: return <Package2Icon className="w-5 h-5" />;
-  }
+const getCategoryIcon = (iconName: string): LucideIcon => {
+  return Icons[iconName as keyof typeof Icons] || Icons.Folder;
 };
 
 export default function HomePage() {
