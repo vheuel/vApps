@@ -219,27 +219,15 @@ export default function ProjectCard({
                   {/* Show verify/unverify for approved projects */}
                   {project.approved && !project.pending && (
                     <>
-                      {project.verified ? (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="border-red-200 hover:bg-red-50 hover:text-red-600"
-                          onClick={() => unverifyMutation.mutate(project.id)}
-                          disabled={unverifyMutation.isPending}
-                        >
-                          Remove Verification
-                        </Button>
-                      ) : (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="border-blue-200 hover:bg-blue-50 hover:text-blue-600"
-                          onClick={() => verifyMutation.mutate(project.id)}
-                          disabled={verifyMutation.isPending}
-                        >
-                          Verification
-                        </Button>
-                      )}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className={project.verified ? "border-red-200 hover:bg-red-50 hover:text-red-600" : "border-blue-200 hover:bg-blue-50 hover:text-blue-600"}
+                        onClick={() => project.verified ? unverifyMutation.mutate(project.id) : verifyMutation.mutate(project.id)}
+                        disabled={project.verified ? unverifyMutation.isPending : verifyMutation.isPending}
+                      >
+                        {project.verified ? "Remove Verification" : "Verification"}
+                      </Button>
                     </>
                   )}
                 </div>
