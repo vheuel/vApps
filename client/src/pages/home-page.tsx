@@ -70,15 +70,17 @@ export default function HomePage() {
             <span className="text-blue-500">community driven</span> catalog
           </h1>
           
-          <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-            {categories?.map((category) => (
-              <Link key={category.id} href={`/category/${category.slug}`}>
-                <Button variant="outline" className="w-full flex items-center gap-2 h-10 px-4 py-2 rounded-md text-sm font-medium border-border/40 hover:bg-gray-100 dark:hover:bg-gray-800">
-                  {getCategoryIcon(category.slug)}
-                  <span>{category.name}</span>
-                </Button>
-              </Link>
-            ))}
+          <div className="mt-6 overflow-x-auto pb-2 -mx-4 px-4 hide-scrollbar">
+            <div className="flex gap-3 min-w-max">
+              {categories?.map((category) => (
+                <Link key={category.id} href={`/category/${category.slug}`}>
+                  <Button variant="outline" className="flex items-center gap-2 h-12 px-5 py-2 rounded-full text-sm font-medium border-border/40 hover:bg-gray-100 dark:hover:bg-gray-800">
+                    <span className="text-blue-500">{getCategoryIcon(category.slug)}</span>
+                    <span>{category.name}</span>
+                  </Button>
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </section>
