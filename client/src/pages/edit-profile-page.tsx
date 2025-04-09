@@ -22,7 +22,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { UserIcon } from "lucide-react";
+import { UserIcon, Loader2 } from "lucide-react";
+import imageCompression from "browser-image-compression";
 
 // Schema for profile edit
 const profileSchema = z.object({
@@ -50,6 +51,7 @@ export default function EditProfilePage() {
   const { toast } = useToast();
   const [_, navigate] = useLocation();
   const [activeTab, setActiveTab] = useState("profile");
+  const [isCompressing, setIsCompressing] = useState(false);
 
   // Form untuk edit profile
   const profileForm = useForm<z.infer<typeof profileSchema>>({
@@ -306,16 +308,38 @@ export default function EditProfilePage() {
                                 accept="image/*"
                                 className="hidden"
                                 id="avatar-input"
-                                onChange={(e) => {
+                                onChange={async (e) => {
                                   const file = e.target.files?.[0];
                                   if (file) {
-                                    const reader = new FileReader();
-                                    reader.onload = (event) => {
-                                      if (event.target?.result) {
-                                        field.onChange(event.target.result as string);
-                                      }
-                                    };
-                                    reader.readAsDataURL(file);
+                                    setIsCompressing(true);
+                                    try {
+                                      // Kompresi gambar
+                                      const options = {
+                                        maxSizeMB: 0.5, // ukuran maksimal 500KB
+                                        maxWidthOrHeight: 1200,
+                                        useWebWorker: true
+                                      };
+                                      
+                                      const compressedFile = await imageCompression(file, options);
+                                      
+                                      // Konversi ke base64
+                                      const reader = new FileReader();
+                                      reader.onload = (event) => {
+                                        if (event.target?.result) {
+                                          field.onChange(event.target.result as string);
+                                          setIsCompressing(false);
+                                        }
+                                      };
+                                      reader.readAsDataURL(compressedFile);
+                                    } catch (error) {
+                                      console.error("Gagal mengompresi gambar:", error);
+                                      toast({
+                                        title: "Error saat mengompresi gambar",
+                                        description: "Silakan coba gambar yang lebih kecil.",
+                                        variant: "destructive",
+                                      });
+                                      setIsCompressing(false);
+                                    }
                                   }
                                 }}
                               />
@@ -324,14 +348,21 @@ export default function EditProfilePage() {
                               type="button" 
                               variant="outline" 
                               onClick={() => document.getElementById('avatar-input')?.click()}
+                              disabled={isCompressing}
                             >
-                              Pilih Gambar dari Galeri
+                              {isCompressing ? (
+                                <>
+                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                  Mengompresi...
+                                </>
+                              ) : "Pilih Gambar dari Galeri"}
                             </Button>
                             {field.value && (
                               <Button 
                                 type="button" 
                                 variant="destructive" 
                                 onClick={() => field.onChange('')}
+                                disabled={isCompressing}
                               >
                                 Hapus
                               </Button>
