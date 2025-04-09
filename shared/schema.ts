@@ -62,6 +62,7 @@ export const projects = pgTable("projects", {
   pending: boolean("pending").default(true).notNull(),
   verified: boolean("verified").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  clicks: integer("clicks").default(0).notNull(),
 });
 
 export const insertProjectSchema = createInsertSchema(projects)
