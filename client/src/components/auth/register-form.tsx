@@ -35,7 +35,7 @@ const registerFormSchema = z
 type RegisterFormValues = z.infer<typeof registerFormSchema>;
 
 export function RegisterForm() {
-  const { registerMutation } = useAuth();
+  const { register, isLoading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<RegisterFormValues>({
@@ -51,7 +51,7 @@ export function RegisterForm() {
   const onSubmit = (values: RegisterFormValues) => {
     // Remove confirmPassword before sending to API
     const { confirmPassword, ...registerData } = values;
-    registerMutation.mutate(registerData);
+    register(registerData);
   };
 
   return (
@@ -151,9 +151,9 @@ export function RegisterForm() {
         <Button
           type="submit"
           className="w-full"
-          disabled={registerMutation.isPending}
+          disabled={isLoading}
         >
-          {registerMutation.isPending ? (
+          {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Registering...
             </>
