@@ -20,6 +20,19 @@ const getCategoryIcon = (category: string) => {
   }
 };
 
+import { useRef } from 'react';
+
+function getCategoryIcon(category: string) {
+  switch (category.toLowerCase()) {
+    case 'defi': return '💰';
+    case 'gaming': return '🎮';
+    case 'nft': return '🎨';
+    case 'social': return '👥';
+    case 'tools': return '🛠️';
+    default: return '📱';
+  }
+}
+
 const CategorySection = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
