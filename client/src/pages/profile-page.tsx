@@ -77,54 +77,54 @@ const passwordSchema = z.object({
   path: ["confirmPassword"],
 });
 
-// Format time in natural language with best logic
+// Format time in natural language without "ago"
 function formatTimeCompact(date: Date | string | number): string {
   const now = new Date();
   const dateToCompare = new Date(date);
   
   const minutesDiff = differenceInMinutes(now, dateToCompare);
   
-  // Less than a minute ago
+  // Less than a minute
   if (minutesDiff < 1) {
     return "just now";
   }
   
-  // Less than an hour ago
+  // Less than an hour
   if (minutesDiff < 60) {
-    return `${minutesDiff} ${minutesDiff === 1 ? 'minute' : 'minutes'} ago`;
+    return `${minutesDiff} ${minutesDiff === 1 ? 'minute' : 'minutes'}`;
   }
   
   const hoursDiff = differenceInHours(now, dateToCompare);
   
-  // Less than a day ago
+  // Less than a day
   if (hoursDiff < 24) {
-    return `${hoursDiff} ${hoursDiff === 1 ? 'hour' : 'hours'} ago`;
+    return `${hoursDiff} ${hoursDiff === 1 ? 'hour' : 'hours'}`;
   }
   
   const daysDiff = differenceInDays(now, dateToCompare);
   
-  // Less than a week ago
+  // Less than a week
   if (daysDiff < 7) {
-    return `${daysDiff} ${daysDiff === 1 ? 'day' : 'days'} ago`;
+    return `${daysDiff} ${daysDiff === 1 ? 'day' : 'days'}`;
   }
   
-  // Less than a month ago
+  // Less than a month
   if (daysDiff < 30) {
     const weeks = Math.floor(daysDiff / 7);
-    return `${weeks} ${weeks === 1 ? 'week' : 'weeks'} ago`;
+    return `${weeks} ${weeks === 1 ? 'week' : 'weeks'}`;
   }
   
   const monthsDiff = differenceInMonths(now, dateToCompare);
   
-  // Less than a year ago
+  // Less than a year
   if (monthsDiff < 12) {
-    return `${monthsDiff} ${monthsDiff === 1 ? 'month' : 'months'} ago`;
+    return `${monthsDiff} ${monthsDiff === 1 ? 'month' : 'months'}`;
   }
   
   const yearsDiff = differenceInYears(now, dateToCompare);
   
-  // More than a year ago
-  return `${yearsDiff} ${yearsDiff === 1 ? 'year' : 'years'} ago`;
+  // More than a year
+  return `${yearsDiff} ${yearsDiff === 1 ? 'year' : 'years'}`;
 }
 
 export default function ProfilePage() {
@@ -470,7 +470,9 @@ export default function ProfilePage() {
               </div>
             ) : projects && projects.length > 0 ? (
               <div className="space-y-6">
-                {projects.map((project) => (
+                {[...projects]
+                  .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                  .map((project) => (
                   <div key={project.id} className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
                     <div className="flex items-start justify-between">
                       <div className="flex">
