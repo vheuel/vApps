@@ -251,13 +251,14 @@ export default function ProfilePage() {
 
       {/* Profile Header */}
       <div className="relative">
-        {/* Gradient Background with Pattern */}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-900 via-blue-700 to-green-400 h-48">
-          <div className="absolute inset-0 opacity-20 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDQwIDQwIj48cGF0aCBmaWxsPSIjZmZmZmZmIiBkPSJNMjMgMjBsLTMtMy0xLjQxIDEuNDFMMjAuMTcgMjAgMTguNTkgMjEuNTkgMjAgMjNsMyAzIDEuNDEtMS40MUwyMi44MyAyM2wxLjU4LTEuNTl6Ii8+PHBhdGggZmlsbD0iI2ZmZmZmZiIgZD0iTTIwIDE0YzMuMzEgMCA2IDIuNjkgNiA2cy0yLjY5IDYtNiA2LTYtMi42OS02LTZjMC0zLjMyIDIuNjktNiA2LTZ6TTExIDIwbDMgMyAxLjQxLTEuNDFMMTMuODMgMjBsMS41OC0xLjU5TDE0IDE3bC0zLTMtMS40MSAxLjQxTDExLjE3IDE3IDkuNTkgMTguNTl6Ii8+PC9zdmc+')]"></div>
+        {/* Header with Background Image */}
+        <div className="relative h-48 overflow-hidden">
+          {/* Background - ini adalah placeholder, seharusnya gambar yang bisa diganti pengguna */}
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-900 via-blue-700 to-green-400"></div>
         </div>
         
         {/* Nav Bar with Back Button */}
-        <div className="relative px-4 py-2 flex justify-between text-white z-10">
+        <div className="absolute top-0 left-0 right-0 px-4 py-2 flex justify-between text-white z-10">
           <button 
             onClick={() => navigate("/")} 
             className="bg-blue-900 bg-opacity-60 rounded-full p-3"
@@ -266,28 +267,25 @@ export default function ProfilePage() {
           </button>
           
           <div className="flex space-x-2">
-            <div className="bg-green-800 bg-opacity-60 rounded-full p-3">
-              <Globe className="h-6 w-6" />
-            </div>
-            <div className="bg-green-800 bg-opacity-60 rounded-full p-3">
+            <button className="bg-green-800 bg-opacity-60 rounded-full p-3">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
               </svg>
-            </div>
-            <div className="bg-green-800 bg-opacity-60 rounded-full p-3">
+            </button>
+            <button className="bg-green-800 bg-opacity-60 rounded-full p-3">
               <MoreVertical className="h-6 w-6" />
-            </div>
+            </button>
           </div>
         </div>
         
         {/* Slogan Line */}
-        <div className="relative text-center text-white pt-2 pb-6 z-10">
+        <div className="absolute top-14 left-0 right-0 text-center text-white z-10">
           <h1 className="text-xl font-mono font-bold tracking-wider">LEARN, BUILD, SELL, REPEAT</h1>
         </div>
         
         {/* Username */}
-        <div className="relative text-center text-white z-10 mb-2">
+        <div className="absolute bottom-14 left-0 right-0 text-center text-white z-10">
           <h2 className="text-lg font-bold">{user.isAdmin ? "VHESL" : user.username.toUpperCase()}</h2>
         </div>
 
@@ -302,24 +300,13 @@ export default function ProfilePage() {
             </Avatar>
           </div>
           
-          <div className="flex space-x-3">
-            <div className="bg-white bg-opacity-90 rounded-full p-3 shadow-md">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="4" y="5" width="16" height="16" rx="2" />
-                <line x1="16" y1="3" x2="16" y2="7" />
-                <line x1="8" y1="3" x2="8" y2="7" />
-                <rect x="8" y="11" width="8" height="5" rx="1" />
-              </svg>
-            </div>
-            
-            <Button 
-              variant="outline" 
-              className="rounded-full px-6 bg-white text-black border-0 shadow-md font-medium"
-              onClick={() => setIsProfileDialogOpen(true)}
-            >
-              Edit profil
-            </Button>
-          </div>
+          <Button 
+            variant="outline" 
+            className="rounded-full px-6 bg-white text-black border-0 shadow-md font-medium"
+            onClick={() => setIsProfileDialogOpen(true)}
+          >
+            Edit profil
+          </Button>
         </div>
         
         {/* Bio and Other Info (Hidden on this design to match reference) */}
