@@ -126,6 +126,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         delete validatedData.currentPassword;
       }
       
+      // Membersihkan data gambar kosong (jika user menghapus gambar)
+      // Saat avatarUrl empty string, kita set nilainya null untuk benar-benar menghapus dari database
+      if (validatedData.avatarUrl === '') {
+        validatedData.avatarUrl = null;
+      }
+      
+      // Saat headerImage empty string, kita set nilainya null untuk benar-benar menghapus dari database
+      if (validatedData.headerImage === '') {
+        validatedData.headerImage = null;
+      }
+      
       // Update user in database
       const updatedUser = await storage.updateUser(req.user.id, validatedData);
       res.status(200).json(updatedUser);

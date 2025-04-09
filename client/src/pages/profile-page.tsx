@@ -94,8 +94,12 @@ function formatTimeCompact(date: Date | string | number): string {
 export default function ProfilePage() {
   const { user, update } = useAuth();
   const { toast } = useToast();
+  const [_, navigate] = useLocation();
+  const [editProject, setEditProject] = useState<Project | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("project");
   
-  // Memuat ulang data pengguna saat halaman profil dibuka - hanya sekali
+  // Memuat ulang data pengguna saat halaman profil dibuka atau tab berubah
   useEffect(() => {
     const refreshUserData = async () => {
       try {
@@ -111,7 +115,8 @@ export default function ProfilePage() {
             user.website !== userData.website ||
             user.location !== userData.location ||
             user.company !== userData.company ||
-            user.username !== userData.username
+            user.username !== userData.username ||
+            user.headerImage !== userData.headerImage
           )) {
             update(userData);
           }
@@ -121,15 +126,9 @@ export default function ProfilePage() {
       }
     };
     
-    // Kode ini hanya akan dijalankan saat komponen pertama kali di-mount
+    // Refresh data saat komponen pertama kali di-mount dan saat tab berubah
     refreshUserData();
-    // Ini adalah efek yang berjalan sekali, jadi kita tidak memasukkan dependencies
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  const [_, navigate] = useLocation();
-  const [editProject, setEditProject] = useState<Project | null>(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("project");
+  }, [activeTab, update, user]);
 
   const { data: projects, isLoading, isError, error } = useQuery<Project[]>({
     queryKey: ["/api/user/projects"],
@@ -492,7 +491,7 @@ export default function ProfilePage() {
                     <div className="space-y-1">
                       <div className="flex items-center">
                         <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
-                        <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· 1 day</span>
+                        <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· recently</span>
                       </div>
                       <p className="text-gray-600 dark:text-gray-300">Updated profile picture</p>
                     </div>
@@ -507,7 +506,7 @@ export default function ProfilePage() {
                     <div className="space-y-1">
                       <div className="flex items-center">
                         <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
-                        <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· 1 day</span>
+                        <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· recently</span>
                       </div>
                       <p className="text-gray-600 dark:text-gray-300">Updated profile header image</p>
                     </div>
@@ -522,7 +521,7 @@ export default function ProfilePage() {
                     <div className="space-y-1">
                       <div className="flex items-center">
                         <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
-                        <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· 2 days</span>
+                        <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· recently</span>
                       </div>
                       <p className="text-gray-600 dark:text-gray-300">Updated profile bio</p>
                     </div>
@@ -570,7 +569,7 @@ export default function ProfilePage() {
                     <div className="space-y-1">
                       <div className="flex items-center">
                         <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
-                        <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· 5 days</span>
+                        <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· recently</span>
                       </div>
                       <p className="text-gray-600 dark:text-gray-300">
                         Added website: <a href={user.website} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
@@ -589,7 +588,7 @@ export default function ProfilePage() {
                     <div className="space-y-1">
                       <div className="flex items-center">
                         <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
-                        <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· 7 days</span>
+                        <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· recently</span>
                       </div>
                       <p className="text-gray-600 dark:text-gray-300">
                         Updated location to {user.location}
