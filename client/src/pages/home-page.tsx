@@ -1,23 +1,12 @@
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Link } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../hooks/use-auth';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 
-function getCategoryIcon(category: string) {
-  switch (category.toLowerCase()) {
-    case 'defi': return '💰';
-    case 'gaming': return '🎮';
-    case 'nft': return '🎨';
-    case 'dao': return '🏛️';
-    case 'social': return '👥';
-    case 'infrastructure': return '🔧';
-    case 'developer tools': return '🛠️';
-    default: return '📱';
-  }
-}
+// Removed duplicate function
 
 export default function HomePage() {
   const { isAuthenticated } = useAuth();
