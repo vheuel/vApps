@@ -453,14 +453,14 @@ export default function ProfilePage() {
                   <div key={project.id} className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
                     <div className="flex items-start justify-between">
                       <div className="flex">
-                        <Avatar className="h-10 w-10 mr-3">
-                          <AvatarFallback>{user.username.charAt(0)}</AvatarFallback>
+                        <Avatar className="h-10 w-10 mr-3 bg-sky-200">
+                          <AvatarFallback className="bg-sky-200">{user.username.charAt(0).toLowerCase()}</AvatarFallback>
                         </Avatar>
                         <div>
                           <div className="flex items-center">
                             <span className="font-semibold">{user.username}</span>
                             <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">
-                              • {formatTimeCompact(project.createdAt)}
+                              · {formatTimeCompact(project.createdAt)}
                             </span>
                           </div>
                           <div className="mt-2">
@@ -489,8 +489,8 @@ export default function ProfilePage() {
                     {/* Project Card */}
                     <div className="mt-4 p-3 border dark:border-gray-700 rounded-lg">
                       <div className="flex items-start">
-                        <Avatar className="h-10 w-10 mr-3">
-                          <AvatarFallback>{project.name.charAt(0)}</AvatarFallback>
+                        <Avatar className="h-10 w-10 mr-3 bg-sky-200">
+                          <AvatarFallback className="bg-sky-200">M</AvatarFallback>
                         </Avatar>
                         <div>
                           <h3 className="font-semibold">{project.name}</h3>
