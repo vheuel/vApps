@@ -151,7 +151,7 @@ export default function ProfilePage() {
               <span>Pending</span>
               <span>{pendingProjects}</span>
             </div>
-            <Progress
+            <Progress value={totalProjects > 0 ? (pendingProjects / totalProjects) * 100 : 0} className="h-2 bg-muted" />
 
 // Define the schema
 const profileUpdateSchema = z.object({
