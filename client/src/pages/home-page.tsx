@@ -1,10 +1,25 @@
-
 import { useState, useRef } from 'react';
 import { Link } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../hooks/use-auth';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
+import { FolderIcon, CodeIcon, GiftIcon, BriefcaseIcon, StarIcon } from "lucide-react";
+
+function getCategoryIcon(slug: string) {
+  switch (slug) {
+    case "tools":
+      return <FolderIcon className="h-6 w-6" />;
+    case "development":
+      return <CodeIcon className="h-6 w-6" />;
+    case "rewards":
+      return <GiftIcon className="h-6 w-6" />;
+    case "jobs":
+      return <BriefcaseIcon className="h-6 w-6" />;
+    default:
+      return <StarIcon className="h-6 w-6" />;
+  }
+}
 
 // Removed duplicate function
 
