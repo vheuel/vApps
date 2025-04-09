@@ -98,6 +98,7 @@ export const siteSettings = pgTable("site_settings", {
   logoUrl: text("logo_url").default(""),
   primaryColor: text("primary_color").default("#3B82F6"),
   footerText: text("footer_text").default("© 2025 Web3 Project. All Rights Reserved."),
+  defaultProjectIcon: text("default_project_icon").default(""),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

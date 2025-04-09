@@ -32,6 +32,7 @@ const siteSettingsFormSchema = z.object({
   footerText: z.string().min(1, {
     message: "Footer text is required",
   }),
+  defaultProjectIcon: z.string().optional(),
 });
 
 type SiteSettingsFormValues = z.infer<typeof siteSettingsFormSchema>;
@@ -45,6 +46,7 @@ export function SiteSettingsForm({ initialData, onSettingsSaved }: SiteSettingsF
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [logoPreview, setLogoPreview] = useState<string | null>(initialData?.logoUrl || null);
+  const [defaultIconPreview, setDefaultIconPreview] = useState<string | null>(initialData?.defaultProjectIcon || null);
 
   const form = useForm<SiteSettingsFormValues>({
     resolver: zodResolver(siteSettingsFormSchema),
@@ -53,6 +55,7 @@ export function SiteSettingsForm({ initialData, onSettingsSaved }: SiteSettingsF
       logoUrl: initialData?.logoUrl || "",
       primaryColor: initialData?.primaryColor || "#3B82F6",
       footerText: initialData?.footerText || "© 2025 Web3 Project. All Rights Reserved.",
+      defaultProjectIcon: initialData?.defaultProjectIcon || "",
     },
   });
 
@@ -114,6 +117,35 @@ export function SiteSettingsForm({ initialData, onSettingsSaved }: SiteSettingsF
   const removeLogo = () => {
     setLogoPreview(null);
     form.setValue("logoUrl", "");
+  };
+  
+  const handleDefaultIconUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast({
+        title: "Error",
+        description: "Icon image must be less than 2MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Convert to base64
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64String = event.target?.result as string;
+      setDefaultIconPreview(base64String);
+      form.setValue("defaultProjectIcon", base64String);
+    };
+    reader.readAsDataURL(file);
+  };
+  
+  const removeDefaultIcon = () => {
+    setDefaultIconPreview(null);
+    form.setValue("defaultProjectIcon", "");
   };
 
   return (
@@ -243,6 +275,60 @@ export function SiteSettingsForm({ initialData, onSettingsSaved }: SiteSettingsF
                   </FormControl>
                   <FormDescription>
                     Copyright and legal text shown in the website footer.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="defaultProjectIcon"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Default Project Icon</FormLabel>
+                  <div className="space-y-2">
+                    {defaultIconPreview ? (
+                      <div className="relative inline-block">
+                        <img
+                          src={defaultIconPreview}
+                          alt="Default Project Icon"
+                          className="w-16 h-16 object-cover rounded"
+                        />
+                        <button
+                          type="button"
+                          onClick={removeDefaultIcon}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center h-16 w-16 border-2 border-dashed border-gray-300 rounded-md">
+                        <p className="text-sm text-gray-500">No icon</p>
+                      </div>
+                    )}
+                    <div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => document.getElementById("default-icon-upload")?.click()}
+                        className="flex items-center"
+                      >
+                        <Upload className="h-4 w-4 mr-2" />
+                        Upload Default Icon
+                      </Button>
+                      <input
+                        id="default-icon-upload"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleDefaultIconUpload}
+                      />
+                    </div>
+                  </div>
+                  <FormDescription>
+                    This icon will be used for projects without a custom icon. Recommended size: 60x60px. Max file size: 2MB.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

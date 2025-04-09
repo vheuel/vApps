@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Project, insertProjectSchema, categoryEnum } from "@shared/schema";
@@ -21,9 +21,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { InfoIcon, Loader2, Globe, CheckIcon } from "lucide-react";
+import { InfoIcon, Loader2, Globe, CheckIcon, Upload, X, Image as ImageIcon } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { z } from "zod";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 
 type ProjectFormValues = z.infer<typeof insertProjectSchema>;
 
@@ -40,9 +42,12 @@ export default function ProjectForm({
   isSubmitting,
   mode,
 }: ProjectFormProps) {
+  const { toast } = useToast();
   const [charactersLeft, setCharactersLeft] = useState(
     200 - (defaultValues?.description?.length || 0)
   );
+  const [iconPreview, setIconPreview] = useState<string | null>(defaultValues?.iconUrl || null);
+  const [defaultIcon, setDefaultIcon] = useState<string | null>(null);
 
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(insertProjectSchema),
@@ -58,6 +63,54 @@ export default function ProjectForm({
   const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
     setCharactersLeft(200 - value.length);
+  };
+
+  useEffect(() => {
+    // Fetch default project icon from settings
+    const fetchDefaultIcon = async () => {
+      try {
+        const response = await apiRequest("GET", "/api/site-settings");
+        if (response.ok) {
+          const data = await response.json();
+          if (data.defaultProjectIcon) {
+            setDefaultIcon(data.defaultProjectIcon);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching default icon:", error);
+      }
+    };
+    
+    fetchDefaultIcon();
+  }, []);
+
+  const handleIconUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast({
+        title: "Error",
+        description: "Icon image must be less than 2MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Convert to base64
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64String = event.target?.result as string;
+      setIconPreview(base64String);
+      form.setValue("iconUrl", base64String);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeIcon = () => {
+    setIconPreview(null);
+    form.setValue("iconUrl", "");
   };
 
   const handleFormSubmit = (values: ProjectFormValues) => {
@@ -167,22 +220,70 @@ export default function ProjectForm({
           name="iconUrl"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Icon URL</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="/placeholder.svg?height=60&width=60"
-                  {...field}
-                />
-              </FormControl>
+              <FormLabel>Project Icon</FormLabel>
+              <div className="space-y-2">
+                {iconPreview ? (
+                  <div className="relative inline-block">
+                    <img
+                      src={iconPreview}
+                      alt="Project Icon"
+                      className="w-16 h-16 object-cover rounded"
+                    />
+                    <button
+                      type="button"
+                      onClick={removeIcon}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ) : defaultIcon ? (
+                  <div className="flex flex-col items-start gap-2">
+                    <div className="text-sm text-muted-foreground">Current default icon:</div>
+                    <img
+                      src={defaultIcon}
+                      alt="Default Project Icon"
+                      className="w-16 h-16 object-cover rounded"
+                    />
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center h-16 w-16 border-2 border-dashed border-gray-300 rounded-md">
+                    <ImageIcon className="h-6 w-6 text-gray-400" />
+                  </div>
+                )}
+                <div>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => document.getElementById("project-icon-upload")?.click()}
+                    className="flex items-center"
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    Upload Icon
+                  </Button>
+                  <input
+                    id="project-icon-upload"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleIconUpload}
+                  />
+                  <input
+                    type="hidden"
+                    {...field}
+                    value={field.value || ""}
+                  />
+                </div>
+              </div>
               <FormDescription>
-                Leave empty to use the default icon
+                Upload a custom icon or leave empty to use the default icon. Recommended size: 60x60px.
               </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <Alert variant="outline" className="bg-muted/50">
+        <Alert className="bg-muted/50">
           <InfoIcon className="h-4 w-4" />
           <AlertTitle>Submission Guidelines</AlertTitle>
           <AlertDescription>
