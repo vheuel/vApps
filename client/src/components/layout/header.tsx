@@ -12,7 +12,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LoginForm } from "@/components/auth/login-form";
 import { RegisterForm } from "@/components/auth/register-form";
-import { User, LockIcon, Menu, X } from "lucide-react";
+import { Search, GlobeIcon, User, Menu, X, MoonIcon, SunIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +21,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 
 export default function Header() {
   const [location] = useLocation();
@@ -42,55 +43,58 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b border-border/10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-4">
           <Link href="/" className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gray-200 rounded-md flex items-center justify-center">
-              <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+            <div className="text-blue-500">
+              <svg viewBox="0 0 30 30" width="30" height="30" fill="currentColor">
+                <circle cx="15" cy="15" r="15" />
+              </svg>
             </div>
-            <span className="text-xl font-bold">EARN App</span>
+            <span className="text-lg font-semibold">EARN App</span>
           </Link>
+        </div>
+
+        {/* Search Bar */}
+        <div className="hidden md:flex relative mx-4 flex-1 max-w-md">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search className="h-4 w-4 text-gray-400" />
+          </div>
+          <Input
+            type="search"
+            placeholder="Search"
+            className="pl-10 pr-4 py-2 bg-gray-100 dark:bg-gray-800 border-0"
+          />
         </div>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex space-x-6 items-center">
           <Link href="/">
             <span className={`text-sm font-medium ${location === "/" ? "text-primary" : "text-muted-foreground"} hover:text-primary`}>
-              Home
+              Apps Catalog
             </span>
           </Link>
-          <Link href="/category/airdrop">
-            <span className={`text-sm font-medium ${location.startsWith("/category") ? "text-primary" : "text-muted-foreground"} hover:text-primary`}>
-              Categories
-            </span>
+          <Link href="/journal">
+            <div className="flex items-center space-x-1">
+              <span className={`text-sm font-medium text-muted-foreground hover:text-primary`}>
+                Journal
+              </span>
+              <div className="bg-blue-500 text-white text-[10px] px-1 rounded">NEW</div>
+            </div>
           </Link>
-          {user && (
-            <Link href="/submit">
-              <span className={`text-sm font-medium ${location === "/submit" ? "text-primary" : "text-muted-foreground"} hover:text-primary`}>
-                Submit Project
-              </span>
-            </Link>
-          )}
-          {user?.isAdmin && (
-            <Link href="/admin">
-              <span className={`text-sm font-medium ${location === "/admin" ? "text-primary" : "text-muted-foreground"} hover:text-primary`}>
-                Admin
-              </span>
-            </Link>
-          )}
         </nav>
 
         <div className="flex items-center space-x-2">
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="relative">
-                  <User className="h-5 w-5" />
+                <Button variant="ghost" size="sm" className="relative">
+                  <span>{user.username}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuLabel>{user.username}</DropdownMenuLabel>
+                <DropdownMenuLabel>{user.email}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link href="/profile">Profile</Link>
@@ -111,14 +115,22 @@ export default function Header() {
             </DropdownMenu>
           ) : (
             <Button
-              variant="ghost"
-              size="icon"
+              variant="default"
+              size="sm"
               onClick={handleAuthClick}
-              aria-label="Login"
+              className="rounded-full px-4 bg-blue-500 hover:bg-blue-600 text-white"
             >
-              <LockIcon className="h-5 w-5" />
+              Log In
             </Button>
           )}
+
+          {/* Language Selector */}
+          <Button variant="ghost" size="icon" className="text-muted-foreground">
+            <span className="flex items-center">
+              <GlobeIcon className="h-4 w-4 mr-1" />
+              <span className="text-sm">En</span>
+            </span>
+          </Button>
 
           <ModeToggle />
 
@@ -137,16 +149,31 @@ export default function Header() {
       {/* Mobile Navigation Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden bg-background p-4 border-b">
+          <div className="mb-4">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-4 w-4 text-gray-400" />
+              </div>
+              <Input
+                type="search"
+                placeholder="Search"
+                className="pl-10 pr-4 py-2 bg-gray-100 dark:bg-gray-800 border-0 w-full"
+              />
+            </div>
+          </div>
           <nav className="flex flex-col space-y-4">
             <Link href="/" onClick={() => setMobileMenuOpen(false)}>
               <span className={`font-medium ${location === "/" ? "text-primary" : "text-foreground"}`}>
-                Home
+                Apps Catalog
               </span>
             </Link>
-            <Link href="/category/airdrop" onClick={() => setMobileMenuOpen(false)}>
-              <span className={`font-medium ${location.startsWith("/category") ? "text-primary" : "text-foreground"}`}>
-                Categories
-              </span>
+            <Link href="/journal" onClick={() => setMobileMenuOpen(false)}>
+              <div className="flex items-center space-x-1">
+                <span className={`font-medium text-foreground`}>
+                  Journal
+                </span>
+                <div className="bg-blue-500 text-white text-[10px] px-1 rounded">NEW</div>
+              </div>
             </Link>
             {user && (
               <>
@@ -180,11 +207,12 @@ export default function Header() {
             )}
             {!user && (
               <Button
-                variant="outline"
+                variant="default"
                 onClick={() => {
                   setIsLoginModalOpen(true);
                   setMobileMenuOpen(false);
                 }}
+                className="bg-blue-500 hover:bg-blue-600 text-white"
               >
                 Login / Register
               </Button>
