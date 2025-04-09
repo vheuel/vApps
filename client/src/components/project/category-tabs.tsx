@@ -26,7 +26,7 @@ export default function CategoryTabs() {
 
   return (
     <div className="border-b border-border/40 overflow-x-auto">
-      <div className="flex">
+      <div className="flex tabs-responsive">
         {categories.map((category) => (
           <Link
             key={category.id}

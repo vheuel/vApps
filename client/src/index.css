@@ -16,6 +16,15 @@
   .hide-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+
+@media (max-width: 768px) {
+  .tabs-responsive {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
+
   }
   
   .hide-scrollbar::-webkit-scrollbar {
