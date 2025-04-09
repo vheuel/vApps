@@ -142,19 +142,21 @@ export default function ProjectCard({
             </div>
             <div className="ml-4 flex-1">
               <div className="flex items-center gap-2">
-                <h3 className="font-medium text-lg">{project.name}</h3>
+                <h3 className="font-medium text-lg">
+                  {project.websiteUrl && (
+                    <a 
+                      href={project.websiteUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="text-muted-foreground hover:text-primary font-medium text-lg"
+                    >
+                      {project.name}
+                    </a>
+                  )}
+                  {!project.websiteUrl && project.name}
+                </h3>
                 {showVerificationIcon && project.verified && (
                   <CheckCircle className="w-4 h-4 text-blue-500" />
-                )}
-                {project.websiteUrl && (
-                  <a 
-                    href={project.websiteUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="text-muted-foreground hover:text-primary"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
                 )}
               </div>
               <p className="text-muted-foreground text-sm line-clamp-2 mt-1">{project.description}</p>
@@ -225,11 +227,6 @@ export default function ProjectCard({
                           onClick={() => unverifyMutation.mutate(project.id)}
                           disabled={unverifyMutation.isPending}
                         >
-                          {unverifyMutation.isPending ? (
-                            <Loader2 className="h-4 w-4 animate-spin mr-1" />
-                          ) : (
-                            <X className="h-4 w-4 mr-1" />
-                          )}
                           Remove Verification
                         </Button>
                       ) : (
@@ -240,12 +237,7 @@ export default function ProjectCard({
                           onClick={() => verifyMutation.mutate(project.id)}
                           disabled={verifyMutation.isPending}
                         >
-                          {verifyMutation.isPending ? (
-                            <Loader2 className="h-4 w-4 animate-spin mr-1" />
-                          ) : (
-                            <CheckCircle className="h-4 w-4 mr-1" />
-                          )}
-                          Verify Project
+                          Verification
                         </Button>
                       )}
                     </>
