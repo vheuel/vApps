@@ -224,21 +224,14 @@ export default function ProjectForm({
                       <X className="h-4 w-4" />
                     </button>
                   </div>
-                ) : siteSettings?.defaultProjectIcon ? (
-                  <div className="flex flex-col items-start gap-2">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="text-xs text-muted-foreground underline hover:text-primary"
-                      onClick={() => document.getElementById("project-icon-upload")?.click()}
-                    >
-                      Upload custom icon instead
-                    </Button>
-                  </div>
                 ) : (
-                  <div className="flex items-center justify-center h-16 w-16 border-2 border-dashed border-gray-300 rounded-md">
-                    <ImageIcon className="h-6 w-6 text-gray-400" />
+                  <div 
+                    onClick={() => document.getElementById("project-icon-upload")?.click()}
+                    className="cursor-pointer flex items-center justify-center h-16 w-16 border-2 border-dashed border-gray-300 rounded-md">
+                    <div className="text-gray-400 text-center">
+                      <div className="text-sm font-light">No icon</div>
+                      <div className="mt-1">+</div>
+                    </div>
                   </div>
                 )}
                 <div>
