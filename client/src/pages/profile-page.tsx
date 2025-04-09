@@ -19,6 +19,7 @@ import ProjectForm from "@/components/project/project-form";
 import { formatDistanceToNow } from "date-fns";
 import { UserIcon, BriefcaseIcon, CalendarIcon, MailIcon, Plus, Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import RecentActivity from "@/components/RecentActivity";
 
 export default function ProfilePage() {
   const { user } = useAuth();
@@ -31,7 +32,7 @@ export default function ProfilePage() {
     refetchOnWindowFocus: true,
     retry: 3,
   });
-  
+
   // Debugging untuk melihat response
   useEffect(() => {
     if (isError) {
@@ -161,7 +162,7 @@ export default function ProfilePage() {
             <TabsTrigger value="projects" className="flex-1">My Projects</TabsTrigger>
             <TabsTrigger value="activity" className="flex-1">Recent Activity</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="projects" className="p-4">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-semibold">My Projects</h3>
@@ -172,7 +173,7 @@ export default function ProfilePage() {
                 </Link>
               </Button>
             </div>
-            
+
             {isLoading ? (
               <div className="space-y-4">
                 {[...Array(3)].map((_, index) => (
@@ -199,12 +200,9 @@ export default function ProfilePage() {
               </div>
             )}
           </TabsContent>
-          
+
           <TabsContent value="activity" className="p-4">
-            <h3 className="text-xl font-semibold mb-4">Recent Activity</h3>
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">Activity tracking coming soon.</p>
-            </div>
+            <RecentActivity />
           </TabsContent>
         </Tabs>
       </Card>
