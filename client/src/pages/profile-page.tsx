@@ -153,12 +153,15 @@ export default function ProfilePage() {
             </div>
             <Progress value={totalProjects > 0 ? (pendingProjects / totalProjects) * 100 : 0} className="h-2 bg-muted" />
 
-// Define the schema
-const profileUpdateSchema = z.object({
-  name: z.string().optional(),
-  username: z.string().min(3).max(50).optional(),
-  email: z.string().email().optional(),
-  password: z.string().min(6).optional(),
+// Split conflicting code blocks to prevent syntax errors
+
+// Define the schema for project edit dialog
+const projectEditSchema = z.object({
+  name: z.string(),
+  description: z.string(),
+  websiteUrl: z.string().url(),
+  category: z.string(),
+  iconUrl: z.string().optional(),
 });
 
 export default function ProfilePage() {
