@@ -87,6 +87,7 @@ export default function ProjectCard({
     },
     onSuccess: (updatedProject) => {
       queryClient.invalidateQueries({ queryKey: ["/api/projects", updatedProject.id] });
+      project.verified = !project.verified;  // Toggle the verified status locally
       toast({
         title: "Project verified",
         description: "The project has been verified and will show a verification badge.",
@@ -108,6 +109,7 @@ export default function ProjectCard({
     },
     onSuccess: (updatedProject) => {
       queryClient.invalidateQueries({ queryKey: ["/api/projects", updatedProject.id] });
+      project.verified = !project.verified;  // Toggle the verified status locally
       toast({
         title: "Project unverified",
         description: "The verification badge has been removed from this project.",
@@ -160,6 +162,7 @@ export default function ProjectCard({
                 )}
               </div>
               <p className="text-muted-foreground text-sm line-clamp-2 mt-1">{project.description}</p>
+              <p className="text-xs text-muted-foreground mt-1">by {project.creatorName || "Unknown"}</p> {/* Added creator's name */}
 
               {showActions && (
                 <div className="mt-3 flex justify-between items-center">
@@ -223,7 +226,9 @@ export default function ProjectCard({
                         size="sm"
                         variant="outline"
                         className={project.verified ? "border-red-200 hover:bg-red-50 hover:text-red-600" : "border-blue-200 hover:bg-blue-50 hover:text-blue-600"}
-                        onClick={() => project.verified ? unverifyMutation.mutate(project.id) : verifyMutation.mutate(project.id)}
+                        onClick={() => {
+                          project.verified ? unverifyMutation.mutate(project.id) : verifyMutation.mutate(project.id);
+                        }}
                         disabled={project.verified ? unverifyMutation.isPending : verifyMutation.isPending}
                       >
                         {project.verified ? "Remove Verification" : "Verification"}
