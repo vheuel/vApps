@@ -1,3 +1,4 @@
+
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
@@ -67,66 +68,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/projects", async (req, res) => {
     if (!req.isAuthenticated()) {
-  return res.status(401).json({ message: "Not authenticated" });
-}
-
-try {
-  const validatedData = insertProjectSchema.parse(req.body);
-  const project = await storage.createProject(validatedData, req.user.id);
-  res.status(201).json(project);
-} catch (error) {
-  if (error instanceof z.ZodError) {
-    return res.status(400).json({ 
-      message: "Validation error", 
-      errors: error.errors 
-    });
-  }
-  res.status(500).json({ message: "Error creating project" });
-}
-
-const updateUserSchema = z.object({
-  name: z.string().optional(),
-  username: z.string().min(3).max(50).optional(),
-  password: z.string().min(6).optional(),
-  email: z.string().email().optional(),
-});
-
-app.put("/api/user/update", async (req, res) => {
-  if (!req.isAuthenticated()) {
-    return res.status(401).json({ message: "Not authenticated" });
-  }
-
-  try {
-    const validatedData = updateUserSchema.parse(req.body);
-    if (validatedData.password) {
-      validatedData.password = await hashPassword(validatedData.password);
-    }
-    
-    const updatedUser = await storage.updateUser(req.user.id, validatedData);
-    res.status(200).json(updatedUser);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ message: "Validation error", errors: error.errors });
-    }
-    res.status(500).json({ message: "Error updating user" });
-  }
-});
-
       return res.status(401).json({ message: "Not authenticated" });
     }
-    
+
     try {
       const validatedData = insertProjectSchema.parse(req.body);
       const project = await storage.createProject(validatedData, req.user.id);
       res.status(201).json(project);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ 
-          message: "Validation error", 
-          errors: error.errors 
+        return res.status(400).json({
+          message: "Validation error",
+          errors: error.errors,
         });
       }
       res.status(500).json({ message: "Error creating project" });
+    }
+  });
+
+  // Ensure updateUserSchema and related function are properly scoped
+  const updateUserSchema = z.object({
+    name: z.string().optional(),
+    username: z.string().min(3).max(50).optional(),
+    password: z.string().min(6).optional(),
+    email: z.string().email().optional(),
+  });
+
+  app.put("/api/user/update", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const validatedData = updateUserSchema.parse(req.body);
+      if (validatedData.password) {
+        validatedData.password = await hashPassword(validatedData.password);
+      }
+
+      const updatedUser = await storage.updateUser(req.user.id, validatedData);
+      res.status(200).json(updatedUser);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Validation error", errors: error.errors });
+      }
+      res.status(500).json({ message: "Error updating user" });
     }
   });
 
