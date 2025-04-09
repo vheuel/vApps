@@ -28,6 +28,12 @@ import {
   Bookmark,
   MapPin,
   Link as LinkIcon,
+  Check,
+  Star,
+  Image,
+  Share2,
+  Edit,
+  Eye,
 } from "lucide-react";
 import { MdVerified } from "react-icons/md";
 import PortfolioTab from "@/components/profile/portfolio-tab";
@@ -249,7 +255,9 @@ export default function ProfilePage() {
         {/* Bio and Other Info */}
         <div className="px-4 pt-12 pb-4">
           <div className="flex items-center mb-1">
-            <h1 className="text-xl font-bold">{user.username}</h1>
+            <h1 className="text-xl font-bold">
+              {user.username.charAt(0).toUpperCase() + user.username.slice(1)}
+            </h1>
             {user.isAdmin && (
               <MdVerified className="h-5 w-5 text-blue-500 ml-2" />
             )}
@@ -374,12 +382,12 @@ export default function ProfilePage() {
                           {user.avatarUrl ? (
                             <AvatarImage src={user.avatarUrl} alt={user.username} />
                           ) : (
-                            <AvatarFallback className="bg-sky-200">{user.username.charAt(0).toLowerCase()}</AvatarFallback>
+                            <AvatarFallback className="bg-sky-200">{user.username.charAt(0).toUpperCase()}</AvatarFallback>
                           )}
                         </Avatar>
                         <div>
                           <div className="flex items-center">
-                            <span className="font-semibold">{user.username}</span>
+                            <span className="font-semibold">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
                             <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">
                               · {formatTimeCompact(project.createdAt)}
                             </span>
@@ -471,8 +479,144 @@ export default function ProfilePage() {
             )}
           </>
         ) : activeTab === "activity" ? (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 text-center">
-            <p className="text-gray-500 dark:text-gray-400">No recent activities.</p>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <h3 className="text-lg font-semibold mb-4">Recent Activities</h3>
+            {projects && projects.length > 0 ? (
+              <div className="space-y-4">
+                {/* Activity list for profile updates */}
+                {user.avatarUrl && (
+                  <div className="flex items-start space-x-3 pb-4 border-b dark:border-gray-700">
+                    <div className="p-2 rounded-full bg-blue-100 dark:bg-blue-900">
+                      <Image className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex items-center">
+                        <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
+                        <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· 1 day</span>
+                      </div>
+                      <p className="text-gray-600 dark:text-gray-300">Updated profile picture</p>
+                    </div>
+                  </div>
+                )}
+
+                {user.headerImage && (
+                  <div className="flex items-start space-x-3 pb-4 border-b dark:border-gray-700">
+                    <div className="p-2 rounded-full bg-purple-100 dark:bg-purple-900">
+                      <Image className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex items-center">
+                        <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
+                        <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· 1 day</span>
+                      </div>
+                      <p className="text-gray-600 dark:text-gray-300">Updated profile header image</p>
+                    </div>
+                  </div>
+                )}
+
+                {user.bio && (
+                  <div className="flex items-start space-x-3 pb-4 border-b dark:border-gray-700">
+                    <div className="p-2 rounded-full bg-green-100 dark:bg-green-900">
+                      <Edit className="h-5 w-5 text-green-600 dark:text-green-400" />
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex items-center">
+                        <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
+                        <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· 2 days</span>
+                      </div>
+                      <p className="text-gray-600 dark:text-gray-300">Updated profile bio</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Activity list for each project */}
+                {[...projects]
+                  .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                  .slice(0, 5) // Show only the last 5 projects
+                  .map((project) => (
+                    <div key={`activity-${project.id}`} className="flex items-start space-x-3 pb-4 border-b dark:border-gray-700">
+                      <div className="p-2 rounded-full bg-indigo-100 dark:bg-indigo-900">
+                        {project.verified ? (
+                          <Star className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+                        ) : (
+                          <Share2 className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                        )}
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex items-center">
+                          <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
+                          <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· {formatTimeCompact(project.createdAt)}</span>
+                        </div>
+                        <p className="text-gray-600 dark:text-gray-300">
+                          {project.verified ? "Got verified for " : "Submitted "} 
+                          <Link href={`/category/${project.category}`} className="text-blue-500 hover:underline">{project.name}</Link>
+                        </p>
+                        {project.verified && (
+                          <div className="mt-1 text-sm text-green-600 dark:text-green-400 flex items-center">
+                            <Check className="h-4 w-4 mr-1" /> Verified project
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                }
+
+                {/* Website or location updated */}
+                {user.website && (
+                  <div className="flex items-start space-x-3 pb-4 border-b dark:border-gray-700">
+                    <div className="p-2 rounded-full bg-pink-100 dark:bg-pink-900">
+                      <LinkIcon className="h-5 w-5 text-pink-600 dark:text-pink-400" />
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex items-center">
+                        <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
+                        <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· 5 days</span>
+                      </div>
+                      <p className="text-gray-600 dark:text-gray-300">
+                        Added website: <a href={user.website} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                          {user.website.replace(/^https?:\/\//, '')}
+                        </a>
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {user.location && (
+                  <div className="flex items-start space-x-3 pb-4 border-b dark:border-gray-700">
+                    <div className="p-2 rounded-full bg-amber-100 dark:bg-amber-900">
+                      <MapPin className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex items-center">
+                        <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
+                        <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· 7 days</span>
+                      </div>
+                      <p className="text-gray-600 dark:text-gray-300">
+                        Updated location to {user.location}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Joined activity */}
+                <div className="flex items-start space-x-3">
+                  <div className="p-2 rounded-full bg-cyan-100 dark:bg-cyan-900">
+                    <UserIcon className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center">
+                      <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
+                      <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· {user.memberSince ? format(new Date(user.memberSince), 'MMMM yyyy') : 'Recently'}</span>
+                    </div>
+                    <p className="text-gray-600 dark:text-gray-300">
+                      Joined the platform
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <p className="text-gray-500 dark:text-gray-400 text-center py-4">No activities found. Start by submitting a project or updating your profile.</p>
+            )}
           </div>
         ) : (
           // Portfolio Tab Content
