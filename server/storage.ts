@@ -3,7 +3,7 @@ import session from "express-session";
 import createMemoryStore from "memorystore";
 import connectPg from "connect-pg-simple";
 import { db } from "./db";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, sql } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import { pool } from "./db";
 
@@ -16,7 +16,7 @@ export interface IStorage {
   getUserByUsername(username: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  
+
   // Project management
   getProject(id: number): Promise<Project | undefined>;
   createProject(project: InsertProject, userId: number): Promise<Project>;
@@ -30,7 +30,8 @@ export interface IStorage {
   rejectProject(id: number): Promise<Project | undefined>;
   verifyProject(id: number): Promise<Project | undefined>;
   unverifyProject(id: number): Promise<Project | undefined>;
-  
+  incrementProjectClicks(id: number): Promise<void>;
+
   // Category management
   getCategories(): Promise<Category[]>;
   getCategory(id: number): Promise<Category | undefined>;
@@ -38,7 +39,7 @@ export interface IStorage {
   createCategory(category: InsertCategory): Promise<Category>;
   updateCategory(id: number, category: Partial<InsertCategory>): Promise<Category | undefined>;
   deleteCategory(id: number): Promise<boolean>;
-  
+
   // Session store
   sessionStore: any; // Using any type to fix typescript error
 }
@@ -51,18 +52,18 @@ export class DatabaseStorage implements IStorage {
       pool,
       createTableIfMissing: true
     });
-    
+
     // Check if admin user exists, if not create one
     this.getUserByEmail("admin@earnapp.com").then(async (adminUser) => {
       if (!adminUser) {
         const hashedPassword = await bcrypt.hash("admin123", 10);
-        
+
         const user = await this.createUser({
           username: "admin",
           email: "admin@earnapp.com",
           password: hashedPassword
         });
-        
+
         // Make the user an admin
         await db.update(users)
           .set({ isAdmin: true })
@@ -131,15 +132,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getProjectsByCategory(category: string): Promise<Project[]> {
-    return db.select()
-      .from(projects)
-      .where(
-        and(
-          eq(projects.category, category),
-          eq(projects.approved, true)
-        )
-      );
-  }
+    return await db.select().from(projects).where(eq(projects.category, category));
+  },
+
+  async incrementProjectClicks(id: number): Promise<void> {
+    await db
+      .update(projects)
+      .set({ clicks: sql`clicks + 1` })
+      .where(eq(projects.id, id));
+  },
 
   async getApprovedProjects(): Promise<Project[]> {
     return db.select()
@@ -152,7 +153,7 @@ export class DatabaseStorage implements IStorage {
     const pendingProjects = await db.select()
       .from(projects)
       .where(eq(projects.pending, true));
-    
+
     console.log("Pending projects:", pendingProjects);
     return pendingProjects;
   }
@@ -178,7 +179,7 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return updatedProject;
   }
-  
+
   async verifyProject(id: number): Promise<Project | undefined> {
     const [updatedProject] = await db.update(projects)
       .set({
@@ -188,7 +189,7 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return updatedProject;
   }
-  
+
   async unverifyProject(id: number): Promise<Project | undefined> {
     const [updatedProject] = await db.update(projects)
       .set({
@@ -198,7 +199,7 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return updatedProject;
   }
-  
+
   // Category management methods
   async getCategories(): Promise<Category[]> {
     return db.select().from(categories).orderBy(categories.name);
@@ -231,13 +232,13 @@ export class DatabaseStorage implements IStorage {
     // Check if there are projects using this category
     const categoryToDelete = await this.getCategory(id);
     if (!categoryToDelete) return false;
-    
+
     const projectsWithCategory = await this.getProjectsByCategory(categoryToDelete.slug);
     if (projectsWithCategory.length > 0) {
       // Category is in use, cannot delete
       return false;
     }
-    
+
     await db.delete(categories).where(eq(categories.id, id));
     return true;
   }
