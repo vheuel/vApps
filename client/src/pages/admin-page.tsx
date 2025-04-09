@@ -216,13 +216,13 @@ export default function AdminPage() {
       </div>
 
       <Tabs defaultValue="pending">
-        <div className="overflow-x-auto">
-          <TabsList className="w-full mb-4">
-            <TabsTrigger value="pending">Pending Projects</TabsTrigger>
-            <TabsTrigger value="approved">Approved Projects</TabsTrigger>
-            <TabsTrigger value="stats">Category Stats</TabsTrigger>
-            <TabsTrigger value="categories">Manage Categories</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
+        <div className="overflow-x-auto pb-1">
+          <TabsList className="w-full mb-4" style={{ minWidth: '700px' }}>
+            <TabsTrigger value="pending" className="flex-1">Pending Projects</TabsTrigger>
+            <TabsTrigger value="approved" className="flex-1">Approved Projects</TabsTrigger>
+            <TabsTrigger value="stats" className="flex-1">Category Stats</TabsTrigger>
+            <TabsTrigger value="categories" className="flex-1">Manage Categories</TabsTrigger>
+            <TabsTrigger value="settings" className="flex-1">Settings</TabsTrigger>
           </TabsList>
         </div>
         

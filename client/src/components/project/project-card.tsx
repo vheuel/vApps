@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { formatDistanceToNow } from "date-fns";
 import { ExternalLink, CheckCircle, XCircle, Check, X, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -26,6 +26,12 @@ export default function ProjectCard({
 }: ProjectCardProps) {
   const createdAt = project.createdAt ? new Date(project.createdAt) : new Date();
   const { toast } = useToast();
+  
+  // Fetch default project icon
+  const { data: siteSettings } = useQuery({
+    queryKey: ['/api/site-settings'],
+    refetchOnWindowFocus: false,
+  });
 
   const isValidUrl = (stringUrl: string) => {
     try {
@@ -134,6 +140,12 @@ export default function ProjectCard({
                 <img 
                   src={project.iconUrl} 
                   alt={project.name} 
+                  className="w-full h-full object-cover rounded-lg"
+                />
+              ) : siteSettings?.defaultProjectIcon ? (
+                <img 
+                  src={siteSettings.defaultProjectIcon} 
+                  alt="Default icon" 
                   className="w-full h-full object-cover rounded-lg"
                 />
               ) : (
