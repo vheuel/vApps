@@ -3,15 +3,21 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatDistanceToNow } from "date-fns";
-import { Globe } from "lucide-react";
+import { Globe, CheckCircle } from "lucide-react";
 
 interface ProjectCardProps {
   project: Project;
   showActions?: boolean;
+  showVerificationIcon?: boolean;
   onEdit?: (project: Project) => void;
 }
 
-export default function ProjectCard({ project, showActions = false, onEdit }: ProjectCardProps) {
+export default function ProjectCard({ 
+  project, 
+  showActions = false, 
+  showVerificationIcon = false,
+  onEdit 
+}: ProjectCardProps) {
   const createdAt = project.createdAt ? new Date(project.createdAt) : new Date();
 
   return (
@@ -27,18 +33,19 @@ export default function ProjectCard({ project, showActions = false, onEdit }: Pr
                   className="w-full h-full object-cover rounded-lg"
                 />
               ) : (
-                <div className="w-1 h-1 bg-gray-300 rounded-full"></div>
+                <div className="w-full h-full flex items-center justify-center bg-primary/10 rounded-lg text-primary">
+                  {project.name.charAt(0).toUpperCase()}
+                </div>
               )}
             </div>
             <div className="ml-4 flex-1">
-              <h3 className="font-medium text-lg">{project.name}</h3>
-              <p className="text-muted-foreground text-sm line-clamp-2">{project.description}</p>
-              
-              <div className="mt-1 flex items-center text-sm">
-                <span className="text-primary">
-                  Kategori: {project.category.charAt(0).toUpperCase() + project.category.slice(1)}
-                </span>
+              <div className="flex items-center">
+                <h3 className="font-medium text-lg">{project.name}</h3>
+                {showVerificationIcon && (
+                  <CheckCircle className="w-4 h-4 ml-1 text-blue-500" />
+                )}
               </div>
+              <p className="text-muted-foreground text-sm line-clamp-2">{project.description}</p>
               
               {project.websiteUrl && (
                 <div className="flex items-center mt-1">
