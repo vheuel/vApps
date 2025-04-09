@@ -14,6 +14,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers.zod";
+import { z } from "zod";
+
 import ProjectCard from "@/components/project/project-card";
 import ProjectForm from "@/components/project/project-form";
 import { formatDistanceToNow } from "date-fns";
@@ -146,12 +151,7 @@ export default function ProfilePage() {
               <span>Pending</span>
               <span>{pendingProjects}</span>
             </div>
-            <Progress 
-
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { useAuth } from "@/hooks/use-auth";
+            <Progress
 
 // Define the schema
 const profileUpdateSchema = z.object({
