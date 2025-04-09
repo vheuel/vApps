@@ -454,7 +454,11 @@ export default function ProfilePage() {
                     <div className="flex items-start justify-between">
                       <div className="flex">
                         <Avatar className="h-10 w-10 mr-3 bg-sky-200">
-                          <AvatarFallback className="bg-sky-200">{user.username.charAt(0).toLowerCase()}</AvatarFallback>
+                          {user.avatarUrl ? (
+                            <AvatarImage src={user.avatarUrl} alt={user.username} />
+                          ) : (
+                            <AvatarFallback className="bg-sky-200">{user.username.charAt(0).toLowerCase()}</AvatarFallback>
+                          )}
                         </Avatar>
                         <div>
                           <div className="flex items-center">
@@ -490,7 +494,11 @@ export default function ProfilePage() {
                     <div className="mt-4 p-3 border dark:border-gray-700 rounded-lg">
                       <div className="flex items-start">
                         <Avatar className="h-10 w-10 mr-3 bg-sky-200">
-                          <AvatarFallback className="bg-sky-200">M</AvatarFallback>
+                          {project.iconUrl ? (
+                            <AvatarImage src={project.iconUrl} alt={project.name} />
+                          ) : (
+                            <AvatarFallback className="bg-sky-200">M</AvatarFallback>
+                          )}
                         </Avatar>
                         <div>
                           <h3 className="font-semibold">{project.name}</h3>
