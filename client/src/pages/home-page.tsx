@@ -40,6 +40,8 @@ const CategorySection = () => {
   );
 };
 
+import CategorySection from '@/components/category/category-section';
+
 const HomePage = () => {
   return (
     <div className="container mx-auto px-4 py-8">
