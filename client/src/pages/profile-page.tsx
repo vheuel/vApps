@@ -100,7 +100,7 @@ export default function ProfilePage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("project");
   
-  // Memuat ulang data pengguna hanya saat komponen pertama kali dimuat atau saat tab berganti
+  // Memuat ulang data pengguna hanya saat komponen pertama kali dimuat
   useEffect(() => {
     const refreshUserData = async () => {
       try {
@@ -109,35 +109,37 @@ export default function ProfilePage() {
         });
         if (response.ok) {
           const userData = await response.json();
-          // Hanya update data saat tab aktivitas dipilih untuk mengurangi refresh berlebihan
-          if (activeTab === "activity") {
-            update(userData);
-          }
+          // Update data user hanya pada inisialisasi awal
+          update(userData);
         }
       } catch (error) {
         console.error("Failed to refresh user data:", error);
       }
     };
     
-    // Refresh data saat komponen pertama kali di-mount dan saat tab berubah
+    // Refresh data hanya saat komponen pertama kali di-mount
     refreshUserData();
-  }, [activeTab]);
+  }, []);
 
   const { data: projects, isLoading, isError, error } = useQuery<Project[]>({
     queryKey: ["/api/user/projects"],
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: false,
     retry: 3,
   });
 
-  // Debugging untuk melihat response
+  // Untuk menyimpan tab yang aktif di local storage
   useEffect(() => {
-    if (isError) {
-      console.error("Error fetching user projects:", error);
+    // Simpan tab aktif ke local storage saat berubah
+    localStorage.setItem('profileActiveTab', activeTab);
+  }, [activeTab]);
+  
+  // Memuat tab aktif dari local storage saat komponen dimuat
+  useEffect(() => {
+    const savedTab = localStorage.getItem('profileActiveTab');
+    if (savedTab) {
+      setActiveTab(savedTab);
     }
-    if (projects) {
-      console.log("User projects:", projects);
-    }
-  }, [projects, isError, error]);
+  }, []);
 
   const updateProjectMutation = useMutation({
     mutationFn: async (data: { id: number; project: Partial<InsertProject> }) => {
