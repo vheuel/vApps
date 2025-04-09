@@ -8,6 +8,23 @@ import { useAuth } from "@/hooks/use-auth";
 import { ChevronRight, ArrowRight, Gift, Wallet, BarChart3, Search, Wrench, ImageIcon, TrendingUp, GitBranch, MessageCircle, CheckCircle, ExternalLink, Package2Icon, Wallet2Icon, ArrowRightLeftIcon, SearchIcon, ToolIcon, CoinsIcon, ArrowLeftRightIcon, RadioIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/card";
+import { useRef } from 'react';
+
+
+const getCategoryIcon = (category: string) => {
+  switch (category.toLowerCase()) {
+    case 'airdrop': return <Package2Icon className="w-5 h-5" />;
+      case 'wallets': return <Wallet2Icon className="w-5 h-5" />;
+      case 'exchanges': return <ArrowRightLeftIcon className="w-5 h-5" />;
+      case 'explorers': return <SearchIcon className="w-5 h-5" />;
+      case 'utilities': return <ToolIcon className="w-5 h-5" />;
+      case 'nft': return <ImageIcon className="w-5 h-5" />;
+      case 'staking': return <CoinsIcon className="w-5 h-5" />;
+      case 'bridges': return <ArrowLeftRightIcon className="w-5 h-5" />;
+      case 'channels': return <RadioIcon className="w-5 h-5" />;
+      default: return <Package2Icon className="w-5 h-5" />;
+  }
+};
 
 export default function HomePage() {
   const { user } = useAuth();
@@ -45,20 +62,6 @@ export default function HomePage() {
   };
 
   // Category icon mapping
-  const getCategoryIcon = (slug: string) => {
-    switch (slug) {
-      case 'airdrop': return <Package2Icon className="w-5 h-5" />;
-      case 'wallets': return <Wallet2Icon className="w-5 h-5" />;
-      case 'exchanges': return <ArrowRightLeftIcon className="w-5 h-5" />;
-      case 'explorers': return <SearchIcon className="w-5 h-5" />;
-      case 'utilities': return <ToolIcon className="w-5 h-5" />;
-      case 'nft': return <ImageIcon className="w-5 h-5" />;
-      case 'staking': return <CoinsIcon className="w-5 h-5" />;
-      case 'bridges': return <ArrowLeftRightIcon className="w-5 h-5" />;
-      case 'channels': return <RadioIcon className="w-5 h-5" />;
-      default: return <Package2Icon className="w-5 h-5" />;
-    }
-  };
 
   return (
     <>
@@ -247,7 +250,6 @@ export default function HomePage() {
               <CategorySection 
                 title="Wallets" 
                 slug="wallets"
-                count={getProjectsByCategory('wallets').length}
                 isLoading={isProjectsLoading}
                 projects={getProjectsByCategory('wallets')}
               />
@@ -255,7 +257,6 @@ export default function HomePage() {
               <CategorySection 
                 title="NFT Services" 
                 slug="nft"
-                count={getProjectsByCategory('nft').length}
                 isLoading={isProjectsLoading}
                 projects={getProjectsByCategory('nft').slice(0, 3)}
               />
@@ -263,7 +264,6 @@ export default function HomePage() {
               <CategorySection 
                 title="Bridges" 
                 slug="bridges"
-                count={getProjectsByCategory('bridges').length}
                 isLoading={isProjectsLoading}
                 projects={getProjectsByCategory('bridges').slice(0, 3)}
               />
@@ -271,7 +271,6 @@ export default function HomePage() {
               <CategorySection 
                 title="Utilities" 
                 slug="utilities"
-                count={getProjectsByCategory('utilities').length}
                 isLoading={isProjectsLoading}
                 projects={getProjectsByCategory('utilities').slice(0, 3)}
               />
@@ -282,7 +281,6 @@ export default function HomePage() {
               <CategorySection 
                 title="Exchanges DEX" 
                 slug="exchanges"
-                count={getProjectsByCategory('exchanges').length}
                 isLoading={isProjectsLoading}
                 projects={getProjectsByCategory('exchanges')}
               />
@@ -290,7 +288,6 @@ export default function HomePage() {
               <CategorySection 
                 title="Staking" 
                 slug="staking"
-                count={getProjectsByCategory('staking').length}
                 isLoading={isProjectsLoading}
                 projects={getProjectsByCategory('staking').slice(0, 3)}
               />
@@ -298,7 +295,6 @@ export default function HomePage() {
               <CategorySection 
                 title="Explorers" 
                 slug="explorers"
-                count={getProjectsByCategory('explorers').length}
                 isLoading={isProjectsLoading}
                 projects={getProjectsByCategory('explorers').slice(0, 3)}
               />
@@ -306,7 +302,6 @@ export default function HomePage() {
               <CategorySection 
                 title="Channels" 
                 slug="channels"
-                count={getProjectsByCategory('channels').length}
                 isLoading={isProjectsLoading}
                 projects={getProjectsByCategory('channels').slice(0, 3)}
               />
@@ -342,7 +337,6 @@ function CategorySection({
 }: { 
   title: string; 
   slug: string; 
-  count?: number;
   isLoading: boolean; 
   projects: Project[];
 }) {
