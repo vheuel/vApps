@@ -35,7 +35,7 @@ function App() {
             <Route path="/terms" component={TermsPage} />
             <Route path="/privacy" component={PrivacyPolicyPage} />
             <Route path="/cookies" component={CookiePolicyPage} />
-            <ProtectedRoute path="/profile" component={ProfilePage} />
+            <Route path="/profile/:username" component={ProfilePage} />
             <ProtectedRoute path="/profile/edit" component={EditProfilePage} />
             <ProtectedRoute path="/submit" component={SubmitProjectPage} />
             <AdminRoute path="/admin" component={AdminPage} />
