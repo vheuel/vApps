@@ -1,183 +1,233 @@
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { useMutation } from "@tanstack/react-query";
-import { queryClient, apiRequest } from "@/lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
-import { Journal, InsertJournal } from "@shared/schema";
+import { Journal, insertJournalSchema } from "@shared/schema";
 import { ImageUpload } from "@/components/ui/image-upload";
+import { useAuth } from "@/hooks/use-auth";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
+
+// Extended schema with validation
+const journalFormSchema = insertJournalSchema.extend({
+  title: z.string().min(3, "Title must be at least 3 characters").max(255, "Title is too long"),
+  content: z.string().min(50, "Content must be at least 50 characters"),
+  excerpt: z.string().max(250, "Excerpt must be less than 250 characters").optional(),
+  coverImage: z.string().optional(),
+  published: z.boolean().default(true),
+});
+
+type JournalFormValues = z.infer<typeof journalFormSchema>;
 
 interface JournalFormProps {
   initialData?: Journal;
-  onSuccess?: () => void;
-  onCancel?: () => void;
+  onSuccess: () => void;
+  onCancel: () => void;
 }
 
 export function JournalForm({ initialData, onSuccess, onCancel }: JournalFormProps) {
+  const { user } = useAuth();
   const { toast } = useToast();
-  const isEdit = !!initialData;
-  
-  const [title, setTitle] = useState(initialData?.title || "");
-  const [content, setContent] = useState(initialData?.content || "");
-  const [excerpt, setExcerpt] = useState(initialData?.excerpt || "");
-  const [coverImage, setCoverImage] = useState(initialData?.coverImage || "");
-  const [published, setPublished] = useState(initialData?.published ?? true);
+  const [coverImage, setCoverImage] = useState<string | undefined>(initialData?.coverImage);
 
-  const mutation = useMutation({
-    mutationFn: async (data: InsertJournal) => {
-      if (isEdit && initialData) {
-        const res = await apiRequest("PUT", `/api/journals/${initialData.id}`, data);
-        return res.json();
-      } else {
-        const res = await apiRequest("POST", `/api/journals`, data);
-        return res.json();
-      }
+  const defaultValues: Partial<JournalFormValues> = {
+    title: initialData?.title || "",
+    content: initialData?.content || "",
+    excerpt: initialData?.excerpt || "",
+    coverImage: initialData?.coverImage || "",
+    published: initialData?.published ?? true,
+  };
+
+  const form = useForm<JournalFormValues>({
+    resolver: zodResolver(journalFormSchema),
+    defaultValues,
+  });
+
+  const isEditMode = !!initialData;
+
+  const createJournalMutation = useMutation({
+    mutationFn: async (journalData: JournalFormValues) => {
+      const response = await apiRequest("POST", "/api/journals", journalData);
+      return response.json();
     },
     onSuccess: () => {
-      toast({
-        title: isEdit ? "Journal updated" : "Journal created",
-        description: isEdit
-          ? "Your journal has been updated successfully"
-          : "Your journal has been published successfully",
-      });
-      queryClient.invalidateQueries({ queryKey: ["/api/user/journals"] });
       queryClient.invalidateQueries({ queryKey: ["/api/journals"] });
-      if (onSuccess) onSuccess();
+      queryClient.invalidateQueries({ queryKey: ["/api/user/journals"] });
+      toast({
+        title: "Journal created",
+        description: "Your journal entry has been published successfully.",
+      });
+      onSuccess();
     },
     onError: (error: Error) => {
       toast({
-        title: isEdit ? "Failed to update journal" : "Failed to create journal",
+        title: "Failed to create journal",
         description: error.message,
         variant: "destructive",
       });
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!title.trim()) {
+  const updateJournalMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: JournalFormValues }) => {
+      const response = await apiRequest("PUT", `/api/journals/${id}`, data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/journals"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user/journals"] });
+      queryClient.invalidateQueries({ queryKey: [`/api/journals/${initialData?.id}`] });
       toast({
-        title: "Validation error",
-        description: "Title is required",
+        title: "Journal updated",
+        description: "Your journal entry has been updated successfully.",
+      });
+      onSuccess();
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to update journal",
+        description: error.message,
         variant: "destructive",
       });
-      return;
-    }
-    
-    if (!content.trim()) {
-      toast({
-        title: "Validation error",
-        description: "Content is required",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    const journalData: InsertJournal = {
-      title,
-      content,
-      excerpt: excerpt || content.substring(0, Math.min(content.length, 200)),
-      coverImage,
-      published,
-    };
-    
-    mutation.mutate(journalData);
+    },
+  });
+
+  const handleImageUpload = (url: string) => {
+    setCoverImage(url);
+    form.setValue("coverImage", url, { shouldValidate: true });
   };
 
+  const handleImageRemove = () => {
+    setCoverImage(undefined);
+    form.setValue("coverImage", "", { shouldValidate: true });
+  };
+
+  const onSubmit = (data: JournalFormValues) => {
+    // Make sure to include the coverImage from state
+    const journalData = {
+      ...data,
+      coverImage
+    };
+
+    if (isEditMode && initialData) {
+      updateJournalMutation.mutate({
+        id: initialData.id,
+        data: journalData,
+      });
+    } else {
+      createJournalMutation.mutate(journalData);
+    }
+  };
+
+  const isPending = createJournalMutation.isPending || updateJournalMutation.isPending;
+
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle>{isEdit ? "Edit Journal Entry" : "Create Journal Entry"}</CardTitle>
-      </CardHeader>
-      <form onSubmit={handleSubmit}>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="coverImage">Cover Image</Label>
-            <ImageUpload
-              value={coverImage}
-              onChange={(url) => setCoverImage(url)}
-              onClear={() => setCoverImage("")}
-              maxSizeMB={2}
-              label="Upload cover image (max 2MB)"
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="title">Title</Label>
-            <Input
-              id="title"
-              placeholder="Enter journal title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="content">Content</Label>
-            <Textarea
-              id="content"
-              placeholder="Write your journal entry here..."
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              className="min-h-[200px]"
-              required
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="excerpt">Excerpt (Optional)</Label>
-            <Textarea
-              id="excerpt"
-              placeholder="A short summary of your journal entry (max 300 characters)"
-              value={excerpt}
-              onChange={(e) => setExcerpt(e.target.value)}
-              className="min-h-[100px]"
-              maxLength={300}
-            />
-            <p className="text-xs text-muted-foreground">
-              {excerpt.length}/300 characters. If left empty, an excerpt will be generated from your content.
-            </p>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="published"
-              checked={published}
-              onCheckedChange={setPublished}
-            />
-            <Label htmlFor="published">Publish immediately</Label>
-          </div>
-        </CardContent>
-        
-        <CardFooter className="flex justify-between">
-          <Button 
-            type="button" 
-            variant="outline" 
-            onClick={onCancel}
-          >
-            Cancel
-          </Button>
-          <Button 
-            type="submit" 
-            disabled={mutation.isPending}
-          >
-            {mutation.isPending ? (
-              <span className="flex items-center gap-1">
-                <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-opacity-50 border-t-transparent"></span>
-                {isEdit ? "Updating..." : "Publishing..."}
-              </span>
-            ) : (
-              isEdit ? "Update Journal" : "Publish Journal"
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+      <h2 className="text-2xl font-bold mb-6">
+        {isEditMode ? "Edit Journal Entry" : "Create Journal Entry"}
+      </h2>
+
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <FormField
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Title</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter a title for your journal entry" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
-          </Button>
-        </CardFooter>
-      </form>
-    </Card>
+          />
+
+          <FormField
+            control={form.control}
+            name="excerpt"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Excerpt (optional)</FormLabel>
+                <FormControl>
+                  <Input placeholder="Brief summary of your journal entry" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="content"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Content</FormLabel>
+                <FormControl>
+                  <Textarea 
+                    placeholder="Write your journal entry here..."
+                    className="min-h-[200px]"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div className="space-y-3">
+            <FormLabel>Cover Image (optional)</FormLabel>
+            <ImageUpload
+              currentImage={coverImage}
+              onImageUpload={handleImageUpload}
+              onImageRemove={handleImageRemove}
+              label="Upload cover image"
+            />
+          </div>
+
+          <FormField
+            control={form.control}
+            name="published"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base">
+                    Publish
+                  </FormLabel>
+                  <p className="text-sm text-muted-foreground">
+                    {field.value 
+                      ? "Your journal will be visible to others" 
+                      : "Save as draft (only visible to you)"}
+                  </p>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <div className="flex justify-end space-x-2 pt-4">
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isPending}>
+              {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isEditMode ? "Update" : "Publish"} Journal
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </div>
   );
 }

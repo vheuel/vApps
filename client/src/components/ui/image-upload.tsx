@@ -1,118 +1,121 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { toast } from "@/hooks/use-toast";
-import { Upload, X } from "lucide-react";
+import { useState, useRef, ChangeEvent } from 'react';
+import { Button } from '@/components/ui/button';
+import { X, Upload, Image as ImageIcon } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface ImageUploadProps {
-  value?: string;
-  onChange: (url: string) => void;
-  onClear: () => void;
-  maxSizeMB?: number;
+  onImageUpload: (base64Image: string) => void;
+  onImageRemove: () => void;
+  currentImage?: string;
+  className?: string;
+  maxSize?: number; // in MB
   label?: string;
 }
 
-export function ImageUpload({ 
-  value, 
-  onChange, 
-  onClear, 
-  maxSizeMB = 1, 
-  label = "Upload image" 
+export function ImageUpload({
+  onImageUpload,
+  onImageRemove,
+  currentImage,
+  className = '',
+  maxSize = 2, // Default 2MB
+  label = 'Upload image'
 }: ImageUploadProps) {
-  const [loading, setLoading] = useState(false);
+  const [preview, setPreview] = useState<string | null>(currentImage || null);
+  const [isHovering, setIsHovering] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    
     if (!file) return;
-    
-    const maxSizeBytes = maxSizeMB * 1024 * 1024; // Convert to bytes
-    
-    if (file.size > maxSizeBytes) {
+
+    // Check file size (convert maxSize from MB to bytes)
+    if (file.size > maxSize * 1024 * 1024) {
       toast({
-        title: "Error",
-        description: `File size exceeds ${maxSizeMB}MB limit`,
-        variant: "destructive",
+        title: 'File too large',
+        description: `Image must be less than ${maxSize}MB.`,
+        variant: 'destructive',
       });
       return;
     }
-    
-    // Basic validation for image types
-    if (!file.type.startsWith("image/")) {
+
+    // Check if it's an image
+    if (!file.type.startsWith('image/')) {
       toast({
-        title: "Error",
-        description: "Only image files are allowed",
-        variant: "destructive",
+        title: 'Invalid file type',
+        description: 'Please upload an image file.',
+        variant: 'destructive',
       });
       return;
     }
-    
-    setLoading(true);
-    
-    try {
-      // Convert file to base64 string for storage
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => {
-        if (typeof reader.result === "string") {
-          onChange(reader.result);
-        }
-        setLoading(false);
-      };
-      reader.onerror = () => {
-        toast({
-          title: "Error",
-          description: "Failed to read file",
-          variant: "destructive",
-        });
-        setLoading(false);
-      };
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to upload image",
-        variant: "destructive",
-      });
-      setLoading(false);
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = reader.result as string;
+      setPreview(base64String);
+      onImageUpload(base64String);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleRemoveImage = () => {
+    setPreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
+    onImageRemove();
   };
 
   return (
-    <div className="space-y-2">
-      {value ? (
-        <div className="relative border border-dashed rounded-md p-1 w-full">
-          <img 
-            src={value} 
-            alt="Uploaded image" 
-            className="max-h-[200px] mx-auto object-contain rounded" 
-          />
-          <Button 
-            type="button" 
-            size="icon" 
-            variant="destructive" 
-            className="absolute top-2 right-2 h-6 w-6" 
-            onClick={onClear}
-          >
-            <X className="h-4 w-4" />
-          </Button>
+    <div className={className}>
+      <input
+        type="file"
+        className="hidden"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept="image/*"
+      />
+
+      {preview ? (
+        <div 
+          className="relative rounded-md overflow-hidden"
+          onMouseEnter={() => setIsHovering(true)}
+          onMouseLeave={() => setIsHovering(false)}
+        >
+          <img src={preview} alt="Preview" className="w-full h-auto object-cover" />
+          
+          {isHovering && (
+            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+              <Button 
+                size="sm" 
+                variant="destructive" 
+                onClick={handleRemoveImage} 
+                className="mr-2"
+              >
+                <X className="h-4 w-4 mr-1" /> Remove
+              </Button>
+              <Button 
+                size="sm" 
+                variant="default" 
+                onClick={triggerFileInput}
+              >
+                <Upload className="h-4 w-4 mr-1" /> Change
+              </Button>
+            </div>
+          )}
         </div>
       ) : (
-        <div className="border border-dashed border-gray-300 dark:border-gray-600 rounded-md p-4 text-center">
-          <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center gap-2">
-            <Upload className="h-8 w-8 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">{label}</span>
-            <input 
-              type="file" 
-              accept="image/*" 
-              className="hidden" 
-              onChange={handleUpload}
-              disabled={loading}
-            />
-            {loading && (
-              <div className="mt-2">
-                <div className="h-5 w-5 mx-auto animate-spin rounded-full border-2 border-current border-opacity-50 border-t-transparent"></div>
-              </div>
-            )}
-          </label>
+        <div 
+          onClick={triggerFileInput}
+          className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md p-6 flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors"
+        >
+          <ImageIcon className="h-10 w-10 text-gray-400 mb-2" />
+          <p className="text-sm font-medium">{label}</p>
+          <p className="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to {maxSize}MB</p>
         </div>
       )}
     </div>
