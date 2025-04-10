@@ -8,9 +8,9 @@ export default function JournalDetailPage() {
   if (!journalId) {
     return (
       <div className="container mx-auto py-8 px-4 text-center">
-        <h1 className="text-3xl font-bold text-destructive">Invalid Journal ID</h1>
+        <h1 className="text-3xl font-bold text-destructive">Invalid Post ID</h1>
         <p className="text-muted-foreground mt-2">
-          The journal entry you're looking for could not be found.
+          The post you're looking for could not be found.
         </p>
       </div>
     );

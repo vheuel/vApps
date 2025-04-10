@@ -98,7 +98,7 @@ export default function Header() {
           <Link href="/journals">
             <div className="flex items-center space-x-1">
               <span className={`text-sm font-medium ${location === "/journals" ? "text-primary" : "text-muted-foreground"} hover:text-primary`}>
-                Journal
+                Posts
               </span>
               <div className="bg-blue-500 text-white text-[10px] px-1 rounded">NEW</div>
             </div>
@@ -193,7 +193,7 @@ export default function Header() {
             <Link href="/journals" onClick={() => setMobileMenuOpen(false)}>
               <div className="flex items-center space-x-1">
                 <span className={`font-medium ${location === "/journals" ? "text-primary" : "text-foreground"}`}>
-                  Journal
+                  Posts
                 </span>
                 <div className="bg-blue-500 text-white text-[10px] px-1 rounded">NEW</div>
               </div>

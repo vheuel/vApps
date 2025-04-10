@@ -30,7 +30,7 @@ export default function JournalsPage() {
     <div className="container mx-auto py-8 px-4">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Community Journals</h1>
+          <h1 className="text-3xl font-bold">Community Posts</h1>
           <p className="text-muted-foreground mt-2">
             Discover insights and stories from the community
           </p>
@@ -46,7 +46,7 @@ export default function JournalsPage() {
             {showForm ? "Cancel" : (
               <>
                 <Plus className="mr-2 h-4 w-4" /> 
-                Write Journal
+                Create Post
               </>
             )}
           </Button>

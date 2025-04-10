@@ -46,13 +46,13 @@ export function JournalDetail({ journalId }: JournalDetailProps) {
     return (
       <Card>
         <CardContent className="p-6 text-center">
-          <p className="text-destructive">Failed to load journal entry.</p>
+          <p className="text-destructive">Failed to load post.</p>
           <Button 
             asChild 
             variant="outline" 
             className="mt-4"
           >
-            <Link href="/journals">Back to Journals</Link>
+            <Link href="/journals">Back to Posts</Link>
           </Button>
         </CardContent>
       </Card>
@@ -69,7 +69,7 @@ export function JournalDetail({ journalId }: JournalDetailProps) {
         >
           <Link href="/journals">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Journals
+            Back to Posts
           </Link>
         </Button>
 
@@ -129,7 +129,7 @@ export function JournalDetail({ journalId }: JournalDetailProps) {
           Last updated: {formatDistanceToNow(new Date(journal.updatedAt)).replace(/^about\s/, '').replace(/\sago$/, '')}
         </p>
         <Button asChild variant="outline">
-          <Link href="/journals">Back to Journals</Link>
+          <Link href="/journals">Back to Posts</Link>
         </Button>
       </CardFooter>
     </article>

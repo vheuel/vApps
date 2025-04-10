@@ -208,7 +208,7 @@ export function PostsList({
           </div>
 
           {/* Post content - clickable to go to detail page */}
-          <Link href={`/journal/${journal.id}`} className="block cursor-pointer">
+          <Link href={`/posts/${journal.id}`} className="block cursor-pointer">
             <div className="mb-3">
               {/* Deteksi URL dalam konten */}
               {journal.content.includes("http") ? (
@@ -236,7 +236,7 @@ export function PostsList({
           <div className="flex items-center justify-between text-gray-500 dark:text-gray-400 pt-2">
             <div className="flex items-center space-x-6">
               <Link 
-                href={`/journal/${journal.id}#comments`}
+                href={`/posts/${journal.id}#comments`}
                 className="flex items-center hover:text-blue-500 transition-colors"
               >
                 <MessageSquare className="h-5 w-5 mr-1" />

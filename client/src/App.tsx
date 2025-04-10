@@ -39,6 +39,7 @@ function App() {
             <AdminRoute path="/admin" component={AdminPage} />
             <Route path="/journals" component={JournalsPage} />
             <Route path="/journals/:id" component={JournalDetailPage} />
+            <Route path="/posts/:id" component={JournalDetailPage} />
             <Route component={NotFound} />
           </Switch>
         </main>
