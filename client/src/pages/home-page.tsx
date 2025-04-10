@@ -71,12 +71,32 @@ export default function HomePage() {
       {/* Hero section */}
       <section className="pt-8 pb-6 md:pt-12 md:pb-8 px-4">
         <div className="container mx-auto">
-          <h1 className="text-3xl md:text-4xl font-bold">
-            Welcome to new<br />
-            <span className="text-blue-500">community driven</span> catalog
-          </h1>
+          <div className="max-w-3xl mb-8">
+            <h1 className="text-3xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-600 mb-4">
+              Join the Web3 Community
+            </h1>
+            <p className="text-muted-foreground text-xl font-light leading-relaxed max-w-2xl">
+              The ultimate Web3 project discovery platform, connecting blockchain innovators worldwide.
+            </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+              <div className="flex items-start space-x-3">
+                <div className="bg-primary/10 p-2 rounded-full mt-0.5">
+                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+                </div>
+                <p className="text-muted-foreground">Discover new Web3 projects across diverse ecosystems.</p>
+              </div>
+              
+              <div className="flex items-start space-x-3">
+                <div className="bg-primary/10 p-2 rounded-full mt-0.5">
+                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+                </div>
+                <p className="text-muted-foreground">Submit your own projects and share them with the community.</p>
+              </div>
+            </div>
+          </div>
 
-          <div className="mt-6 overflow-x-auto pb-2 -mx-4 px-4 hide-scrollbar">
+          <div className="overflow-x-auto pb-2 -mx-4 px-4 hide-scrollbar">
             <div className="flex gap-3 min-w-max">
               {categories?.map((category) => (
                 <Link key={category.id} href={`/category/${category.slug}`}>

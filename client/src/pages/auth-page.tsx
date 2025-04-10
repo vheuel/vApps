@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LoginForm } from "@/components/auth/login-form";
 import { RegisterForm } from "@/components/auth/register-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { CheckCircle } from "lucide-react";
 
 export default function AuthPage() {
   const [_, navigate] = useLocation();
@@ -58,39 +59,24 @@ export default function AuthPage() {
         <div className="order-first md:order-last">
           <div className="text-center md:text-left space-y-6">
             <h1 className="text-3xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-600">
-              Join the Web3 Community
+              Access Your Account
             </h1>
             <p className="text-muted-foreground text-xl font-light leading-relaxed">
-              The ultimate Web3 project discovery platform, connecting blockchain innovators worldwide.
+              Sign in to access your profile, manage projects, and connect with the Web3 community.
             </p>
             
-            <div className="space-y-4">
-              <div className="flex items-start space-x-3">
-                <div className="bg-primary/10 p-2 rounded-full mt-0.5">
-                  <div className="w-2 h-2 rounded-full bg-primary"></div>
-                </div>
-                <p className="text-muted-foreground text-lg">Discover new Web3 projects across diverse ecosystems.</p>
+            <div className="flex flex-col space-y-3 mt-4">
+              <div className="flex items-center space-x-2">
+                <CheckCircle className="h-5 w-5 text-green-500" />
+                <p className="text-muted-foreground">Secure authentication</p>
               </div>
-              
-              <div className="flex items-start space-x-3">
-                <div className="bg-primary/10 p-2 rounded-full mt-0.5">
-                  <div className="w-2 h-2 rounded-full bg-primary"></div>
-                </div>
-                <p className="text-muted-foreground text-lg">Submit your own projects and share them with the community.</p>
+              <div className="flex items-center space-x-2">
+                <CheckCircle className="h-5 w-5 text-green-500" />
+                <p className="text-muted-foreground">Personalized dashboard</p>
               </div>
-              
-              <div className="flex items-start space-x-3">
-                <div className="bg-primary/10 p-2 rounded-full mt-0.5">
-                  <div className="w-2 h-2 rounded-full bg-primary"></div>
-                </div>
-                <p className="text-muted-foreground text-lg">Track and manage all your submissions in one place.</p>
-              </div>
-              
-              <div className="flex items-start space-x-3">
-                <div className="bg-primary/10 p-2 rounded-full mt-0.5">
-                  <div className="w-2 h-2 rounded-full bg-primary"></div>
-                </div>
-                <p className="text-muted-foreground text-lg">Connect with the broader Web3 ecosystem and expand your network.</p>
+              <div className="flex items-center space-x-2">
+                <CheckCircle className="h-5 w-5 text-green-500" />
+                <p className="text-muted-foreground">Project management tools</p>
               </div>
             </div>
           </div>
