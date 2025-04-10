@@ -10,18 +10,7 @@ import { queryClient, apiRequest } from "@/lib/queryClient";
 import { MessageSquare, Heart, Link2, MoreVertical, CheckCircle, Send } from "lucide-react";
 import { MdVerified } from "react-icons/md";
 import { useToast } from "@/hooks/use-toast";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { Link } from "wouter";
 
 interface PostsListProps {
   userId?: number;
@@ -35,11 +24,6 @@ export function PostsList({
   const { user } = useAuth();
   const { toast } = useToast();
   
-  // State untuk dialog comment
-  const [commentDialogOpen, setCommentDialogOpen] = useState(false);
-  const [selectedJournalId, setSelectedJournalId] = useState<number | null>(null);
-  const [commentText, setCommentText] = useState("");
-
   const mainQueryKey = userId 
     ? ['api', 'user', 'journals'] 
     : ['api', 'journals'];
@@ -109,82 +93,7 @@ export function PostsList({
     }
   });
   
-  // Function to handle opening comment dialog
-  const handleOpenCommentDialog = (journalId: number) => {
-    setSelectedJournalId(journalId);
-    setCommentText("");
-    setCommentDialogOpen(true);
-  };
-  
-  // Function to handle submitting a comment
-  const handleSubmitComment = () => {
-    if (!commentText.trim() || !selectedJournalId) return;
-    
-    submitCommentMutation.mutate({
-      journalId: selectedJournalId,
-      commentText: commentText.trim()
-    });
-  };
-  
-  // Add comment functionality (simplified version, just counts)
-  const commentMutation = useMutation({
-    mutationFn: async (journalId: number) => {
-      const res = await apiRequest("POST", `/api/journals/${journalId}/comment`);
-      if (!res.ok) {
-        throw new Error("Failed to comment on post");
-      }
-      return res.json();
-    },
-    onSuccess: () => {
-      // Langsung refetch data
-      refetch();
-      toast({
-        title: "Success",
-        description: "Comment added successfully",
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Error",
-        description: error.message || "Could not add comment",
-        variant: "destructive"
-      });
-    }
-  });
-  
-  // Submit comment with text mutation
-  const submitCommentMutation = useMutation({
-    mutationFn: async ({ journalId, commentText }: { journalId: number, commentText: string }) => {
-      // Di implementasi nyata, ini akan mengirim komentar dengan teks ke backend
-      // Untuk sekarang kita gunakan endpoint yang sudah ada
-      const res = await apiRequest("POST", `/api/journals/${journalId}/comment`);
-      if (!res.ok) {
-        throw new Error("Failed to comment on post");
-      }
-      return res.json();
-    },
-    onSuccess: () => {
-      // Reset form and close dialog
-      setCommentText("");
-      setCommentDialogOpen(false);
-      setSelectedJournalId(null);
-      
-      // Refresh data
-      refetch();
-      
-      toast({
-        title: "Success",
-        description: "Comment added successfully",
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Error",
-        description: error.message || "Could not add comment",
-        variant: "destructive"
-      });
-    }
-  });
+  // Comment functionality removed as it's now on detail page
 
   // Fungsi untuk mendeteksi dan format URL dalam teks
   const formatTextWithURLs = (text: string) => {
@@ -298,40 +207,41 @@ export function PostsList({
             </button>
           </div>
 
-          {/* Post content */}
-          <div className="mb-3">
-            {/* Deteksi URL dalam konten */}
-            {journal.content.includes("http") ? (
-              <div>{formatTextWithURLs(journal.content)}</div>
-            ) : journal.content.includes("#") ? (
-              <div>{formatTextWithHashtags(journal.content)}</div>
-            ) : (
-              <div>{journal.content}</div>
-            )}
-          </div>
-
-          {/* Post image if available */}
-          {journal.coverImage && (
-            <div className="mb-3 rounded-lg overflow-hidden">
-              <img
-                src={journal.coverImage}
-                alt={journal.title}
-                className="w-full h-auto max-h-96 object-cover"
-              />
+          {/* Post content - clickable to go to detail page */}
+          <Link href={`/journal/${journal.id}`} className="block cursor-pointer">
+            <div className="mb-3">
+              {/* Deteksi URL dalam konten */}
+              {journal.content.includes("http") ? (
+                <div>{formatTextWithURLs(journal.content)}</div>
+              ) : journal.content.includes("#") ? (
+                <div>{formatTextWithHashtags(journal.content)}</div>
+              ) : (
+                <div>{journal.content}</div>
+              )}
             </div>
-          )}
+
+            {/* Post image if available */}
+            {journal.coverImage && (
+              <div className="mb-3 rounded-lg overflow-hidden">
+                <img
+                  src={journal.coverImage}
+                  alt={journal.title}
+                  className="w-full h-auto max-h-96 object-cover"
+                />
+              </div>
+            )}
+          </Link>
 
           {/* Interaction buttons */}
           <div className="flex items-center justify-between text-gray-500 dark:text-gray-400 pt-2">
             <div className="flex items-center space-x-6">
-              <button 
+              <Link 
+                href={`/journal/${journal.id}#comments`}
                 className="flex items-center hover:text-blue-500 transition-colors"
-                onClick={() => handleOpenCommentDialog(journal.id)}
-                disabled={submitCommentMutation.isPending}
               >
                 <MessageSquare className="h-5 w-5 mr-1" />
                 {journal.comments > 0 && <span>{journal.comments}</span>}
-              </button>
+              </Link>
               <button 
                 className="flex items-center hover:text-red-500 transition-colors"
                 onClick={() => {
@@ -357,43 +267,7 @@ export function PostsList({
         </div>
       ))}
       
-      {/* Comment Dialog */}
-      <Dialog open={commentDialogOpen} onOpenChange={setCommentDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Add Comment</DialogTitle>
-            <DialogDescription>
-              Enter your comment below.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-1 gap-2">
-              <Input
-                id="comment"
-                placeholder="Write your comment..."
-                className="col-span-3"
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              onClick={() => setCommentDialogOpen(false)}
-              variant="outline"
-              disabled={submitCommentMutation.isPending}
-            >
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleSubmitComment} 
-              disabled={!commentText.trim() || submitCommentMutation.isPending}
-            >
-              {submitCommentMutation.isPending ? "Submitting..." : "Submit Comment"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Dialog removed - comments now on detail page */}
     </div>
   );
 }
