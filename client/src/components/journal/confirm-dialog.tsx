@@ -37,12 +37,16 @@ export function ConfirmDialog({
         onInteractOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
       >
-        {/* No close button will be shown because we're using custom CSS to hide it */}
-        <style jsx global>{`
-          .custom-dialog [data-radix-dialog-close] {
-            display: none;
-          }
-        `}</style>
+        {/* Hide the close button completely */}
+        <style 
+          dangerouslySetInnerHTML={{ 
+            __html: `
+              [data-radix-popper-content-wrapper] [data-radix-dialog-close] {
+                display: none !important;
+              }
+            ` 
+          }}
+        />
         
         <DialogHeader className="text-center">
           <DialogTitle className="text-xl">{title}</DialogTitle>
