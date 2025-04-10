@@ -96,12 +96,6 @@ export default function HomePage() {
         <div className="container mx-auto">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-medium">Featured Content</h2>
-            <Button variant="ghost" size="sm" asChild className="text-blue-500 hover:text-blue-600">
-              <Link href="/journals" className="flex items-center text-sm">
-                View all journals
-                <ChevronRight className="h-4 w-4 ml-1" />
-              </Link>
-            </Button>
           </div>
 
           <div className="flex overflow-x-auto pb-4 -mx-4 px-4 gap-4 snap-x snap-mandatory touch-pan-x hide-scrollbar">
