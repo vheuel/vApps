@@ -71,19 +71,43 @@ export default function LoginPage() {
 
         {/* Hero section */}
         <div className="order-first md:order-last">
-          <div className="text-center md:text-left space-y-4">
-            <h1 className="text-3xl md:text-4xl font-bold">
+          <div className="text-center md:text-left space-y-6">
+            <h1 className="text-3xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-600">
               Join the Web3 Community
             </h1>
-            <p className="text-muted-foreground text-lg">
+            <p className="text-muted-foreground text-xl font-light leading-relaxed">
               The ultimate Web3 project discovery platform, connecting blockchain innovators worldwide.
             </p>
-            <ul className="space-y-3 md:list-disc md:pl-5">
-              <li className="text-muted-foreground">Discover new Web3 projects across diverse ecosystems.</li>
-              <li className="text-muted-foreground">Submit your own projects and share them with the community.</li>
-              <li className="text-muted-foreground">Track and manage all your submissions in one place.</li>
-              <li className="text-muted-foreground">Connect with the broader Web3 ecosystem and expand your network.</li>
-            </ul>
+            
+            <div className="space-y-4">
+              <div className="flex items-start space-x-3">
+                <div className="bg-primary/10 p-2 rounded-full mt-0.5">
+                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+                </div>
+                <p className="text-muted-foreground text-lg">Discover new Web3 projects across diverse ecosystems.</p>
+              </div>
+              
+              <div className="flex items-start space-x-3">
+                <div className="bg-primary/10 p-2 rounded-full mt-0.5">
+                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+                </div>
+                <p className="text-muted-foreground text-lg">Submit your own projects and share them with the community.</p>
+              </div>
+              
+              <div className="flex items-start space-x-3">
+                <div className="bg-primary/10 p-2 rounded-full mt-0.5">
+                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+                </div>
+                <p className="text-muted-foreground text-lg">Track and manage all your submissions in one place.</p>
+              </div>
+              
+              <div className="flex items-start space-x-3">
+                <div className="bg-primary/10 p-2 rounded-full mt-0.5">
+                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+                </div>
+                <p className="text-muted-foreground text-lg">Connect with the broader Web3 ecosystem and expand your network.</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
