@@ -35,7 +35,7 @@ interface JournalFormProps {
 export function JournalForm({ initialData, onSuccess, onCancel }: JournalFormProps) {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [coverImage, setCoverImage] = useState<string | undefined>(initialData?.coverImage);
+  const [coverImage, setCoverImage] = useState<string | undefined>(initialData?.coverImage || undefined);
 
   const defaultValues: Partial<JournalFormValues> = {
     title: initialData?.title || "",

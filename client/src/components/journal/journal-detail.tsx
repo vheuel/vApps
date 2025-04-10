@@ -19,7 +19,7 @@ export function JournalDetail({ journalId }: JournalDetailProps) {
   });
 
   // Get author details
-  const { data: author, isLoading: isAuthorLoading } = useQuery({
+  const { data: author, isLoading: isAuthorLoading } = useQuery<{ username: string }>({
     queryKey: [`/api/user/${journal?.userId}`],
     enabled: !!journal?.userId,
     refetchOnWindowFocus: false,

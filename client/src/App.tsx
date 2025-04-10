@@ -12,6 +12,8 @@ import DocumentationPage from "@/pages/documentation-page";
 import TermsPage from "@/pages/terms-page";
 import PrivacyPolicyPage from "@/pages/privacy-policy-page";
 import CookiePolicyPage from "@/pages/cookie-policy-page";
+import JournalsPage from "@/pages/journals-page";
+import JournalDetailPage from "@/pages/journal-detail-page";
 import NotFound from "@/pages/not-found";
 import { ProtectedRoute } from "./lib/protected-route";
 import { AdminRoute } from "./lib/protected-route";
@@ -35,6 +37,8 @@ function App() {
             <ProtectedRoute path="/profile/edit" component={EditProfilePage} />
             <ProtectedRoute path="/submit" component={SubmitProjectPage} />
             <AdminRoute path="/admin" component={AdminPage} />
+            <Route path="/journals" component={JournalsPage} />
+            <Route path="/journal/:id" component={JournalDetailPage} />
             <Route component={NotFound} />
           </Switch>
         </main>
