@@ -421,7 +421,7 @@ export function JournalDetail({ journalId }: JournalDetailProps) {
               Are you sure you want to delete this comment? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="flex justify-between sm:justify-between">
+          <DialogFooter className="flex justify-center gap-4">
             <Button
               type="button"
               variant="secondary"
