@@ -17,7 +17,7 @@ import { QuickJournalForm } from "@/components/journal/quick-journal-form";
 import { PostsList } from "@/components/journal/posts-list";
 
 import ProjectForm from "@/components/project/project-form";
-import { format, differenceInMinutes, differenceInHours, differenceInDays, differenceInMonths, differenceInYears } from "date-fns";
+import { format, differenceInMinutes, differenceInHours, differenceInDays, differenceInMonths, differenceInYears, formatDistanceToNow } from "date-fns";
 import { 
   UserIcon, 
   BriefcaseIcon, 

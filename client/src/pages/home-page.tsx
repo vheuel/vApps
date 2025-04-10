@@ -159,7 +159,7 @@ export default function HomePage() {
                       </p>
                       <div className="flex items-center mt-2 text-xs text-white/70">
                         <CalendarIcon className="h-3 w-3 mr-1" />
-                        <span>{formatDistanceToNow(new Date(journal.createdAt))}</span>
+                        <span>{formatDistanceToNow(new Date(journal.createdAt)).replace(/^about\s/, '').replace(/\sago$/, '')}</span>
                       </div>
                     </div>
                   </div>

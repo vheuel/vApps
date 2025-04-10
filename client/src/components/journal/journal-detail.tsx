@@ -92,7 +92,7 @@ export function JournalDetail({ journalId }: JournalDetailProps) {
           </span>
           <span className="flex items-center">
             <Clock className="h-4 w-4 mr-1" />
-            {formatDistanceToNow(new Date(journal.createdAt))}
+            {formatDistanceToNow(new Date(journal.createdAt)).replace(/^about\s/, '').replace(/\sago$/, '')}
           </span>
           {author ? (
             <span className="flex items-center">
@@ -126,7 +126,7 @@ export function JournalDetail({ journalId }: JournalDetailProps) {
 
       <CardFooter className="flex justify-between items-center py-6 px-0 mt-8 border-t">
         <p className="text-sm text-muted-foreground">
-          Last updated: {formatDistanceToNow(new Date(journal.updatedAt))}
+          Last updated: {formatDistanceToNow(new Date(journal.updatedAt)).replace(/^about\s/, '').replace(/\sago$/, '')}
         </p>
         <Button asChild variant="outline">
           <Link href="/journals">Back to Journals</Link>
