@@ -106,7 +106,7 @@ export function PostsList({
   return (
     <div className="space-y-6">
       {displayedJournals.map((journal) => (
-        <div key={journal.id} className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+        <div key={journal.id} className="rounded-lg shadow p-4">
           {/* Post header with username and time */}
           <div className="flex items-start justify-between mb-3">
             <div className="flex items-center">
@@ -123,7 +123,7 @@ export function PostsList({
                 <div className="flex items-center">
                   <span className="font-medium">{user?.username}</span>
                   <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">
-                    · {formatDistanceToNow(new Date(journal.createdAt))}
+                    · {formatDistanceToNow(new Date(journal.createdAt)).replace('about ', '')}
                   </span>
                 </div>
               </div>

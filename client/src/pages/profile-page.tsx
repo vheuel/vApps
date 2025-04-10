@@ -650,7 +650,7 @@ export default function ProfilePage() {
           <PortfolioTab />
         ) : activeTab === "journal" ? (
           // Posts Tab Content
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+          <div>
             <div className="space-y-6">
               {isLoading ? (
                 <div className="space-y-4">
