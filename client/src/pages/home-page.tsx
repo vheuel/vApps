@@ -144,7 +144,11 @@ export default function HomePage() {
                   <div className="absolute inset-0 bg-black/50"></div>
                   <div className="relative p-4 text-white h-full flex flex-col justify-between">
                     <div className="bg-white/20 text-white px-2 py-1 rounded-md text-xs self-start backdrop-blur-sm">
-                      Journal
+                      {(() => {
+                        // Cari hashtag pertama dalam content
+                        const hashtag = journal.content.match(/#(\w+)/);
+                        return hashtag ? hashtag[1] : "Posts";
+                      })()}
                     </div>
                     <div className="mt-auto">
                       <Link href={`/journals/${journal.id}`}>
