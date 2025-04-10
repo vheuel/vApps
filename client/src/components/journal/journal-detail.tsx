@@ -20,7 +20,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
@@ -414,7 +414,13 @@ export function JournalDetail({ journalId }: JournalDetailProps) {
 
       {/* Delete confirmation dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent className="sm:max-w-sm mx-4 rounded-lg">
+        <DialogContent className="sm:max-w-sm mx-4 px-6 py-6 rounded-lg border-0">
+          {/* Close button removed by setting pointer-events-none and opacity-0 */}
+          <div className="absolute right-4 top-4 rounded-sm pointer-events-none opacity-0">
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </div>
+          
           <DialogHeader className="text-center">
             <DialogTitle className="text-xl">Delete Comment</DialogTitle>
             <DialogDescription className="text-center">
