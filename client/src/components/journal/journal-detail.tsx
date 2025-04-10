@@ -65,15 +65,9 @@ export function JournalDetail({ journalId }: JournalDetailProps) {
   ];
 
   // Get comments (using mock data for demonstration)
-  const { data: comments = mockComments, isLoading: isCommentsLoading } = useQuery<any[]>({
-    queryKey: [`/api/journals/${journalId}/comments`],
-    enabled: !!journalId,
-    // Since we don't have a real comments API, return mock data
-    queryFn: async () => {
-      return mockComments;
-    },
-    refetchOnWindowFocus: false,
-  });
+  // Tidak menggunakan query ke API karena endpoint belum tersedia
+  const isCommentsLoading = false;
+  const comments = mockComments;
   
   // Add like functionality
   const likeMutation = useMutation({
@@ -125,9 +119,31 @@ export function JournalDetail({ journalId }: JournalDetailProps) {
     }
   });
   
-  // Add comment functionality
+  // Add comment functionality (lokal karena tidak ada API yang tersedia)
   const commentMutation = useMutation({
     mutationFn: async (content: string) => {
+      // Simulasi API call
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Tambahkan komentar baru ke mockComments
+      mockComments.unshift({
+        id: Date.now(),
+        content: content,
+        createdAt: new Date().toISOString(),
+        user: user ? {
+          username: user.username,
+          avatarUrl: user.avatarUrl,
+          isAdmin: user.isAdmin,
+          verified: user.verified
+        } : {
+          username: "anonym",
+          avatarUrl: null,
+          isAdmin: false,
+          verified: false
+        }
+      });
+      
+      // Tetap panggil API untuk mencatat penambahan komentar
       const res = await apiRequest("POST", `/api/journals/${journalId}/comment`);
       if (!res.ok) {
         throw new Error("Failed to add comment");
@@ -293,7 +309,7 @@ export function JournalDetail({ journalId }: JournalDetailProps) {
                 onClick={() => commentMutation.mutate(commentText)}
                 disabled={!commentText.trim() || commentMutation.isPending}
               >
-                {commentMutation.isPending ? "Posting..." : "Comment"}
+                {commentMutation.isPending ? "Posting..." : "Send"}
               </Button>
             </div>
           </div>
