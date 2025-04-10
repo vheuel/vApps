@@ -70,17 +70,8 @@ export default function LoginPage() {
           </Card>
         </div>
 
-        {/* Hero section */}
-        <div className="order-first md:order-last">
-          <div className="text-center md:text-left space-y-6">
-            <h1 className="text-3xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-600">
-              vApps
-            </h1>
-            <p className="text-muted-foreground text-xl font-light leading-relaxed">
-              by Vheüel
-            </p>
-          </div>
-        </div>
+        {/* Hero section - intentionally left empty */}
+        <div className="order-first md:order-last"></div>
       </div>
     </div>
   );
