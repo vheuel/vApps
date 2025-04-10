@@ -476,7 +476,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // New endpoint: Posts (same as journals)
   app.get("/api/posts", async (req, res) => {
     try {
-      const posts = await storage.getAllJournals();
+      const posts = await storage.getAllPosts();
       res.status(200).json(posts);
     } catch (error) {
       res.status(500).json({ message: "Error fetching posts" });
@@ -492,10 +492,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // New endpoint: Featured posts (same as journals)
+  // Featured posts endpoint
   app.get("/api/posts/featured", async (req, res) => {
     try {
-      const posts = await storage.getFeaturedJournals();
+      const posts = await storage.getFeaturedPosts();
       res.status(200).json(posts);
     } catch (error) {
       res.status(500).json({ message: "Error fetching featured posts" });
@@ -520,7 +520,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // New endpoint: Get post by ID (same as journal)
+  // Posts endpoint
   app.get("/api/posts/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
@@ -528,7 +528,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid post ID" });
       }
       
-      const post = await storage.getJournal(id);
+      const post = await storage.getPost(id);
       if (!post) {
         return res.status(404).json({ message: "Post not found" });
       }
@@ -552,21 +552,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // New endpoint: Get authenticated user posts (same as journals)
+  // Get authenticated user posts endpoint
   app.get("/api/user/posts", async (req, res) => {
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Not authenticated" });
     }
     
     try {
-      const posts = await storage.getJournalsByUser(req.user.id);
+      const posts = await storage.getPostsByUser(req.user.id);
       res.status(200).json(posts);
     } catch (error) {
       res.status(500).json({ message: "Error fetching user posts" });
     }
   });
   
-  // New endpoint: Get posts by specific user ID
+  // Get posts by specific user ID endpoint
   app.get("/api/user/:userId/posts", async (req, res) => {
     try {
       const userId = parseInt(req.params.userId);
@@ -574,7 +574,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid user ID" });
       }
       
-      const posts = await storage.getJournalsByUser(userId);
+      const posts = await storage.getPostsByUser(userId);
       res.status(200).json(posts);
     } catch (error) {
       res.status(500).json({ message: "Error fetching user posts" });
