@@ -44,9 +44,14 @@ export function PostsList({
   const isAdmin = user?.isAdmin;
 
   // Choose the appropriate query based on whether a userId is provided
-  const queryKey = userId 
-    ? [`/api/user/${userId}/posts`] 
-    : [`/api/posts`];
+  // If the userId matches the logged-in user's ID, use /api/user/posts
+  // Otherwise, use /api/user/{userId}/posts for other users' posts
+  const queryKey = 
+    userId 
+      ? (userId === user?.id) 
+        ? [`/api/user/posts`] 
+        : [`/api/user/${userId}/posts`]
+      : [`/api/posts`];
 
   const { data: posts, isLoading } = useQuery<Journal[]>({
     queryKey,
@@ -247,7 +252,7 @@ export function PostsList({
             <Link href={`/profile/${post.userId}`}>
               <Avatar className="h-10 w-10">
                 <AvatarFallback className="bg-gray-200">
-                  {user?.username ? user.username.charAt(0).toUpperCase() : 'U'}
+                  {post.user?.username ? post.user.username.charAt(0).toUpperCase() : 'U'}
                 </AvatarFallback>
               </Avatar>
             </Link>
@@ -258,13 +263,13 @@ export function PostsList({
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <Link href={`/profile/${post.userId}`} className="font-semibold hover:underline">
-                    {user?.username 
-                      ? user.username.charAt(0).toUpperCase() + user.username.slice(1) 
+                    {post.user?.username 
+                      ? post.user.username.charAt(0).toUpperCase() + post.user.username.slice(1) 
                       : 'Username'}
-                    {user?.isAdmin && (
+                    {post.user?.isAdmin && (
                       <MdVerified className="h-4 w-4 text-amber-500 ml-1 inline" title="Admin" />
                     )}
-                    {!user?.isAdmin && user?.verified && (
+                    {!post.user?.isAdmin && post.user?.verified && (
                       <MdVerified className="h-4 w-4 text-blue-500 ml-1 inline" title="Verified User" />
                     )}
                   </Link>

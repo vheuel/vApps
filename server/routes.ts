@@ -552,7 +552,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // New endpoint: Get user posts (same as journals)
+  // New endpoint: Get authenticated user posts (same as journals)
   app.get("/api/user/posts", async (req, res) => {
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Not authenticated" });
@@ -560,6 +560,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     
     try {
       const posts = await storage.getJournalsByUser(req.user.id);
+      res.status(200).json(posts);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching user posts" });
+    }
+  });
+  
+  // New endpoint: Get posts by specific user ID
+  app.get("/api/user/:userId/posts", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      if (isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+      
+      const posts = await storage.getJournalsByUser(userId);
       res.status(200).json(posts);
     } catch (error) {
       res.status(500).json({ message: "Error fetching user posts" });
