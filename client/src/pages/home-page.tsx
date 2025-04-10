@@ -79,7 +79,7 @@ export default function HomePage() {
               The ultimate Web3 project discovery platform, connecting blockchain innovators worldwide.
             </p>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+            <div className="grid grid-cols-1 gap-4 mt-6">
               <div className="flex items-start space-x-3">
                 <div className="bg-primary/10 p-2 rounded-full mt-0.5">
                   <div className="w-2 h-2 rounded-full bg-primary"></div>
@@ -92,6 +92,20 @@ export default function HomePage() {
                   <div className="w-2 h-2 rounded-full bg-primary"></div>
                 </div>
                 <p className="text-muted-foreground">Submit your own projects and share them with the community.</p>
+              </div>
+              
+              <div className="flex items-start space-x-3">
+                <div className="bg-primary/10 p-2 rounded-full mt-0.5">
+                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+                </div>
+                <p className="text-muted-foreground">Track and manage all your submissions in one place.</p>
+              </div>
+              
+              <div className="flex items-start space-x-3">
+                <div className="bg-primary/10 p-2 rounded-full mt-0.5">
+                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+                </div>
+                <p className="text-muted-foreground">Connect with the broader Web3 ecosystem and expand your network.</p>
               </div>
             </div>
           </div>
