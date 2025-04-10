@@ -39,7 +39,7 @@ import {
   Eye,
   Link2
 } from "lucide-react";
-import { MdVerified } from "react-icons/md";
+import { UserBadge } from "@/components/ui/user-badge";
 import PortfolioTab from "@/components/profile/portfolio-tab";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -241,12 +241,7 @@ export default function ProfilePage() {
             <h1 className="text-xl font-bold">
               {user.username.charAt(0).toUpperCase() + user.username.slice(1)}
             </h1>
-            {user.isAdmin && (
-              <MdVerified className="h-5 w-5 text-amber-500 ml-2" title="Admin" />
-            )}
-            {!user.isAdmin && user.verified && (
-              <MdVerified className="h-5 w-5 text-blue-500 ml-2" title="Verified User" />
-            )}
+            <UserBadge isAdmin={user.isAdmin} isVerified={user.verified} size="lg" />
           </div>
           
           <p className="text-gray-500 dark:text-gray-400 mb-3">{user.email}</p>
@@ -386,6 +381,7 @@ export default function ProfilePage() {
                         <div>
                           <div className="flex items-center">
                             <span className="font-semibold">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
+                            <UserBadge isAdmin={user.isAdmin} isVerified={user.verified} />
                             <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">
                               · {formatTimeCompact(project.createdAt)}
                             </span>
@@ -479,6 +475,7 @@ export default function ProfilePage() {
                   <div className="space-y-1">
                     <div className="flex items-center">
                       <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
+                      <UserBadge isAdmin={user.isAdmin} isVerified={user.verified} />
                       <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· {formatTimeCompact(new Date(Date.now() - 3600000 * 0.5))}</span>
                     </div>
                     <p className="text-gray-600 dark:text-gray-300">Update foto profil</p>
@@ -503,6 +500,7 @@ export default function ProfilePage() {
                   <div className="space-y-1">
                     <div className="flex items-center">
                       <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
+                      <UserBadge isAdmin={user.isAdmin} isVerified={user.verified} />
                       <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· {formatTimeCompact(new Date(Date.now() - 3600000 * 1.5))}</span>
                     </div>
                     <p className="text-gray-600 dark:text-gray-300">Update header image</p>
@@ -527,6 +525,7 @@ export default function ProfilePage() {
                   <div className="space-y-1">
                     <div className="flex items-center">
                       <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
+                      <UserBadge isAdmin={user.isAdmin} isVerified={user.verified} />
                       <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· {formatTimeCompact(new Date(Date.now() - 3600000 * 3))}</span>
                     </div>
                     <p className="text-gray-600 dark:text-gray-300">Update bio</p>
@@ -547,6 +546,7 @@ export default function ProfilePage() {
                   <div className="space-y-1">
                     <div className="flex items-center">
                       <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
+                      <UserBadge isAdmin={user.isAdmin} isVerified={user.verified} />
                       <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· {formatTimeCompact(new Date(Date.now() - 3600000 * 5))}</span>
                     </div>
                     <p className="text-gray-600 dark:text-gray-300">
@@ -565,6 +565,7 @@ export default function ProfilePage() {
                   <div className="space-y-1">
                     <div className="flex items-center">
                       <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
+                      <UserBadge isAdmin={user.isAdmin} isVerified={user.verified} />
                       <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· {formatTimeCompact(new Date(Date.now() - 3600000 * 7))}</span>
                     </div>
                     <p className="text-gray-600 dark:text-gray-300">
@@ -583,6 +584,7 @@ export default function ProfilePage() {
                   <div className="space-y-1">
                     <div className="flex items-center">
                       <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
+                      <UserBadge isAdmin={user.isAdmin} isVerified={user.verified} />
                       <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· {formatTimeCompact(new Date(Date.now() - 3600000 * 12))}</span>
                     </div>
                     <p className="text-gray-600 dark:text-gray-300">
