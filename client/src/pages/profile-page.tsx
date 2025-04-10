@@ -100,7 +100,7 @@ export default function ProfilePage() {
   const [_, navigate] = useLocation();
   const [editProject, setEditProject] = useState<Project | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("project");
+  const [activeTab, setActiveTab] = useState("journal");
   
   // Memuat ulang data pengguna hanya saat komponen pertama kali dimuat
   useEffect(() => {
@@ -317,6 +317,13 @@ export default function ProfilePage() {
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="w-full flex rounded-none bg-transparent justify-center border-0">
               <TabsTrigger 
+                value="journal" 
+                className="w-36 py-3 rounded-none relative bg-transparent data-[state=active]:bg-[#f0f9ff] data-[state=active]:font-bold text-gray-500 dark:text-gray-400 font-medium data-[state=active]:text-black data-[state=active]:shadow-none"
+              >
+                <span>Posts</span>
+                <span className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-green-400 to-green-500 transform data-[state=active]:scale-100 scale-0 transition-transform duration-200 ease-in-out rounded-full mx-auto w-3/4"></span>
+              </TabsTrigger>
+              <TabsTrigger 
                 value="project" 
                 className="w-36 py-3 rounded-none relative bg-transparent data-[state=active]:bg-[#f0f9ff] data-[state=active]:font-bold text-gray-500 dark:text-gray-400 font-medium data-[state=active]:text-black data-[state=active]:shadow-none"
               >
@@ -335,13 +342,6 @@ export default function ProfilePage() {
                 className="w-36 py-3 rounded-none relative bg-transparent data-[state=active]:bg-[#f0f9ff] data-[state=active]:font-bold text-gray-500 dark:text-gray-400 font-medium data-[state=active]:text-black data-[state=active]:shadow-none"
               >
                 <span>Portfolio</span>
-                <span className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-green-400 to-green-500 transform data-[state=active]:scale-100 scale-0 transition-transform duration-200 ease-in-out rounded-full mx-auto w-3/4"></span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="journal" 
-                className="w-36 py-3 rounded-none relative bg-transparent data-[state=active]:bg-[#f0f9ff] data-[state=active]:font-bold text-gray-500 dark:text-gray-400 font-medium data-[state=active]:text-black data-[state=active]:shadow-none"
-              >
-                <span>Journal</span>
                 <span className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-green-400 to-green-500 transform data-[state=active]:scale-100 scale-0 transition-transform duration-200 ease-in-out rounded-full mx-auto w-3/4"></span>
               </TabsTrigger>
             </TabsList>
@@ -664,16 +664,16 @@ export default function ProfilePage() {
           // Portfolio Tab Content
           <PortfolioTab />
         ) : activeTab === "journal" ? (
-          // Journal Tab Content
+          // Posts Tab Content
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <div className="mb-4 flex justify-between items-center">
-              <h2 className="text-xl font-semibold">My Journals</h2>
+              <h2 className="text-xl font-semibold">My Posts</h2>
               <Button 
                 onClick={() => navigate("/journals")}
                 variant="outline"
                 size="sm"
               >
-                <Link href="/journals">Manage Journals</Link>
+                <Link href="/journals">Manage Posts</Link>
               </Button>
             </div>
             
