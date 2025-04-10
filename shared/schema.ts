@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, varchar } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, varchar, unique } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -89,6 +89,40 @@ export const insertProjectSchema = createInsertSchema(projects)
   .extend({
     description: z.string().max(200, { message: "Description cannot exceed 200 characters" }),
     category: z.string()
+  });
+
+// User followers table
+export const userFollowers = pgTable("user_followers", {
+  id: serial("id").primaryKey(),
+  followerId: integer("follower_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+  followingId: integer("following_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    // Create a unique index on follower and following to prevent duplicate follows
+    followerFollowingUnique: unique().on(table.followerId, table.followingId)
+  }
+});
+
+export const insertUserFollowerSchema = createInsertSchema(userFollowers)
+  .pick({
+    followerId: true,
+    followingId: true,
+  });
+
+// User coins table
+export const userCoins = pgTable("user_coins", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+  amount: integer("amount").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertUserCoinSchema = createInsertSchema(userCoins)
+  .pick({
+    userId: true,
+    amount: true,
   });
 
 // Types
@@ -225,3 +259,18 @@ export type OAuthProvider = typeof oauthProviders.$inferSelect;
 export type InsertOAuthProvider = z.infer<typeof insertOAuthProviderSchema>;
 export type UserOAuthConnection = typeof userOAuthConnections.$inferSelect;
 export type InsertUserOAuthConnection = z.infer<typeof insertUserOAuthConnectionSchema>;
+export type UserFollower = typeof userFollowers.$inferSelect;
+export type InsertUserFollower = z.infer<typeof insertUserFollowerSchema>;
+export type UserCoin = typeof userCoins.$inferSelect;
+export type InsertUserCoin = z.infer<typeof insertUserCoinSchema>;
+
+// Extended user type with stats
+export type UserWithStats = User & {
+  _count?: {
+    followers: number;
+    following: number;
+    posts: number;
+    projects: number;
+  };
+  coins?: number;
+};

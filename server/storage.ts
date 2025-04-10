@@ -87,6 +87,20 @@ export interface IStorage {
   getSiteSettings(): Promise<SiteSettings | undefined>;
   updateSiteSettings(settings: Partial<InsertSiteSettings>): Promise<SiteSettings>;
   
+  // Follow system
+  followUser(followerId: number, followingId: number): Promise<boolean>;
+  unfollowUser(followerId: number, followingId: number): Promise<boolean>;
+  isFollowing(followerId: number, followingId: number): Promise<boolean>;
+  getFollowers(userId: number): Promise<User[]>;
+  getFollowing(userId: number): Promise<User[]>;
+  getFollowersCount(userId: number): Promise<number>;
+  getFollowingCount(userId: number): Promise<number>;
+  
+  // User stats
+  getUserStats(userId: number): Promise<UserWithStats | undefined>;
+  getUserCoins(userId: number): Promise<number>;
+  addUserCoins(userId: number, amount: number): Promise<number>;
+  
   // OAuth Provider management
   getOAuthProviders(): Promise<OAuthProvider[]>;
   getOAuthProvider(id: number): Promise<OAuthProvider | undefined>;
