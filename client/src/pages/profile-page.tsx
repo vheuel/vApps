@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Project, InsertProject } from "@shared/schema";
+import { Project, InsertProject, UserWithStats } from "@shared/schema";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -40,6 +40,7 @@ import {
 } from "lucide-react";
 import { UserBadge } from "@/components/ui/user-badge";
 import PortfolioTab from "@/components/profile/portfolio-tab";
+import { FollowButton } from "@/components/profile/follow-button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
@@ -118,6 +119,14 @@ export default function ProfilePage({ params }: { params: { username: string } }
   // Mengambil proyek-proyek pengguna
   const { data: projects, isLoading, isError, error } = useQuery<Project[]>({
     queryKey: ["/api/users", username, "projects"],
+    refetchOnWindowFocus: false,
+    retry: 3,
+    enabled: !!profileUser?.id, // Only fetch if we have a profileUser
+  });
+  
+  // Mengambil statistik pengguna
+  const { data: userStats, isLoading: isLoadingStats } = useQuery<UserWithStats>({
+    queryKey: ["/api/users", username, "stats"],
     refetchOnWindowFocus: false,
     retry: 3,
     enabled: !!profileUser?.id, // Only fetch if we have a profileUser
@@ -249,7 +258,7 @@ export default function ProfilePage({ params }: { params: { username: string } }
             </AvatarFallback>
           </Avatar>
           
-          {isOwner && (
+          {isOwner ? (
             <Button 
               variant="outline" 
               className="rounded-full px-6 bg-white text-black border-0 shadow-md font-medium"
@@ -257,7 +266,9 @@ export default function ProfilePage({ params }: { params: { username: string } }
             >
               Edit profil
             </Button>
-          )}
+          ) : currentUser ? (
+            <FollowButton username={username} />
+          ) : null}
         </div>
         
         {/* Bio and Other Info */}
@@ -318,20 +329,20 @@ export default function ProfilePage({ params }: { params: { username: string } }
         <div className="container mx-auto">
           <div className="grid grid-cols-4 border-t border-gray-200 dark:border-gray-700">
             <div className="py-4 text-center">
-              <p className="text-2xl font-bold">{totalProjects}</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">project</p>
+              <p className="text-2xl font-bold">{isLoadingStats ? '...' : userStats?._count?.followers || 0}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">followers</p>
             </div>
             <div className="py-4 text-center">
-              <p className="text-2xl font-bold">{verifiedProjects}</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">verified project</p>
+              <p className="text-2xl font-bold">{isLoadingStats ? '...' : userStats?._count?.posts || 0}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">posts</p>
             </div>
             <div className="py-4 text-center">
-              <p className="text-2xl font-bold">{pendingProjects}</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">pending</p>
+              <p className="text-2xl font-bold">{isLoadingStats ? '...' : userStats?._count?.projects || 0}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">projects</p>
             </div>
             <div className="py-4 text-center">
-              <p className="text-2xl font-bold">{approvedProjects}</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">approved</p>
+              <p className="text-2xl font-bold">{isLoadingStats ? '...' : userStats?.coins || 0}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">coins</p>
             </div>
           </div>
         </div>
