@@ -178,19 +178,19 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps = {}) {
           </div>
         </div>
         
-        <div className="flex justify-center gap-3 w-full my-4">
+        <div className="flex justify-center gap-4 w-full my-4">
           <Button 
             type="button" 
             variant="outline" 
-            className="w-14 h-14 p-0 rounded-full"
+            className="w-12 h-12 p-0 rounded-full"
             onClick={() => handleOAuthLogin('google')}
             disabled={oauthLoading !== null}
           >
             {oauthLoading === 'google' ? (
-              <Loader2 className="h-6 w-6 animate-spin" />
+              <Loader2 className="h-5 w-5 animate-spin" />
             ) : (
               <div className="flex items-center justify-center w-full h-full">
-                <svg viewBox="0 0 24 24" className="h-6 w-6" aria-hidden="true">
+                <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
                   <path
                     d="M12.0003 4.75C13.7703 4.75 15.3553 5.36002 16.6053 6.54998L20.0303 3.125C17.9502 1.19 15.2353 0 12.0003 0C7.31028 0 3.25526 2.69 1.28027 6.60998L5.27028 9.70498C6.21525 6.86002 8.87028 4.75 12.0003 4.75Z"
                     fill="#EA4335"
@@ -215,15 +215,15 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps = {}) {
           <Button 
             type="button" 
             variant="outline" 
-            className="w-14 h-14 p-0 rounded-full"
+            className="w-12 h-12 p-0 rounded-full"
             onClick={() => handleOAuthLogin('twitter')}
             disabled={oauthLoading !== null}
           >
             {oauthLoading === 'twitter' ? (
-              <Loader2 className="h-6 w-6 animate-spin" />
+              <Loader2 className="h-5 w-5 animate-spin" />
             ) : (
               <div className="flex items-center justify-center w-full h-full">
-                <svg className="h-6 w-6" viewBox="0 0 24 24" aria-hidden="true">
+                <svg className="h-5 w-5" viewBox="0 0 24 24" aria-hidden="true">
                   <path
                     d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"
                     fill="currentColor"
@@ -236,17 +236,17 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps = {}) {
           <Button 
             type="button" 
             variant="outline" 
-            className="w-14 h-14 p-0 rounded-full"
+            className="w-12 h-12 p-0 rounded-full"
             onClick={() => handleOAuthLogin('telegram')}
             disabled={oauthLoading !== null}
           >
             {oauthLoading === 'telegram' ? (
-              <Loader2 className="h-6 w-6 animate-spin" />
+              <Loader2 className="h-5 w-5 animate-spin" />
             ) : (
               <div className="flex items-center justify-center w-full h-full">
-                <svg className="h-6 w-6" viewBox="0 0 24 24" aria-hidden="true">
-                  <path
-                    d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 11.944 0Zm.016 18c-.512 0-.512-.194-.704-.443l-1.76-2.294-3.568 2.366c-.384.128-.704 0-.832-.384-.064-.128-.128-.32-.064-.512l1.856-8.654c.128-.576.576-.704 1.088-.512.128.064.256.128.384.32l8.654 6.778c.387.199.64.514.128.832-.256.32-.639.512-1.024.384L11.96 18Z"
+                <svg className="h-5 w-5" viewBox="0 0 24 24" aria-hidden="true">
+                  <path 
+                    d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z" 
                     fill="#0088cc"
                   />
                 </svg>
