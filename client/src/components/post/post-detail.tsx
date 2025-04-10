@@ -14,7 +14,7 @@ import { useState } from "react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import { ConfirmDialog } from "./confirm-dialog";
+import { ConfirmDialog } from "@/components/post/confirm-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
