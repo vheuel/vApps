@@ -1225,6 +1225,115 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Setup OAuth routes
   app.use("/api/oauth", oauthRouter);
 
+  // User Follow System API endpoints
+  app.post("/api/users/:username/follow", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    try {
+      // @ts-ignore
+      const followerId = req.user.id;
+      const { username } = req.params;
+      
+      // Get the user to follow
+      const userToFollow = await storage.getUserByUsername(username);
+      if (!userToFollow) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Cannot follow yourself
+      if (followerId === userToFollow.id) {
+        return res.status(400).json({ message: "Cannot follow yourself" });
+      }
+      
+      const success = await storage.followUser(followerId, userToFollow.id);
+      if (success) {
+        res.status(200).json({ message: "Successfully followed user" });
+      } else {
+        res.status(500).json({ message: "Failed to follow user" });
+      }
+    } catch (error) {
+      console.error("Error following user:", error);
+      res.status(500).json({ message: "Error following user" });
+    }
+  });
+  
+  app.post("/api/users/:username/unfollow", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    try {
+      // @ts-ignore
+      const followerId = req.user.id;
+      const { username } = req.params;
+      
+      // Get the user to unfollow
+      const userToUnfollow = await storage.getUserByUsername(username);
+      if (!userToUnfollow) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      const success = await storage.unfollowUser(followerId, userToUnfollow.id);
+      if (success) {
+        res.status(200).json({ message: "Successfully unfollowed user" });
+      } else {
+        res.status(500).json({ message: "Failed to unfollow user" });
+      }
+    } catch (error) {
+      console.error("Error unfollowing user:", error);
+      res.status(500).json({ message: "Error unfollowing user" });
+    }
+  });
+  
+  app.get("/api/users/:username/is-following", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    try {
+      // @ts-ignore
+      const followerId = req.user.id;
+      const { username } = req.params;
+      
+      // Get the user to check
+      const userToCheck = await storage.getUserByUsername(username);
+      if (!userToCheck) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      const isFollowing = await storage.isFollowing(followerId, userToCheck.id);
+      res.status(200).json({ isFollowing });
+    } catch (error) {
+      console.error("Error checking follow status:", error);
+      res.status(500).json({ message: "Error checking follow status" });
+    }
+  });
+  
+  // User Stats API endpoint
+  app.get("/api/users/:username/stats", async (req, res) => {
+    try {
+      const { username } = req.params;
+      
+      // Get the user
+      const user = await storage.getUserByUsername(username);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      const stats = await storage.getUserStats(user.id);
+      if (!stats) {
+        return res.status(404).json({ message: "User stats not found" });
+      }
+      
+      res.status(200).json(stats);
+    } catch (error) {
+      console.error("Error fetching user stats:", error);
+      res.status(500).json({ message: "Error fetching user stats" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
