@@ -37,13 +37,40 @@ export function JournalDetail({ journalId }: JournalDetailProps) {
     refetchOnWindowFocus: false,
   });
   
-  // Get comments (mock data for now, would be a real API endpoint in production)
-  const { data: comments = [], isLoading: isCommentsLoading } = useQuery<any[]>({
+  // Mock comments data to demonstrate UI
+  // Dalam implementasi sebenarnya, ini akan mengambil data dari API
+  const mockComments = [
+    {
+      id: 1,
+      content: "Ini adalah contoh komentar pertama pada post ini.",
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(), // 5 jam yang lalu
+      user: {
+        username: "commenter1",
+        avatarUrl: null,
+        isAdmin: false,
+        verified: true
+      }
+    },
+    {
+      id: 2,
+      content: "Saya sangat setuju dengan post ini! Informasi yang sangat bermanfaat.",
+      createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30 menit yang lalu
+      user: {
+        username: "admin",
+        avatarUrl: null,
+        isAdmin: true,
+        verified: true
+      }
+    }
+  ];
+
+  // Get comments (using mock data for demonstration)
+  const { data: comments = mockComments, isLoading: isCommentsLoading } = useQuery<any[]>({
     queryKey: [`/api/journals/${journalId}/comments`],
     enabled: !!journalId,
-    // Since we don't have a real comments API, use this as a fallback
+    // Since we don't have a real comments API, return mock data
     queryFn: async () => {
-      return [];
+      return mockComments;
     },
     refetchOnWindowFocus: false,
   });
@@ -241,10 +268,9 @@ export function JournalDetail({ journalId }: JournalDetailProps) {
         </div>
       </div>
       
-      {/* Comment form */}
+      {/* Comment form - without heading */}
       {user && (
         <div className="mt-6 mb-8">
-          <h3 className="text-lg font-semibold mb-4">Add a comment</h3>
           <div className="flex items-start gap-3">
             <Avatar className="h-10 w-10">
               {user?.avatarUrl ? (
@@ -267,23 +293,15 @@ export function JournalDetail({ journalId }: JournalDetailProps) {
                 onClick={() => commentMutation.mutate(commentText)}
                 disabled={!commentText.trim() || commentMutation.isPending}
               >
-                {commentMutation.isPending ? (
-                  "Posting..."
-                ) : (
-                  <>
-                    <Send className="h-4 w-4 mr-1" />
-                    Post
-                  </>
-                )}
+                {commentMutation.isPending ? "Posting..." : "Comment"}
               </Button>
             </div>
           </div>
         </div>
       )}
       
-      {/* Comments section */}
+      {/* Comments section - without heading */}
       <div className="mt-6">
-        <h3 className="text-lg font-semibold mb-4">Comments ({journal.comments})</h3>
         
         {isCommentsLoading ? (
           <div className="space-y-4">
