@@ -65,7 +65,10 @@ export default function PostsPage() {
 
       <div className="grid grid-cols-1 gap-8">
         <div>
-          <PostsList userId={undefined} />
+          <PostsList 
+            showAdminOptions={user?.isAdmin}
+            onEdit={handleEditPost}
+          />
         </div>
       </div>
     </div>

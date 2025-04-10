@@ -14,7 +14,7 @@ import { useState } from "react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import { ConfirmDialog } from "@/components/post/confirm-dialog";
+import { ConfirmDialog } from "./confirm-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,7 +35,7 @@ export function PostDetail({ postId }: PostDetailProps) {
   
   // Get post data
   const { data: post, isLoading, error, refetch } = useQuery<Journal>({
-    queryKey: [`/api/journals/${postId}`],
+    queryKey: [`/api/posts/${postId}`],
     refetchOnWindowFocus: false,
   });
 
@@ -52,7 +52,7 @@ export function PostDetail({ postId }: PostDetailProps) {
     isLoading: isCommentsLoading,
     refetch: refetchComments
   } = useQuery<any[]>({
-    queryKey: [`/api/journals/${postId}/comments`],
+    queryKey: [`/api/posts/${postId}/comments`],
     enabled: !!postId,
     refetchOnWindowFocus: false,
   });
@@ -60,7 +60,7 @@ export function PostDetail({ postId }: PostDetailProps) {
   // Add like functionality
   const likeMutation = useMutation({
     mutationFn: async () => {
-      const res = await apiRequest("POST", `/api/journals/${postId}/like`);
+      const res = await apiRequest("POST", `/api/posts/${postId}/like`);
       if (!res.ok) {
         throw new Error("Failed to like post");
       }
@@ -85,7 +85,7 @@ export function PostDetail({ postId }: PostDetailProps) {
   // Add unlike functionality
   const unlikeMutation = useMutation({
     mutationFn: async () => {
-      const res = await apiRequest("POST", `/api/journals/${postId}/unlike`);
+      const res = await apiRequest("POST", `/api/posts/${postId}/unlike`);
       if (!res.ok) {
         throw new Error("Failed to unlike post");
       }
@@ -110,7 +110,7 @@ export function PostDetail({ postId }: PostDetailProps) {
   // Add comment functionality using real API
   const commentMutation = useMutation({
     mutationFn: async (content: string) => {
-      const res = await apiRequest("POST", `/api/journals/${postId}/comment`, {
+      const res = await apiRequest("POST", `/api/posts/${postId}/comment`, {
         content
       });
       if (!res.ok) {
@@ -338,7 +338,7 @@ export function PostDetail({ postId }: PostDetailProps) {
           ) : comments.length === 0 ? (
             <p className="text-muted-foreground">No comments yet. Be the first to comment!</p>
           ) : (
-            <div className="space-y-8"> {/* Meningkatkan jarak antar komentar */}
+            <div className="space-y-8"> {/* Increased spacing between comments */}
               {comments.map((comment, index) => (
                 <div key={index} className="flex items-start gap-3">
                   <Avatar className="h-10 w-10">

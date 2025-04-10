@@ -12,9 +12,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { JournalList } from "@/components/journal/journal-list";
-import { QuickJournalForm } from "@/components/journal/quick-journal-form";
-import { PostsList } from "@/components/journal/posts-list";
+import { PostsList } from "@/components/post/posts-list";
+import { QuickPostForm } from "@/components/post/quick-post-form";
 
 import ProjectForm from "@/components/project/project-form";
 import { format, differenceInMinutes, differenceInHours, differenceInDays, differenceInMonths, differenceInYears, formatDistanceToNow } from "date-fns";

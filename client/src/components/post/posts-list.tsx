@@ -1,156 +1,132 @@
 import { Journal } from "@shared/schema";
 import { useQuery } from "@tanstack/react-query";
-import { formatDistanceToNow } from "date-fns";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useAuth } from "@/hooks/use-auth";
+import { formatDistanceToNow } from "date-fns";
+import { Link } from "wouter";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Edit, Trash2, Calendar, Clock, Star, StarOff } from "lucide-react";
+import { MdVerified } from "react-icons/md";
 import { useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { MessageSquare, Heart, Link2, MoreVertical, CheckCircle, Send } from "lucide-react";
-import { MdVerified } from "react-icons/md";
 import { useToast } from "@/hooks/use-toast";
-import { Link } from "wouter";
+import { useAuth } from "@/hooks/use-auth";
 
 interface PostsListProps {
   userId?: number;
   limit?: number;
+  showManageOptions?: boolean;
+  onEdit?: (post: Journal) => void;
+  showAdminOptions?: boolean;
 }
 
 export function PostsList({
   userId,
-  limit = 10,
+  limit,
+  showManageOptions = false,
+  onEdit,
+  showAdminOptions = false,
 }: PostsListProps) {
-  const { user } = useAuth();
   const { toast } = useToast();
-  
-  const mainQueryKey = userId 
-    ? ['api', 'user', 'journals'] 
-    : ['api', 'journals'];
+  const { user } = useAuth();
+  const isAdmin = user?.isAdmin;
 
-  const { data: posts, isLoading, refetch } = useQuery<Journal[]>({
-    queryKey: mainQueryKey,
-    queryFn: async () => {
-      const url = userId ? "/api/user/journals" : "/api/journals";
-      const res = await fetch(url);
-      if (!res.ok) {
-        throw new Error("Failed to fetch posts");
-      }
-      return res.json();
-    },
+  // Choose the appropriate query based on whether a userId is provided
+  const queryKey = userId 
+    ? [`/api/user/posts`] 
+    : [`/api/posts`];
+
+  const { data: posts, isLoading } = useQuery<Journal[]>({
+    queryKey,
     refetchOnWindowFocus: false,
   });
-  
-  // Add like functionality
-  const likeMutation = useMutation({
-    mutationFn: async (postId: number) => {
-      const res = await apiRequest("POST", `/api/journals/${postId}/like`);
-      if (!res.ok) {
-        throw new Error("Failed to like post");
-      }
-      return res.json();
-    },
-    onSuccess: () => {
-      // Langsung refetch data
-      refetch();
-      toast({
-        title: "Success",
-        description: "Post liked successfully",
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Error",
-        description: error.message || "Could not like post",
-        variant: "destructive"
-      });
-    }
-  });
-  
-  // Add unlike functionality
-  const unlikeMutation = useMutation({
-    mutationFn: async (postId: number) => {
-      const res = await apiRequest("POST", `/api/journals/${postId}/unlike`);
-      if (!res.ok) {
-        throw new Error("Failed to unlike post");
-      }
-      return res.json();
-    },
-    onSuccess: () => {
-      // Langsung refetch data
-      refetch();
-      toast({
-        title: "Success",
-        description: "Post unliked successfully",
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Error",
-        description: error.message || "Could not unlike post",
-        variant: "destructive"
-      });
-    }
-  });
-  
-  // Comment functionality removed as it's now on detail page
 
-  // Fungsi untuk mendeteksi dan format URL dalam teks
-  const formatTextWithURLs = (text: string) => {
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
-    const parts = text.split(urlRegex);
-    
-    return parts.map((part, index) => {
-      if (part.match(urlRegex)) {
-        return (
-          <a 
-            key={index} 
-            href={part} 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="text-purple-600 hover:underline"
-          >
-            {part}
-          </a>
-        );
-      }
-      return part;
+  // Mutation for deleting a post
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await apiRequest("DELETE", `/api/posts/${id}`, {});
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/user/posts"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/posts"] });
+      toast({
+        title: "Post deleted",
+        description: "The post has been deleted successfully.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to delete post",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Mutation for featuring/unfeaturing a post (admin only)
+  const featureMutation = useMutation({
+    mutationFn: async ({ id, featured }: { id: number; featured: boolean }) => {
+      const endpoint = featured 
+        ? `/api/admin/posts/${id}/feature` 
+        : `/api/admin/posts/${id}/unfeature`;
+      const res = await apiRequest("POST", endpoint, {});
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/posts"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/posts/featured"] });
+      toast({
+        title: "Post updated",
+        description: "The post featured status has been updated.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to update post",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleDelete = (post: Journal) => {
+    if (window.confirm("Are you sure you want to delete this post?")) {
+      deleteMutation.mutate(post.id);
+    }
+  };
+
+  const handleFeatureToggle = (post: Journal) => {
+    featureMutation.mutate({
+      id: post.id,
+      featured: !post.featured,
     });
   };
 
-  // Fungsi untuk mendeteksi dan format hashtags dalam teks
-  const formatTextWithHashtags = (text: string) => {
-    const hashtags = text.match(/#(\w+)/g) || [];
-    let formattedText = text;
-
-    hashtags.forEach(hashtag => {
-      formattedText = formattedText.replace(
-        hashtag,
-        `<span class="text-pink-600">${hashtag}</span>`
-      );
-    });
-
-    return <div dangerouslySetInnerHTML={{ __html: formattedText }} />;
+  // Format date for display without "about" prefix and "ago" suffix
+  const formatDate = (date: Date | string | number) => {
+    const rawFormat = formatDistanceToNow(new Date(date));
+    // Remove "about " and " ago" from the format
+    return rawFormat.replace(/^about\s/, '').replace(/\sago$/, '');
   };
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4">
         {[...Array(3)].map((_, index) => (
-          <div key={index} className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-            <div className="flex items-center space-x-3">
-              <Skeleton className="h-10 w-10 rounded-full" />
-              <div>
-                <Skeleton className="h-4 w-24 mb-2" />
-                <Skeleton className="h-3 w-16" />
+          <Card key={index}>
+            <CardContent className="p-4">
+              <div className="space-y-3">
+                <Skeleton className="h-6 w-3/4" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-full" />
+                <div className="flex space-x-2 pt-2">
+                  <Skeleton className="h-4 w-24" />
+                </div>
               </div>
-            </div>
-            <div className="mt-3">
-              <Skeleton className="h-4 w-full mb-2" />
-              <Skeleton className="h-4 w-full mb-2" />
-              <Skeleton className="h-4 w-3/4" />
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         ))}
       </div>
     );
@@ -158,37 +134,41 @@ export function PostsList({
 
   if (!posts || posts.length === 0) {
     return (
-      <div className="text-center py-6">
-        <p className="text-muted-foreground">No posts found.</p>
-      </div>
+      <Card>
+        <CardContent className="p-6 text-center">
+          <p className="text-muted-foreground">No posts found.</p>
+        </CardContent>
+      </Card>
     );
   }
 
-  // Apply limit and sort by date (newest first)
-  const displayedPosts = posts
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, limit);
+  // Apply limit if specified
+  const displayedPosts = limit ? posts.slice(0, limit) : posts;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {displayedPosts.map((post) => (
-        <div key={post.id} className="rounded-lg shadow p-4">
-          {/* Post header with username and time */}
-          <div className="flex items-start justify-between mb-3">
-            <div className="flex items-center">
-              <Avatar className="h-10 w-10 mr-3">
-                {user?.avatarUrl ? (
-                  <AvatarImage src={user.avatarUrl} alt={user.username} />
-                ) : (
-                  <AvatarFallback className="bg-gray-200">
-                    {user?.username.charAt(0).toUpperCase() || "U"}
-                  </AvatarFallback>
-                )}
-              </Avatar>
-              <div>
-                <div className="flex items-center">
-                  <div className="flex items-center">
-                    <span className="font-medium">{user?.username ? user.username.charAt(0).toUpperCase() + user.username.slice(1) : ""}</span>
+        <Card key={post.id} className="overflow-hidden">
+          <CardContent className="p-0">
+            {post.coverImage && (
+              <div className="w-full h-40 overflow-hidden">
+                <img
+                  src={post.coverImage}
+                  alt={post.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+            <div className="p-4">
+              <div className="flex justify-between items-start">
+                <div>
+                  <Link href={`/post/${post.id}`}>
+                    <h3 className="text-xl font-semibold hover:text-primary cursor-pointer">
+                      {post.title}
+                    </h3>
+                  </Link>
+                  <div className="flex items-center text-sm text-muted-foreground">
+                    <span>By {user?.username ? user.username.charAt(0).toUpperCase() + user.username.slice(1) : 'Unknown'}</span>
                     {user?.isAdmin && (
                       <MdVerified className="h-4 w-4 text-amber-500 ml-1" title="Admin" />
                     )}
@@ -196,78 +176,86 @@ export function PostsList({
                       <MdVerified className="h-4 w-4 text-blue-500 ml-1" title="Verified User" />
                     )}
                   </div>
-                  <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">
-                    · {formatDistanceToNow(new Date(post.createdAt)).replace(/^about\s/, '').replace(/\sago$/, '')}
-                  </span>
+                </div>
+                <div className="flex space-x-1">
+                  {post.featured && (
+                    <Badge variant="secondary" className="bg-amber-100 text-amber-800 dark:bg-amber-800/20 dark:text-amber-500">
+                      Featured
+                    </Badge>
+                  )}
+                  {!post.published && (
+                    <Badge variant="outline" className="border-gray-400 text-gray-500">
+                      Draft
+                    </Badge>
+                  )}
                 </div>
               </div>
-            </div>
-            <button>
-              <MoreVertical className="h-5 w-5 text-gray-500" />
-            </button>
-          </div>
-
-          {/* Post content - clickable to go to detail page */}
-          <Link href={`/posts/${post.id}`} className="block cursor-pointer">
-            <div className="mb-3">
-              {/* Deteksi URL dalam konten */}
-              {post.content.includes("http") ? (
-                <div>{formatTextWithURLs(post.content)}</div>
-              ) : post.content.includes("#") ? (
-                <div>{formatTextWithHashtags(post.content)}</div>
-              ) : (
-                <div>{post.content}</div>
-              )}
-            </div>
-
-            {/* Post image if available */}
-            {post.coverImage && (
-              <div className="mb-3 rounded-lg overflow-hidden">
-                <img
-                  src={post.coverImage}
-                  alt={post.title}
-                  className="w-full h-auto max-h-96 object-cover"
-                />
+              <p className="text-muted-foreground mt-2 line-clamp-2">
+                {post.excerpt || post.content.substring(0, 150) + "..."}
+              </p>
+              <div className="flex items-center mt-3 text-xs text-muted-foreground space-x-3">
+                <span className="flex items-center">
+                  <Calendar className="h-3 w-3 mr-1" />
+                  {new Date(post.createdAt).toLocaleDateString()}
+                </span>
+                <span className="flex items-center">
+                  <Clock className="h-3 w-3 mr-1" />
+                  {formatDate(post.createdAt)}
+                </span>
               </div>
-            )}
-          </Link>
-
-          {/* Interaction buttons */}
-          <div className="flex items-center justify-between text-gray-500 dark:text-gray-400 pt-2">
-            <div className="flex items-center space-x-6">
-              <Link 
-                href={`/posts/${post.id}#comments`}
-                className="flex items-center hover:text-blue-500 transition-colors"
-              >
-                <MessageSquare className="h-5 w-5 mr-1" />
-                {post.comments > 0 && <span>{post.comments}</span>}
-              </Link>
-              <button 
-                className="flex items-center hover:text-red-500 transition-colors"
-                onClick={() => {
-                  // Jika jumlah likes adalah genap, kita tambahkan like
-                  // Jika ganjil, kita unlike (implementasi sederhana)
-                  if (post.likes % 2 === 0) {
-                    likeMutation.mutate(post.id);
-                  } else {
-                    unlikeMutation.mutate(post.id);
-                  }
-                }}
-                disabled={likeMutation.isPending || unlikeMutation.isPending}
-              >
-                <Heart 
-                  className={`h-5 w-5 mr-1 ${post.likes % 2 === 1 ? 'fill-red-500 text-red-500' : ''}`} 
-                />
-                {post.likes > 0 && <span>{post.likes}</span>}
-              </button>
             </div>
-          </div>
+          </CardContent>
 
-          {/* Featured badge removed */}
-        </div>
+          {(showManageOptions || showAdminOptions) && (
+            <CardFooter className="bg-muted/30 px-4 py-2 flex justify-end space-x-2">
+              {showManageOptions && onEdit && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => onEdit(post)}
+                >
+                  <Edit className="h-4 w-4 mr-1" />
+                  Edit
+                </Button>
+              )}
+
+              {showManageOptions && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-destructive hover:bg-destructive/10"
+                  onClick={() => handleDelete(post)}
+                  disabled={deleteMutation.isPending}
+                >
+                  <Trash2 className="h-4 w-4 mr-1" />
+                  Delete
+                </Button>
+              )}
+
+              {showAdminOptions && isAdmin && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleFeatureToggle(post)}
+                  disabled={featureMutation.isPending}
+                >
+                  {post.featured ? (
+                    <>
+                      <StarOff className="h-4 w-4 mr-1" />
+                      Unfeature
+                    </>
+                  ) : (
+                    <>
+                      <Star className="h-4 w-4 mr-1" />
+                      Feature
+                    </>
+                  )}
+                </Button>
+              )}
+            </CardFooter>
+          )}
+        </Card>
       ))}
-      
-      {/* Dialog removed - comments now on detail page */}
     </div>
   );
 }

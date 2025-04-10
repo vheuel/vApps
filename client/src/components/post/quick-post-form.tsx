@@ -49,26 +49,26 @@ export function QuickPostForm() {
         published: true,
       };
       
-      const response = await apiRequest("POST", "/api/journals", postData);
+      const response = await apiRequest("POST", "/api/posts", postData);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/journals"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/user/journals"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/journals/featured"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/posts"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user/posts"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/posts/featured"] });
       
       // Reset the form
       form.reset();
       setCoverImage(undefined);
       
       toast({
-        title: "Post published",
-        description: "Your post has been published successfully.",
+        title: "Post created",
+        description: "Your post has been published.",
       });
     },
     onError: (error: Error) => {
       toast({
-        title: "Failed to publish post",
+        title: "Failed to create post",
         description: error.message,
         variant: "destructive",
       });
@@ -111,7 +111,7 @@ export function QuickPostForm() {
                 <FormItem>
                   <FormControl>
                     <Textarea 
-                      placeholder="What happened?" 
+                      placeholder="What's on your mind?" 
                       className="min-h-[100px] w-full border-0 focus-visible:ring-0 focus-visible:ring-offset-0 resize-none"
                       {...field}
                     />
@@ -175,7 +175,7 @@ export function QuickPostForm() {
                 {createPostMutation.isPending && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
-                Send
+                Post
               </Button>
             </div>
           </form>

@@ -586,6 +586,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // New endpoint: Create a post (same as journal)
+  app.post("/api/posts", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const validatedData = insertJournalSchema.parse(req.body);
+      const post = await storage.createJournal(validatedData, req.user.id);
+      res.status(201).json(post);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          message: "Validation error",
+          errors: error.errors,
+        });
+      }
+      res.status(500).json({ message: "Error creating post" });
+    }
+  });
+
   app.put("/api/journals/:id", async (req, res) => {
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Not authenticated" });
@@ -621,6 +642,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // New endpoint: Update a post (same as journal)
+  app.put("/api/posts/:id", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid post ID" });
+      }
+      
+      const post = await storage.getJournal(id);
+      if (!post) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+      
+      // Check if user owns the post or is admin
+      if (post.userId !== req.user.id && !req.user.isAdmin) {
+        return res.status(403).json({ message: "Not authorized to update this post" });
+      }
+      
+      const validatedData = insertJournalSchema.partial().parse(req.body);
+      const updatedPost = await storage.updateJournal(id, validatedData);
+      res.status(200).json(updatedPost);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Validation error", 
+          errors: error.errors 
+        });
+      }
+      res.status(500).json({ message: "Error updating post" });
+    }
+  });
+
   app.delete("/api/journals/:id", async (req, res) => {
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Not authenticated" });
@@ -649,6 +706,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // New endpoint: Delete a post (same as journal)
+  app.delete("/api/posts/:id", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid post ID" });
+      }
+      
+      const post = await storage.getJournal(id);
+      if (!post) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+      
+      // Check if user owns the post or is admin
+      if (post.userId !== req.user.id && !req.user.isAdmin) {
+        return res.status(403).json({ message: "Not authorized to delete this post" });
+      }
+      
+      await storage.deleteJournal(id);
+      res.status(200).json({ message: "Post deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Error deleting post" });
+    }
+  });
+
   // Admin journal management endpoints
   app.post("/api/admin/journals/:id/feature", async (req, res) => {
     if (!req.isAuthenticated() || !req.user.isAdmin) {
@@ -669,6 +755,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(200).json(journal);
     } catch (error) {
       res.status(500).json({ message: "Error featuring journal" });
+    }
+  });
+
+  // New endpoint: Feature a post (same as journal)
+  app.post("/api/admin/posts/:id/feature", async (req, res) => {
+    if (!req.isAuthenticated() || !req.user.isAdmin) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+    
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid post ID" });
+      }
+      
+      const post = await storage.setJournalAsFeatured(id, true);
+      if (!post) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+      
+      res.status(200).json(post);
+    } catch (error) {
+      res.status(500).json({ message: "Error featuring post" });
     }
   });
 
@@ -693,6 +802,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Error unfeaturing journal" });
     }
   });
+
+  // New endpoint: Unfeature a post (same as journal)
+  app.post("/api/admin/posts/:id/unfeature", async (req, res) => {
+    if (!req.isAuthenticated() || !req.user.isAdmin) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+    
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid post ID" });
+      }
+      
+      const post = await storage.setJournalAsFeatured(id, false);
+      if (!post) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+      
+      res.status(200).json(post);
+    } catch (error) {
+      res.status(500).json({ message: "Error unfeaturing post" });
+    }
+  });
   
   // Like a journal
   app.post("/api/journals/:id/like", async (req, res) => {
@@ -712,6 +844,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Error liking journal" });
     }
   });
+
+  // New endpoint: Like a post (same as journal)
+  app.post("/api/posts/:id/like", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid post ID" });
+      }
+      
+      const post = await storage.likeJournal(id);
+      if (!post) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+      
+      res.status(200).json(post);
+    } catch (error) {
+      res.status(500).json({ message: "Error liking post" });
+    }
+  });
   
   // Unlike a journal
   app.post("/api/journals/:id/unlike", async (req, res) => {
@@ -729,6 +880,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(200).json(journal);
     } catch (error) {
       res.status(500).json({ message: "Error unliking journal" });
+    }
+  });
+
+  // New endpoint: Unlike a post (same as journal)
+  app.post("/api/posts/:id/unlike", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid post ID" });
+      }
+      
+      const post = await storage.unlikeJournal(id);
+      if (!post) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+      
+      res.status(200).json(post);
+    } catch (error) {
+      res.status(500).json({ message: "Error unliking post" });
     }
   });
   
@@ -767,6 +937,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Error creating comment" });
     }
   });
+
+  // New endpoint: Add a comment to a post (same as journal)
+  app.post("/api/posts/:id/comment", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid post ID" });
+      }
+      
+      const post = await storage.getJournal(id);
+      if (!post) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+      
+      // Get comment content from request body
+      const content = req.body.content;
+      if (!content || typeof content !== 'string' || content.trim() === '') {
+        return res.status(400).json({ message: "Comment content is required" });
+      }
+      
+      // Create new comment
+      const comment = await storage.createComment({
+        content: content.trim(),
+        journalId: id
+      }, req.user.id);
+      
+      res.status(201).json(comment);
+    } catch (error) {
+      console.error("Error creating comment:", error);
+      res.status(500).json({ message: "Error creating comment" });
+    }
+  });
   
   // Get all comments for a journal
   app.get("/api/journals/:id/comments", async (req, res) => {
@@ -784,6 +990,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const comments = await storage.getCommentsByJournalId(id);
       
       // Untuk setiap komentar, ambil detail pengguna yang mengomentari
+      const commentsWithUserDetails = await Promise.all(
+        comments.map(async (comment) => {
+          const user = await storage.getUser(comment.userId);
+          return {
+            ...comment,
+            user: user ? {
+              username: user.username,
+              avatarUrl: user.avatarUrl,
+              isAdmin: user.isAdmin,
+              verified: user.verified
+            } : null
+          };
+        })
+      );
+      
+      res.status(200).json(commentsWithUserDetails);
+    } catch (error) {
+      console.error("Error fetching comments:", error);
+      res.status(500).json({ message: "Error fetching comments" });
+    }
+  });
+
+  // New endpoint: Get all comments for a post (same as journal)
+  app.get("/api/posts/:id/comments", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid post ID" });
+      }
+      
+      const post = await storage.getJournal(id);
+      if (!post) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+      
+      const comments = await storage.getCommentsByJournalId(id);
+      
+      // For each comment, get user details who commented
       const commentsWithUserDetails = await Promise.all(
         comments.map(async (comment) => {
           const user = await storage.getUser(comment.userId);

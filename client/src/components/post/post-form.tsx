@@ -54,12 +54,12 @@ export function PostForm({ initialData, onSuccess, onCancel }: PostFormProps) {
 
   const createPostMutation = useMutation({
     mutationFn: async (postData: PostFormValues) => {
-      const response = await apiRequest("POST", "/api/journals", postData);
+      const response = await apiRequest("POST", "/api/posts", postData);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/journals"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/user/journals"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/posts"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user/posts"] });
       toast({
         title: "Post created",
         description: "Your post has been published successfully.",
@@ -77,13 +77,13 @@ export function PostForm({ initialData, onSuccess, onCancel }: PostFormProps) {
 
   const updatePostMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: PostFormValues }) => {
-      const response = await apiRequest("PUT", `/api/journals/${id}`, data);
+      const response = await apiRequest("PUT", `/api/posts/${id}`, data);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/journals"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/user/journals"] });
-      queryClient.invalidateQueries({ queryKey: [`/api/journals/${initialData?.id}`] });
+      queryClient.invalidateQueries({ queryKey: ["/api/posts"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user/posts"] });
+      queryClient.invalidateQueries({ queryKey: [`/api/posts/${initialData?.id}`] });
       toast({
         title: "Post updated",
         description: "Your post has been updated successfully.",
