@@ -32,7 +32,7 @@ export default function AuthPage() {
         <div>
           <Card>
             <CardHeader className="space-y-1">
-              <CardTitle className="text-2xl font-bold">Welcome to EARN App</CardTitle>
+              <CardTitle className="text-2xl font-bold">Welcome to vApps</CardTitle>
               <CardDescription>
                 Sign in to your account or create a new one to start contributing
               </CardDescription>
@@ -58,13 +58,13 @@ export default function AuthPage() {
         <div className="order-first md:order-last">
           <div className="text-center md:text-left space-y-4">
             <h1 className="text-3xl md:text-4xl font-bold">
-              Join the Web3 Community Catalog
+              Join the Web3 Community
             </h1>
             <p className="text-muted-foreground text-lg">
-              EARN App is a community-driven platform for discovering and sharing the best Web3 applications, wallets, exchanges, and more.
+              vApps is a community-driven platform for discovering and sharing the best Web3 applications, wallets, exchanges, and more.
             </p>
             <ul className="space-y-2 md:list-disc md:pl-5">
-              <li className="text-muted-foreground">Discover new Web3 projects across all categories</li>
+              <li className="text-muted-foreground">Discover new Web3 projects dari berbagai fungsi dan kegunaan</li>
               <li className="text-muted-foreground">Submit your own projects to the community</li>
               <li className="text-muted-foreground">Keep track of all your submissions</li>
               <li className="text-muted-foreground">Connect with the broader Web3 ecosystem</li>

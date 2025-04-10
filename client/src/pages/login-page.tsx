@@ -73,13 +73,13 @@ export default function LoginPage() {
         <div className="order-first md:order-last">
           <div className="text-center md:text-left space-y-4">
             <h1 className="text-3xl md:text-4xl font-bold">
-              Join the Web3 Community Catalog
+              Join the Web3 Community
             </h1>
             <p className="text-muted-foreground text-lg">
               {siteSettings?.siteDescription || "vApps is a community-driven platform for discovering and sharing the best Web3 applications, wallets, exchanges, and more."}
             </p>
             <ul className="space-y-2 md:list-disc md:pl-5">
-              <li className="text-muted-foreground">Discover new Web3 projects across all categories</li>
+              <li className="text-muted-foreground">Discover new Web3 projects dari berbagai fungsi dan kegunaan</li>
               <li className="text-muted-foreground">Submit your own projects to the community</li>
               <li className="text-muted-foreground">Keep track of all your submissions</li>
               <li className="text-muted-foreground">Connect with the broader Web3 ecosystem</li>
