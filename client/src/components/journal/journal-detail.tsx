@@ -62,16 +62,6 @@ export function JournalDetail({ journalId }: JournalDetailProps) {
   return (
     <article className="max-w-4xl mx-auto">
       <div className="mb-6">
-        <Button 
-          asChild 
-          variant="ghost" 
-          className="mb-4"
-        >
-          <Link href="/journals">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Posts
-          </Link>
-        </Button>
 
         {journal.coverImage && (
           <div className="w-full h-64 md:h-96 overflow-hidden rounded-lg mb-6">
@@ -124,14 +114,7 @@ export function JournalDetail({ journalId }: JournalDetailProps) {
         ))}
       </div>
 
-      <CardFooter className="flex justify-between items-center py-6 px-0 mt-8 border-t">
-        <p className="text-sm text-muted-foreground">
-          Last updated: {formatDistanceToNow(new Date(journal.updatedAt)).replace(/^about\s/, '').replace(/\sago$/, '')}
-        </p>
-        <Button asChild variant="outline">
-          <Link href="/journals">Back to Posts</Link>
-        </Button>
-      </CardFooter>
+      {/* Footer removed */}
     </article>
   );
 }
