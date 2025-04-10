@@ -308,9 +308,9 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Quick Journal Form - positioned below the tabs but above all content */}
+      {/* Quick Post Form - positioned below the tabs but above all content */}
       <div className="container mx-auto px-4 pt-4">
-        <QuickJournalForm />
+        <QuickPostForm />
       </div>
       
       {/* Tab Content */}
