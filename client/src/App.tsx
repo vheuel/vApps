@@ -12,8 +12,8 @@ import DocumentationPage from "@/pages/documentation-page";
 import TermsPage from "@/pages/terms-page";
 import PrivacyPolicyPage from "@/pages/privacy-policy-page";
 import CookiePolicyPage from "@/pages/cookie-policy-page";
-import JournalsPage from "@/pages/journals-page";
-import JournalDetailPage from "@/pages/journal-detail-page";
+import PostsPage from "@/pages/posts-page";
+import PostDetailPage from "@/pages/post-detail-page";
 import NotFound from "@/pages/not-found";
 import { ProtectedRoute } from "./lib/protected-route";
 import { AdminRoute } from "./lib/protected-route";
@@ -37,9 +37,10 @@ function App() {
             <ProtectedRoute path="/profile/edit" component={EditProfilePage} />
             <ProtectedRoute path="/submit" component={SubmitProjectPage} />
             <AdminRoute path="/admin" component={AdminPage} />
-            <Route path="/journals" component={JournalsPage} />
-            <Route path="/journals/:id" component={JournalDetailPage} />
-            <Route path="/posts/:id" component={JournalDetailPage} />
+            <Route path="/posts" component={PostsPage} />
+            <Route path="/posts/:id" component={PostDetailPage} />
+            <Route path="/journals" component={PostsPage} />
+            <Route path="/journals/:id" component={PostDetailPage} />
             <Route component={NotFound} />
           </Switch>
         </main>
