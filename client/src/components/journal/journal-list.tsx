@@ -104,9 +104,13 @@ export function JournalList({
     });
   };
 
-  // Format date for display
+  // Format date for display without "about" prefix and "ago" suffix
   const formatDate = (date: Date | string | number) => {
-    return formatDistanceToNow(new Date(date));
+    // Menggunakan formatDistanceToNow dari date-fns tetapi membersihkan formatnya
+    const rawFormat = formatDistanceToNow(new Date(date));
+    
+    // Menghapus kata "about " dan " ago" dari hasil format
+    return rawFormat.replace(/^about\s/, '').replace(/\sago$/, '');
   };
 
   if (isLoading) {

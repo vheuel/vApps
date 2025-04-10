@@ -132,7 +132,7 @@ export function PostsList({
                     )}
                   </div>
                   <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">
-                    · {formatDistanceToNow(new Date(journal.createdAt)).replace('about ', '')}
+                    · {formatDistanceToNow(new Date(journal.createdAt)).replace(/^about\s/, '').replace(/\sago$/, '')}
                   </span>
                 </div>
               </div>

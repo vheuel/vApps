@@ -45,54 +45,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 
-// Format time in natural language without "ago"
+// Format time in natural language without "ago" or "about"
 function formatTimeCompact(date: Date | string | number): string {
-  const now = new Date();
-  const dateToCompare = new Date(date);
-  
-  const minutesDiff = differenceInMinutes(now, dateToCompare);
-  
-  // Less than a minute
-  if (minutesDiff < 1) {
-    return "just now";
-  }
-  
-  // Less than an hour
-  if (minutesDiff < 60) {
-    return `${minutesDiff} ${minutesDiff === 1 ? 'minute' : 'minutes'}`;
-  }
-  
-  const hoursDiff = differenceInHours(now, dateToCompare);
-  
-  // Less than a day
-  if (hoursDiff < 24) {
-    return `${hoursDiff} ${hoursDiff === 1 ? 'hour' : 'hours'}`;
-  }
-  
-  const daysDiff = differenceInDays(now, dateToCompare);
-  
-  // Less than a week
-  if (daysDiff < 7) {
-    return `${daysDiff} ${daysDiff === 1 ? 'day' : 'days'}`;
-  }
-  
-  // Less than a month
-  if (daysDiff < 30) {
-    const weeks = Math.floor(daysDiff / 7);
-    return `${weeks} ${weeks === 1 ? 'week' : 'weeks'}`;
-  }
-  
-  const monthsDiff = differenceInMonths(now, dateToCompare);
-  
-  // Less than a year
-  if (monthsDiff < 12) {
-    return `${monthsDiff} ${monthsDiff === 1 ? 'month' : 'months'}`;
-  }
-  
-  const yearsDiff = differenceInYears(now, dateToCompare);
-  
-  // More than a year
-  return `${yearsDiff} ${yearsDiff === 1 ? 'year' : 'years'}`;
+  // Gunakan formatDistanceToNow dari date-fns
+  // tetapi hilangkan kata "about" dan "ago" dari hasilnya
+  const formattedDate = formatDistanceToNow(new Date(date))
+    .replace(/^about\s/, '')
+    .replace(/\sago$/, '');
+    
+  return formattedDate;
 }
 
 export default function ProfilePage() {
