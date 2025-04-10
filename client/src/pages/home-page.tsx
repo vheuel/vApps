@@ -79,33 +79,33 @@ export default function HomePage() {
               The ultimate Web3 project discovery platform, connecting blockchain innovators worldwide.
             </p>
             
-            <div className="grid grid-cols-1 gap-4 mt-6">
-              <div className="flex items-start space-x-3">
-                <div className="bg-primary/10 p-2 rounded-full mt-0.5">
-                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+            <div className="grid grid-cols-1 gap-6 mt-8">
+              <div className="flex items-center space-x-4 bg-primary/5 dark:bg-primary/10 p-4 rounded-lg border-l-4 border-primary/70 transition-all hover:translate-x-1">
+                <div className="bg-primary/10 dark:bg-primary/20 p-2.5 rounded-full">
+                  <Search className="w-5 h-5 text-primary" />
                 </div>
-                <p className="text-muted-foreground">Discover new Web3 projects across diverse ecosystems.</p>
+                <p className="text-muted-foreground font-medium">Discover new Web3 projects across diverse ecosystems.</p>
               </div>
               
-              <div className="flex items-start space-x-3">
-                <div className="bg-primary/10 p-2 rounded-full mt-0.5">
-                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+              <div className="flex items-center space-x-4 bg-primary/5 dark:bg-primary/10 p-4 rounded-lg border-l-4 border-primary/70 transition-all hover:translate-x-1">
+                <div className="bg-primary/10 dark:bg-primary/20 p-2.5 rounded-full">
+                  <GitBranch className="w-5 h-5 text-primary" />
                 </div>
-                <p className="text-muted-foreground">Submit your own projects and share them with the community.</p>
+                <p className="text-muted-foreground font-medium">Submit your own projects and share them with the community.</p>
               </div>
               
-              <div className="flex items-start space-x-3">
-                <div className="bg-primary/10 p-2 rounded-full mt-0.5">
-                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+              <div className="flex items-center space-x-4 bg-primary/5 dark:bg-primary/10 p-4 rounded-lg border-l-4 border-primary/70 transition-all hover:translate-x-1">
+                <div className="bg-primary/10 dark:bg-primary/20 p-2.5 rounded-full">
+                  <BarChart3 className="w-5 h-5 text-primary" />
                 </div>
-                <p className="text-muted-foreground">Track and manage all your submissions in one place.</p>
+                <p className="text-muted-foreground font-medium">Track and manage all your submissions in one place.</p>
               </div>
               
-              <div className="flex items-start space-x-3">
-                <div className="bg-primary/10 p-2 rounded-full mt-0.5">
-                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+              <div className="flex items-center space-x-4 bg-primary/5 dark:bg-primary/10 p-4 rounded-lg border-l-4 border-primary/70 transition-all hover:translate-x-1">
+                <div className="bg-primary/10 dark:bg-primary/20 p-2.5 rounded-full">
+                  <MessageCircle className="w-5 h-5 text-primary" />
                 </div>
-                <p className="text-muted-foreground">Connect with the broader Web3 ecosystem and expand your network.</p>
+                <p className="text-muted-foreground font-medium">Connect with the broader Web3 ecosystem and expand your network.</p>
               </div>
             </div>
           </div>
