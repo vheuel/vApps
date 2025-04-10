@@ -349,13 +349,15 @@ export default function ProfilePage() {
         </div>
       </div>
 
+      {/* Quick Journal Form - positioned below the tabs but above all content */}
+      <div className="container mx-auto px-4 pt-4">
+        <QuickJournalForm />
+      </div>
+      
       {/* Tab Content */}
       <div className="container mx-auto py-4 px-4">
         {activeTab === "project" ? (
           <>
-            {/* Quick Journal Form */}
-            <QuickJournalForm />
-            
             {isLoading ? (
               <div className="space-y-4">
                 {[...Array(3)].map((_, index) => (
