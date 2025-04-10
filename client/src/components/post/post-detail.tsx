@@ -49,28 +49,65 @@ export function PostDetail({ postId }: PostDetailProps) {
     refetchOnWindowFocus: false,
   });
   
-  // Effect to add a subtle highlight effect to the post title when loaded
+  // Effect to highlight the post title when loaded
   useEffect(() => {
-    // Only proceed if post is loaded and title element exists
+    // Only proceed if post data is loaded and title element exists
     if (post && titleRef.current) {
-      // Wait for the DOM to be fully ready
+      // We'll use a staggered approach with multiple timeouts for reliability
+      
+      // Step 1: Scroll to the title initially
+      const initialScrollTimeout = setTimeout(() => {
+        if (titleRef.current) {
+          // Force scroll to top first to reset any previous scroll position
+          window.scrollTo(0, 0);
+          
+          // Set a manual anchor element to ensure we're at the top
+          document.getElementById('post-title')?.scrollIntoView({ 
+            behavior: 'auto',
+            block: 'start'
+          });
+        }
+      }, 50);
+      
+      // Step 2: After a brief pause, calculate precise position and scroll with offset
+      const preciseScrollTimeout = setTimeout(() => {
+        if (titleRef.current) {
+          // Calculate ideal position with offset
+          const yOffset = -100; // Header offset
+          const titlePosition = titleRef.current.getBoundingClientRect().top;
+          const offsetPosition = titlePosition + window.pageYOffset + yOffset;
+          
+          // Smooth scroll to position
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+        }
+      }, 200);
+      
+      // Step 3: Apply highlight effect after scrolling is likely complete
       const highlightTimeout = setTimeout(() => {
         if (titleRef.current) {
-          // Apply the highlight animation class
+          // Apply animation class
           titleRef.current.classList.add('post-title-focus');
           
-          // Remove the animation class after it completes
+          // Remove animation class after it completes
           const cleanupTimeout = setTimeout(() => {
             if (titleRef.current) {
               titleRef.current.classList.remove('post-title-focus');
             }
-          }, 2500);
+          }, 3000);
           
           return () => clearTimeout(cleanupTimeout);
         }
-      }, 300);
+      }, 600);
       
-      return () => clearTimeout(highlightTimeout);
+      // Clear all timeouts on cleanup
+      return () => {
+        clearTimeout(initialScrollTimeout);
+        clearTimeout(preciseScrollTimeout);
+        clearTimeout(highlightTimeout);
+      };
     }
   }, [post]);
   
@@ -249,6 +286,7 @@ export function PostDetail({ postId }: PostDetailProps) {
           <h1 
             ref={titleRef} 
             tabIndex={-1} 
+            id="post-title"
             className="text-3xl font-bold focus:outline-none"
           >
             {post.title}

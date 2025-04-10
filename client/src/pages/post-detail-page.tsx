@@ -17,7 +17,7 @@ export default function PostDetailPage() {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="container mx-auto py-8 px-4" tabIndex={-1}>
       <PostDetail postId={postId} />
     </div>
   );
