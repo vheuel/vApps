@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { JournalList } from "@/components/journal/journal-list";
 import { QuickJournalForm } from "@/components/journal/quick-journal-form";
+import { PostsList } from "@/components/journal/posts-list";
 
 import ProjectForm from "@/components/project/project-form";
 import { format, differenceInMinutes, differenceInHours, differenceInDays, differenceInMonths, differenceInYears } from "date-fns";
@@ -650,11 +651,27 @@ export default function ProfilePage() {
         ) : activeTab === "journal" ? (
           // Posts Tab Content
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <JournalList 
-              userId={user.id} 
-              showManageOptions={false} 
-              limit={5}
-            />
+            <div className="space-y-6">
+              {isLoading ? (
+                <div className="space-y-4">
+                  {[...Array(3)].map((_, index) => (
+                    <Skeleton key={index} className="h-32 w-full" />
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {/* Mendapatkan journals dari query JournalList */}
+                  <div className="space-y-6">
+                    {/* Menggunakan query journals yang ada dari JournalList component */}
+                    <div className="space-y-6">
+                      {user && user.id && (
+                        <PostsList userId={user.id} />
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         ) : null}
       </div>
