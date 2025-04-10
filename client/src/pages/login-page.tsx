@@ -79,7 +79,7 @@ export default function LoginPage() {
               {siteSettings?.siteDescription || "vApps is a community-driven platform for discovering and sharing the best Web3 applications, wallets, exchanges, and more."}
             </p>
             <ul className="space-y-2 md:list-disc md:pl-5">
-              <li className="text-muted-foreground">Discover new Web3 projects dari berbagai fungsi dan kegunaan</li>
+              <li className="text-muted-foreground">Discover new Web3 projects across various ecosystems</li>
               <li className="text-muted-foreground">Submit your own projects to the community</li>
               <li className="text-muted-foreground">Keep track of all your submissions</li>
               <li className="text-muted-foreground">Connect with the broader Web3 ecosystem</li>
