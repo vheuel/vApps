@@ -106,7 +106,7 @@ export default function Header() {
                 <DropdownMenuLabel>{user.email}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link href="/profile">Profile</Link>
+                  <Link href={`/profile/${user.username}`}>Profile</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/submit">Submit Project</Link>
@@ -185,7 +185,7 @@ export default function Header() {
             </Link>
             {user && (
               <>
-                <Link href="/profile" onClick={() => setMobileMenuOpen(false)}>
+                <Link href={`/profile/${user.username}`} onClick={() => setMobileMenuOpen(false)}>
                   <span className={`font-medium ${location === "/profile" ? "text-primary" : "text-foreground"}`}>
                     Profile
                   </span>
