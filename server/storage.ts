@@ -17,6 +17,9 @@ export interface IStorage {
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: number, user: Partial<User>): Promise<User | undefined>;
+  verifyUser(id: number): Promise<User | undefined>;
+  unverifyUser(id: number): Promise<User | undefined>;
+  getAllUsers(): Promise<User[]>;
   
   // Project management
   getProject(id: number): Promise<Project | undefined>;
@@ -113,6 +116,26 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, id))
       .returning();
     return updatedUser;
+  }
+  
+  async verifyUser(id: number): Promise<User | undefined> {
+    const [updatedUser] = await db.update(users)
+      .set({ verified: true })
+      .where(eq(users.id, id))
+      .returning();
+    return updatedUser;
+  }
+  
+  async unverifyUser(id: number): Promise<User | undefined> {
+    const [updatedUser] = await db.update(users)
+      .set({ verified: false })
+      .where(eq(users.id, id))
+      .returning();
+    return updatedUser;
+  }
+  
+  async getAllUsers(): Promise<User[]> {
+    return db.select().from(users);
   }
 
   // Project management methods

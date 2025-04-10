@@ -7,7 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
 import { useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { MessageSquare, Heart, Link2, MoreVertical } from "lucide-react";
+import { MessageSquare, Heart, Link2, MoreVertical, CheckCircle } from "lucide-react";
+import { MdVerified } from "react-icons/md";
 
 interface PostsListProps {
   userId?: number;
@@ -121,7 +122,15 @@ export function PostsList({
               </Avatar>
               <div>
                 <div className="flex items-center">
-                  <span className="font-medium">{user?.username}</span>
+                  <div className="flex items-center">
+                    <span className="font-medium">{user?.username ? user.username.charAt(0).toUpperCase() + user.username.slice(1) : ""}</span>
+                    {user?.isAdmin && (
+                      <MdVerified className="h-4 w-4 text-blue-500 ml-1" title="Admin" />
+                    )}
+                    {user?.verified && (
+                      <MdVerified className="h-4 w-4 text-green-500 ml-1" title="Verified User" />
+                    )}
+                  </div>
                   <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">
                     · {formatDistanceToNow(new Date(journal.createdAt)).replace('about ', '')}
                   </span>

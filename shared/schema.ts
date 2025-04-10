@@ -15,6 +15,7 @@ export const users = pgTable("users", {
   headerImage: text("header_image"), // Menambahkan field untuk header image
   company: text("company"), // Menambahkan field untuk nama perusahaan
   isAdmin: boolean("is_admin").default(false).notNull(),
+  verified: boolean("verified").default(false).notNull(),
   memberSince: timestamp("member_since").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
   bioUpdatedAt: timestamp("bio_updated_at"),

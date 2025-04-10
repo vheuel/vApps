@@ -1,11 +1,11 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Project, Category, InsertCategory, SiteSettings } from "@shared/schema";
+import { Project, Category, InsertCategory, SiteSettings, User } from "@shared/schema";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { SiteSettingsForm } from "@/components/admin/site-settings-form";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CheckIcon, XIcon, Loader2, PlusIcon, PencilIcon, Trash2Icon } from "lucide-react";
+import { CheckIcon, XIcon, Loader2, PlusIcon, PencilIcon, Trash2Icon, ShieldCheck, ShieldX } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -63,6 +63,10 @@ export default function AdminPage() {
   
   const { data: categories, isLoading: isCategoriesLoading } = useQuery<Category[]>({
     queryKey: ["/api/categories"],
+  });
+  
+  const { data: users, isLoading: isUsersLoading } = useQuery<User[]>({
+    queryKey: ["/api/admin/users"],
   });
 
   const approveMutation = useMutation({
@@ -176,6 +180,49 @@ export default function AdminPage() {
       });
     }
   });
+  
+  // User verification mutations
+  const verifyUserMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await apiRequest("POST", `/api/admin/users/${id}/verify`, {});
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      toast({
+        title: "User verified",
+        description: "The user has been granted verified status.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to verify user",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+  
+  const unverifyUserMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await apiRequest("POST", `/api/admin/users/${id}/unverify`, {});
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      toast({
+        title: "User unverified",
+        description: "The user's verified status has been removed.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to unverify user",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
 
   // Get category counts for approved projects
   const getCategoryCounts = () => {
@@ -220,6 +267,7 @@ export default function AdminPage() {
           <TabsList className="w-full mb-4" style={{ minWidth: '700px' }}>
             <TabsTrigger value="pending" className="flex-1">Pending Projects</TabsTrigger>
             <TabsTrigger value="approved" className="flex-1">Approved Projects</TabsTrigger>
+            <TabsTrigger value="users" className="flex-1">Manage Users</TabsTrigger>
             <TabsTrigger value="stats" className="flex-1">Category Stats</TabsTrigger>
             <TabsTrigger value="categories" className="flex-1">Manage Categories</TabsTrigger>
             <TabsTrigger value="settings" className="flex-1">Settings</TabsTrigger>
@@ -293,6 +341,103 @@ export default function AdminPage() {
               ) : (
                 <div className="text-center py-12">
                   <p className="text-muted-foreground">No approved projects found.</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="users">
+          <Card>
+            <CardHeader>
+              <CardTitle>User Management</CardTitle>
+              <CardDescription>
+                Manage user verification status and roles
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isUsersLoading ? (
+                <div className="space-y-4">
+                  {[...Array(3)].map((_, index) => (
+                    <Skeleton key={index} className="h-16 w-full" />
+                  ))}
+                </div>
+              ) : users && users.length > 0 ? (
+                <div className="space-y-4">
+                  {users.map((user) => (
+                    <div key={user.id} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary">
+                          {user.avatarUrl ? (
+                            <img 
+                              src={user.avatarUrl} 
+                              alt={user.username} 
+                              className="w-10 h-10 rounded-full object-cover"
+                            />
+                          ) : (
+                            <span className="text-lg font-medium">
+                              {user.username.charAt(0).toUpperCase()}
+                            </span>
+                          )}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-medium">{user.username}</h3>
+                            {user.isAdmin && (
+                              <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-200">
+                                Admin
+                              </Badge>
+                            )}
+                            {user.verified && (
+                              <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
+                                Verified
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-sm text-muted-foreground">{user.email}</p>
+                        </div>
+                      </div>
+                      {!user.isAdmin && (
+                        <div className="flex space-x-2">
+                          {user.verified ? (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-red-500"
+                              onClick={() => unverifyUserMutation.mutate(user.id)}
+                              disabled={unverifyUserMutation.isPending}
+                            >
+                              {unverifyUserMutation.isPending ? (
+                                <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                              ) : (
+                                <ShieldX className="h-4 w-4 mr-1" />
+                              )}
+                              Remove Verification
+                            </Button>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-green-600"
+                              onClick={() => verifyUserMutation.mutate(user.id)}
+                              disabled={verifyUserMutation.isPending}
+                            >
+                              {verifyUserMutation.isPending ? (
+                                <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                              ) : (
+                                <ShieldCheck className="h-4 w-4 mr-1" />
+                              )}
+                              Verify User
+                            </Button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground">No users found.</p>
                 </div>
               )}
             </CardContent>

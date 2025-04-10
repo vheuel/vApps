@@ -641,6 +641,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User management endpoints for admin
+  app.get("/api/admin/users", async (req, res) => {
+    if (!req.isAuthenticated() || !req.user.isAdmin) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+    
+    try {
+      const users = await storage.getAllUsers();
+      res.status(200).json(users);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching users" });
+    }
+  });
+
+  app.post("/api/admin/users/:id/verify", async (req, res) => {
+    if (!req.isAuthenticated() || !req.user.isAdmin) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+    
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+      
+      const user = await storage.verifyUser(id);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      res.status(200).json(user);
+    } catch (error) {
+      res.status(500).json({ message: "Error verifying user" });
+    }
+  });
+
+  app.post("/api/admin/users/:id/unverify", async (req, res) => {
+    if (!req.isAuthenticated() || !req.user.isAdmin) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+    
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+      
+      const user = await storage.unverifyUser(id);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      res.status(200).json(user);
+    } catch (error) {
+      res.status(500).json({ message: "Error unverifying user" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -242,7 +242,10 @@ export default function ProfilePage() {
               {user.username.charAt(0).toUpperCase() + user.username.slice(1)}
             </h1>
             {user.isAdmin && (
-              <MdVerified className="h-5 w-5 text-blue-500 ml-2" />
+              <MdVerified className="h-5 w-5 text-amber-500 ml-2" title="Admin" />
+            )}
+            {!user.isAdmin && user.verified && (
+              <MdVerified className="h-5 w-5 text-green-500 ml-2" title="Verified User" />
             )}
           </div>
           
