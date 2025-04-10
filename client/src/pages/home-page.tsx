@@ -81,30 +81,22 @@ export default function HomePage() {
             
             <div className="grid grid-cols-1 gap-6 mt-8">
               <div className="flex items-center space-x-4 p-4 border-l-3 border-primary/70 transition-all hover:translate-x-1">
-                <div className="bg-primary/10 dark:bg-primary/20 p-2.5 rounded-full">
-                  <Search className="w-5 h-5 text-primary" />
-                </div>
+                <Search className="w-6 h-6 text-primary flex-shrink-0" />
                 <p className="text-muted-foreground font-medium">Discover new Web3 projects across diverse ecosystems.</p>
               </div>
               
               <div className="flex items-center space-x-4 p-4 border-l-3 border-primary/70 transition-all hover:translate-x-1">
-                <div className="bg-primary/10 dark:bg-primary/20 p-2.5 rounded-full">
-                  <GitBranch className="w-5 h-5 text-primary" />
-                </div>
+                <GitBranch className="w-6 h-6 text-primary flex-shrink-0" />
                 <p className="text-muted-foreground font-medium">Submit your own projects and share them with the community.</p>
               </div>
               
               <div className="flex items-center space-x-4 p-4 border-l-3 border-primary/70 transition-all hover:translate-x-1">
-                <div className="bg-primary/10 dark:bg-primary/20 p-2.5 rounded-full">
-                  <BarChart3 className="w-5 h-5 text-primary" />
-                </div>
+                <BarChart3 className="w-6 h-6 text-primary flex-shrink-0" />
                 <p className="text-muted-foreground font-medium">Track and manage all your submissions in one place.</p>
               </div>
               
               <div className="flex items-center space-x-4 p-4 border-l-3 border-primary/70 transition-all hover:translate-x-1">
-                <div className="bg-primary/10 dark:bg-primary/20 p-2.5 rounded-full">
-                  <MessageCircle className="w-5 h-5 text-primary" />
-                </div>
+                <MessageCircle className="w-6 h-6 text-primary flex-shrink-0" />
                 <p className="text-muted-foreground font-medium">Connect with the broader Web3 ecosystem and expand your network.</p>
               </div>
             </div>
