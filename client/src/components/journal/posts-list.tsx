@@ -170,14 +170,7 @@ export function PostsList({
             </div>
           </div>
 
-          {/* Featured badge if needed */}
-          {journal.featured && (
-            <div className="mt-2">
-              <Badge variant="secondary" className="bg-amber-100 text-amber-800 dark:bg-amber-800/20 dark:text-amber-500">
-                Featured
-              </Badge>
-            </div>
-          )}
+          {/* Featured badge removed */}
         </div>
       ))}
     </div>
