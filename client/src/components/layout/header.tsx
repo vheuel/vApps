@@ -3,7 +3,7 @@ import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { ModeToggle } from "@/components/ui/mode-toggle";
 import { Button } from "@/components/ui/button";
-import { Search, Menu, X } from "lucide-react";
+import { Search, Menu, X, KeyRound } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -124,16 +124,12 @@ export default function Header() {
             </DropdownMenu>
           ) : (
             <Button
-              variant="default"
-              size="sm"
+              variant="outline"
+              size="icon"
               onClick={handleAuthClick}
-              className="rounded-full px-4"
-              style={{ 
-                backgroundColor: siteSettings?.primaryColor || "#3B82F6",
-                color: "white" 
-              }}
+              className="rounded-full"
             >
-              Log In
+              <KeyRound className="h-5 w-5" />
             </Button>
           )}
 
@@ -224,12 +220,13 @@ export default function Header() {
                   navigate("/login");
                   setMobileMenuOpen(false);
                 }}
-                className="text-white"
+                className="text-white flex items-center space-x-2"
                 style={{ 
                   backgroundColor: siteSettings?.primaryColor || "#3B82F6",
                 }}
               >
-                Login / Register
+                <KeyRound className="h-4 w-4" />
+                <span>Login / Register</span>
               </Button>
             )}
           </nav>
