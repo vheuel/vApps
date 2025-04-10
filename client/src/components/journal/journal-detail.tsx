@@ -22,6 +22,7 @@ import {
   DialogHeader,
   DialogTitle
 } from "@/components/ui/dialog";
+import { X } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
