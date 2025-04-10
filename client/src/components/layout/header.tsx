@@ -63,7 +63,7 @@ export default function Header() {
         {/* Search Bar */}
         <div className="hidden md:flex relative mx-4 flex-1 max-w-md">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-4 w-4 text-gray-400" />
+            <Search className="h-5 w-5 text-gray-400" />
           </div>
           <Input
             type="search"
@@ -155,7 +155,7 @@ export default function Header() {
           <div className="mb-4">
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-4 w-4 text-gray-400" />
+                <Search className="h-5 w-5 text-gray-400" />
               </div>
               <Input
                 type="search"
@@ -225,7 +225,7 @@ export default function Header() {
                   backgroundColor: siteSettings?.primaryColor || "#3B82F6",
                 }}
               >
-                <KeyRound className="h-4 w-4" />
+                <KeyRound className="h-5 w-5" />
                 <span>Login / Register</span>
               </Button>
             )}
