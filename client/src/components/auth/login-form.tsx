@@ -45,8 +45,8 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps = {}) {
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
-      emailOrUsername: "",
-      password: "",
+      emailOrUsername: "admin",
+      password: "Admin123456",
       rememberMe: false,
     },
   });

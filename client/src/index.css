@@ -26,6 +26,32 @@
       overflow-anchor: auto;
     }
   }
+  
+  /* Khusus untuk halaman legal (privacy, terms, cookies) */
+  body.legal-page-active {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  
+  body.legal-page-active #legal-page-container {
+    flex: 1 0 auto;
+    z-index: 10;
+    background-color: var(--background);
+  }
+  
+  body.legal-page-active footer {
+    flex-shrink: 0;
+    opacity: 0;
+    animation: fade-in-footer 0.5s ease-in forwards;
+    animation-delay: 1s;
+  }
+  
+  @keyframes fade-in-footer {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
 }
 
 @layer utilities {

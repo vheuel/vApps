@@ -1,11 +1,10 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { LegalPageWrapper } from "@/components/layout/legal-page-wrapper";
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="container py-8 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Privacy Policy</h1>
-      
-      <ScrollArea className="h-[60vh] rounded-md border p-6 bg-card">
+    <LegalPageWrapper title="Privacy Policy">
+      <ScrollArea className="h-[70vh] rounded-md border p-6 bg-card">
         <div className="space-y-6">
           <section>
             <h2 className="text-2xl font-semibold mb-3">1. Introduction</h2>
@@ -176,6 +175,6 @@ export default function PrivacyPolicyPage() {
           </div>
         </div>
       </ScrollArea>
-    </div>
+    </LegalPageWrapper>
   );
 }
