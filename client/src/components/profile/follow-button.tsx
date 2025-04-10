@@ -22,7 +22,7 @@ export function FollowButton({ username }: FollowButtonProps) {
       if (!user || !username) return;
       
       try {
-        const response = await fetch(`/api/users/${username}/follow-status`);
+        const response = await fetch(`/api/users/${username}/is-following`);
         if (response.ok) {
           const data = await response.json();
           setIsFollowing(data.isFollowing);
