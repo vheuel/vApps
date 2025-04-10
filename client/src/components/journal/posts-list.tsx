@@ -7,9 +7,21 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
 import { useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { MessageSquare, Heart, Link2, MoreVertical, CheckCircle } from "lucide-react";
+import { MessageSquare, Heart, Link2, MoreVertical, CheckCircle, Send } from "lucide-react";
 import { MdVerified } from "react-icons/md";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
 
 interface PostsListProps {
   userId?: number;
@@ -22,6 +34,11 @@ export function PostsList({
 }: PostsListProps) {
   const { user } = useAuth();
   const { toast } = useToast();
+  
+  // State untuk dialog comment
+  const [commentDialogOpen, setCommentDialogOpen] = useState(false);
+  const [selectedJournalId, setSelectedJournalId] = useState<number | null>(null);
+  const [commentText, setCommentText] = useState("");
 
   const mainQueryKey = userId 
     ? ['api', 'user', 'journals'] 
@@ -92,7 +109,24 @@ export function PostsList({
     }
   });
   
-  // Add comment functionality
+  // Function to handle opening comment dialog
+  const handleOpenCommentDialog = (journalId: number) => {
+    setSelectedJournalId(journalId);
+    setCommentText("");
+    setCommentDialogOpen(true);
+  };
+  
+  // Function to handle submitting a comment
+  const handleSubmitComment = () => {
+    if (!commentText.trim() || !selectedJournalId) return;
+    
+    submitCommentMutation.mutate({
+      journalId: selectedJournalId,
+      commentText: commentText.trim()
+    });
+  };
+  
+  // Add comment functionality (simplified version, just counts)
   const commentMutation = useMutation({
     mutationFn: async (journalId: number) => {
       const res = await apiRequest("POST", `/api/journals/${journalId}/comment`);
@@ -104,6 +138,40 @@ export function PostsList({
     onSuccess: () => {
       // Langsung refetch data
       refetch();
+      toast({
+        title: "Success",
+        description: "Comment added successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Could not add comment",
+        variant: "destructive"
+      });
+    }
+  });
+  
+  // Submit comment with text mutation
+  const submitCommentMutation = useMutation({
+    mutationFn: async ({ journalId, commentText }: { journalId: number, commentText: string }) => {
+      // Di implementasi nyata, ini akan mengirim komentar dengan teks ke backend
+      // Untuk sekarang kita gunakan endpoint yang sudah ada
+      const res = await apiRequest("POST", `/api/journals/${journalId}/comment`);
+      if (!res.ok) {
+        throw new Error("Failed to comment on post");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      // Reset form and close dialog
+      setCommentText("");
+      setCommentDialogOpen(false);
+      setSelectedJournalId(null);
+      
+      // Refresh data
+      refetch();
+      
       toast({
         title: "Success",
         description: "Comment added successfully",
@@ -258,8 +326,8 @@ export function PostsList({
             <div className="flex items-center space-x-6">
               <button 
                 className="flex items-center hover:text-blue-500 transition-colors"
-                onClick={() => commentMutation.mutate(journal.id)}
-                disabled={commentMutation.isPending}
+                onClick={() => handleOpenCommentDialog(journal.id)}
+                disabled={submitCommentMutation.isPending}
               >
                 <MessageSquare className="h-5 w-5 mr-1" />
                 {journal.comments > 0 && <span>{journal.comments}</span>}
@@ -288,6 +356,44 @@ export function PostsList({
           {/* Featured badge removed */}
         </div>
       ))}
+      
+      {/* Comment Dialog */}
+      <Dialog open={commentDialogOpen} onOpenChange={setCommentDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Add Comment</DialogTitle>
+            <DialogDescription>
+              Enter your comment below.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-1 gap-2">
+              <Input
+                id="comment"
+                placeholder="Write your comment..."
+                className="col-span-3"
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              onClick={() => setCommentDialogOpen(false)}
+              variant="outline"
+              disabled={submitCommentMutation.isPending}
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleSubmitComment} 
+              disabled={!commentText.trim() || submitCommentMutation.isPending}
+            >
+              {submitCommentMutation.isPending ? "Submitting..." : "Submit Comment"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
