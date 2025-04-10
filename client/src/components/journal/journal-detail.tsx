@@ -14,15 +14,7 @@ import { useState } from "react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from "@/components/ui/dialog";
-import { X } from "lucide-react";
+import { ConfirmDialog } from "./confirm-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -414,43 +406,16 @@ export function JournalDetail({ journalId }: JournalDetailProps) {
       </article>
 
       {/* Delete confirmation dialog */}
-      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent className="sm:max-w-sm mx-4 px-6 py-6 rounded-lg border-0">
-          {/* Close button removed by setting pointer-events-none and opacity-0 */}
-          <div className="absolute right-4 top-4 rounded-sm pointer-events-none opacity-0">
-            <X className="h-4 w-4" />
-            <span className="sr-only">Close</span>
-          </div>
-          
-          <DialogHeader className="text-center">
-            <DialogTitle className="text-xl">Delete Comment</DialogTitle>
-            <DialogDescription className="text-center">
-              Are you sure you want to delete this comment?
-              <br />
-              This action cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="flex flex-col gap-2 mt-2">
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={handleDeleteComment}
-              className="w-full py-6 text-base"
-              disabled={deleteCommentMutation.isPending}
-            >
-              {deleteCommentMutation.isPending ? "Deleting..." : "Delete"}
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => setIsDeleteDialogOpen(false)}
-              className="w-full py-6 text-base bg-gray-100 hover:bg-gray-200 text-black"
-            >
-              Cancel
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ConfirmDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        title="Delete Comment"
+        description="Are you sure you want to delete this comment?<br />This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={handleDeleteComment}
+        isLoading={deleteCommentMutation.isPending}
+      />
     </>
   );
 }
