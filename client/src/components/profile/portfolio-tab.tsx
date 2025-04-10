@@ -65,7 +65,11 @@ const mockStats: PortfolioStats = {
   defiPercent: 54.03
 };
 
-export default function PortfolioTab() {
+interface PortfolioTabProps {
+  profileUser?: any;
+}
+
+export default function PortfolioTab({ profileUser }: PortfolioTabProps) {
   const [assets, setAssets] = useState<Asset[]>(mockAssets);
   const [stats, setStats] = useState<PortfolioStats>(mockStats);
   const [isRefreshing, setIsRefreshing] = useState(false);
