@@ -35,7 +35,20 @@ export interface IStorage {
   verifyProject(id: number): Promise<Project | undefined>;
   unverifyProject(id: number): Promise<Project | undefined>;
   
-  // Journal/Blog management
+  // Post management
+  getPost(id: number): Promise<Journal | undefined>;
+  createPost(post: InsertJournal, userId: number): Promise<Journal>;
+  updatePost(id: number, post: Partial<InsertJournal>): Promise<Journal | undefined>;
+  deletePost(id: number): Promise<boolean>;
+  getPostsByUser(userId: number): Promise<Journal[]>;
+  getAllPosts(): Promise<Journal[]>;
+  getFeaturedPosts(): Promise<Journal[]>;
+  setPostAsFeatured(id: number, featured: boolean): Promise<Journal | undefined>;
+  likePost(id: number): Promise<Journal | undefined>;
+  unlikePost(id: number): Promise<Journal | undefined>;
+  addCommentToPost(id: number): Promise<Journal | undefined>;
+  
+  // For backward compatibility (Journal/Blog management)
   getJournal(id: number): Promise<Journal | undefined>;
   createJournal(journal: InsertJournal, userId: number): Promise<Journal>;
   updateJournal(id: number, journal: Partial<InsertJournal>): Promise<Journal | undefined>;
@@ -49,9 +62,13 @@ export interface IStorage {
   addComment(id: number): Promise<Journal | undefined>;
   
   // Comment management
+  getCommentsByPostId(postId: number): Promise<Comment[]>;
+  createCommentForPost(comment: InsertComment, userId: number): Promise<Comment>;
+  deleteComment(id: number, userId?: number): Promise<boolean>;
+  
+  // For backward compatibility
   getCommentsByJournalId(journalId: number): Promise<Comment[]>;
   createComment(comment: InsertComment, userId: number): Promise<Comment>;
-  deleteComment(id: number): Promise<boolean>;
   
   // Category management
   getCategories(): Promise<Category[]>;
@@ -296,17 +313,17 @@ export class DatabaseStorage implements IStorage {
     return true;
   }
   
-  // Journal/Blog management methods
-  async getJournal(id: number): Promise<Journal | undefined> {
+  // Post management methods (previously Journal/Blog)
+  async getPost(id: number): Promise<Journal | undefined> {
     const result = await db.select().from(journals).where(eq(journals.id, id));
     if (!result.length) return undefined;
     
-    // Tambahkan informasi user ke journal
-    const journal = result[0];
-    const user = await this.getUser(journal.userId);
+    // Tambahkan informasi user ke post
+    const post = result[0];
+    const user = await this.getUser(post.userId);
     
     return {
-      ...journal,
+      ...post,
       user: user ? {
         username: user.username,
         avatarUrl: user.avatarUrl,
@@ -315,9 +332,14 @@ export class DatabaseStorage implements IStorage {
       } : null
     };
   }
+  
+  // Alias untuk backward compatibility
+  async getJournal(id: number): Promise<Journal | undefined> {
+    return this.getPost(id);
+  }
 
-  async createJournal(insertJournal: InsertJournal, userId: number): Promise<Journal> {
-    const [journal] = await db.insert(journals)
+  async createPost(insertJournal: InsertJournal, userId: number): Promise<Journal> {
+    const [post] = await db.insert(journals)
       .values({
         ...insertJournal,
         userId,
@@ -329,7 +351,7 @@ export class DatabaseStorage implements IStorage {
     // Tambahkan informasi user
     const user = await this.getUser(userId);
     return {
-      ...journal,
+      ...post,
       user: user ? {
         username: user.username,
         avatarUrl: user.avatarUrl,
@@ -338,9 +360,14 @@ export class DatabaseStorage implements IStorage {
       } : null
     };
   }
+  
+  // Alias untuk backward compatibility
+  async createJournal(insertJournal: InsertJournal, userId: number): Promise<Journal> {
+    return this.createPost(insertJournal, userId);
+  }
 
-  async updateJournal(id: number, updates: Partial<InsertJournal>): Promise<Journal | undefined> {
-    const [updatedJournal] = await db.update(journals)
+  async updatePost(id: number, updates: Partial<InsertJournal>): Promise<Journal | undefined> {
+    const [updatedPost] = await db.update(journals)
       .set({
         ...updates,
         updatedAt: new Date()
@@ -348,12 +375,12 @@ export class DatabaseStorage implements IStorage {
       .where(eq(journals.id, id))
       .returning();
     
-    if (!updatedJournal) return undefined;
+    if (!updatedPost) return undefined;
     
     // Tambahkan informasi user
-    const user = await this.getUser(updatedJournal.userId);
+    const user = await this.getUser(updatedPost.userId);
     return {
-      ...updatedJournal,
+      ...updatedPost,
       user: user ? {
         username: user.username,
         avatarUrl: user.avatarUrl,
@@ -362,13 +389,23 @@ export class DatabaseStorage implements IStorage {
       } : null
     };
   }
+  
+  // Alias untuk backward compatibility
+  async updateJournal(id: number, updates: Partial<InsertJournal>): Promise<Journal | undefined> {
+    return this.updatePost(id, updates);
+  }
 
-  async deleteJournal(id: number): Promise<boolean> {
+  async deletePost(id: number): Promise<boolean> {
     await db.delete(journals).where(eq(journals.id, id));
     return true;
   }
+  
+  // Alias untuk backward compatibility
+  async deleteJournal(id: number): Promise<boolean> {
+    return this.deletePost(id);
+  }
 
-  async getJournalsByUser(userId: number): Promise<Journal[]> {
+  async getPostsByUser(userId: number): Promise<Journal[]> {
     const posts = await db.select()
       .from(journals)
       .where(eq(journals.userId, userId))
@@ -390,8 +427,13 @@ export class DatabaseStorage implements IStorage {
     
     return postsWithUsers;
   }
+  
+  // Alias untuk backward compatibility
+  async getJournalsByUser(userId: number): Promise<Journal[]> {
+    return this.getPostsByUser(userId);
+  }
 
-  async getAllJournals(): Promise<Journal[]> {
+  async getAllPosts(): Promise<Journal[]> {
     const posts = await db.select()
       .from(journals)
       .where(eq(journals.published, true))
@@ -413,8 +455,13 @@ export class DatabaseStorage implements IStorage {
     
     return postsWithUsers;
   }
+  
+  // Alias untuk backward compatibility
+  async getAllJournals(): Promise<Journal[]> {
+    return this.getAllPosts();
+  }
 
-  async getFeaturedJournals(): Promise<Journal[]> {
+  async getFeaturedPosts(): Promise<Journal[]> {
     const posts = await db.select()
       .from(journals)
       .where(
@@ -441,9 +488,14 @@ export class DatabaseStorage implements IStorage {
     
     return postsWithUsers;
   }
+  
+  // Alias untuk backward compatibility
+  async getFeaturedJournals(): Promise<Journal[]> {
+    return this.getFeaturedPosts();
+  }
 
-  async setJournalAsFeatured(id: number, featured: boolean): Promise<Journal | undefined> {
-    const [updatedJournal] = await db.update(journals)
+  async setPostAsFeatured(id: number, featured: boolean): Promise<Journal | undefined> {
+    const [updatedPost] = await db.update(journals)
       .set({
         featured,
         updatedAt: new Date()
@@ -451,12 +503,12 @@ export class DatabaseStorage implements IStorage {
       .where(eq(journals.id, id))
       .returning();
       
-    if (!updatedJournal) return undefined;
+    if (!updatedPost) return undefined;
     
     // Tambahkan informasi user
-    const user = await this.getUser(updatedJournal.userId);
+    const user = await this.getUser(updatedPost.userId);
     return {
-      ...updatedJournal,
+      ...updatedPost,
       user: user ? {
         username: user.username,
         avatarUrl: user.avatarUrl,
@@ -466,26 +518,31 @@ export class DatabaseStorage implements IStorage {
     };
   }
   
-  async likeJournal(id: number): Promise<Journal | undefined> {
+  // Alias untuk backward compatibility
+  async setJournalAsFeatured(id: number, featured: boolean): Promise<Journal | undefined> {
+    return this.setPostAsFeatured(id, featured);
+  }
+  
+  async likePost(id: number): Promise<Journal | undefined> {
     // Ambil nilai likes saat ini
-    const journal = await this.getJournal(id);
-    if (!journal) return undefined;
+    const post = await this.getPost(id);
+    if (!post) return undefined;
     
     // Tambahkan 1 ke nilai likes
-    const [updatedJournal] = await db.update(journals)
+    const [updatedPost] = await db.update(journals)
       .set({
-        likes: journal.likes + 1,
+        likes: post.likes + 1,
         updatedAt: new Date()
       })
       .where(eq(journals.id, id))
       .returning();
       
-    if (!updatedJournal) return undefined;
+    if (!updatedPost) return undefined;
     
     // Tambahkan informasi user
-    const user = await this.getUser(updatedJournal.userId);
+    const user = await this.getUser(updatedPost.userId);
     return {
-      ...updatedJournal,
+      ...updatedPost,
       user: user ? {
         username: user.username,
         avatarUrl: user.avatarUrl,
@@ -495,15 +552,20 @@ export class DatabaseStorage implements IStorage {
     };
   }
   
-  async unlikeJournal(id: number): Promise<Journal | undefined> {
+  // Alias untuk backward compatibility
+  async likeJournal(id: number): Promise<Journal | undefined> {
+    return this.likePost(id);
+  }
+  
+  async unlikePost(id: number): Promise<Journal | undefined> {
     // Ambil nilai likes saat ini
-    const journal = await this.getJournal(id);
-    if (!journal) return undefined;
+    const post = await this.getPost(id);
+    if (!post) return undefined;
     
     // Kurangi 1 dari nilai likes, tapi jangan sampai negatif
-    const newLikes = Math.max(0, journal.likes - 1);
+    const newLikes = Math.max(0, post.likes - 1);
     
-    const [updatedJournal] = await db.update(journals)
+    const [updatedPost] = await db.update(journals)
       .set({
         likes: newLikes,
         updatedAt: new Date()
@@ -511,12 +573,12 @@ export class DatabaseStorage implements IStorage {
       .where(eq(journals.id, id))
       .returning();
       
-    if (!updatedJournal) return undefined;
+    if (!updatedPost) return undefined;
     
     // Tambahkan informasi user
-    const user = await this.getUser(updatedJournal.userId);
+    const user = await this.getUser(updatedPost.userId);
     return {
-      ...updatedJournal,
+      ...updatedPost,
       user: user ? {
         username: user.username,
         avatarUrl: user.avatarUrl,
@@ -526,26 +588,31 @@ export class DatabaseStorage implements IStorage {
     };
   }
   
-  async addComment(id: number): Promise<Journal | undefined> {
+  // Alias untuk backward compatibility
+  async unlikeJournal(id: number): Promise<Journal | undefined> {
+    return this.unlikePost(id);
+  }
+  
+  async addCommentToPost(id: number): Promise<Journal | undefined> {
     // Ambil nilai comments saat ini
-    const journal = await this.getJournal(id);
-    if (!journal) return undefined;
+    const post = await this.getPost(id);
+    if (!post) return undefined;
     
     // Tambahkan 1 ke nilai comments
-    const [updatedJournal] = await db.update(journals)
+    const [updatedPost] = await db.update(journals)
       .set({
-        comments: journal.comments + 1,
+        comments: post.comments + 1,
         updatedAt: new Date()
       })
       .where(eq(journals.id, id))
       .returning();
       
-    if (!updatedJournal) return undefined;
+    if (!updatedPost) return undefined;
     
     // Tambahkan informasi user
-    const user = await this.getUser(updatedJournal.userId);
+    const user = await this.getUser(updatedPost.userId);
     return {
-      ...updatedJournal,
+      ...updatedPost,
       user: user ? {
         username: user.username,
         avatarUrl: user.avatarUrl,
@@ -553,6 +620,11 @@ export class DatabaseStorage implements IStorage {
         verified: user.verified
       } : null
     };
+  }
+  
+  // Alias untuk backward compatibility
+  async addComment(id: number): Promise<Journal | undefined> {
+    return this.addCommentToPost(id);
   }
 
   // Site settings management methods
@@ -591,14 +663,19 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Comment management methods
-  async getCommentsByJournalId(journalId: number): Promise<Comment[]> {
+  async getCommentsByPostId(postId: number): Promise<Comment[]> {
     return db.select()
       .from(comments)
-      .where(eq(comments.journalId, journalId))
+      .where(eq(comments.journalId, postId))
       .orderBy(desc(comments.createdAt));
   }
+  
+  // Alias untuk backward compatibility
+  async getCommentsByJournalId(journalId: number): Promise<Comment[]> {
+    return this.getCommentsByPostId(journalId);
+  }
 
-  async createComment(insertComment: InsertComment, userId: number): Promise<Comment> {
+  async createCommentForPost(insertComment: InsertComment, userId: number): Promise<Comment> {
     const [comment] = await db.insert(comments)
       .values({
         ...insertComment,
@@ -607,14 +684,19 @@ export class DatabaseStorage implements IStorage {
       })
       .returning();
       
-    // Update journal comments count
-    await this.addComment(insertComment.journalId);
+    // Update post comments count
+    await this.addCommentToPost(insertComment.journalId);
     
     return comment;
   }
+  
+  // Alias untuk backward compatibility
+  async createComment(insertComment: InsertComment, userId: number): Promise<Comment> {
+    return this.createCommentForPost(insertComment, userId);
+  }
 
   async deleteComment(id: number, userId?: number): Promise<boolean> {
-    // Get the comment first to get the journalId
+    // Get the comment first to get the journalId/postId
     const comment = await db.select().from(comments).where(eq(comments.id, id));
     if (comment.length === 0) {
       return false;
@@ -629,15 +711,15 @@ export class DatabaseStorage implements IStorage {
       }
     }
     
-    // Decrease the comment count on the journal
-    const journal = await this.getJournal(comment[0].journalId);
-    if (journal) {
+    // Decrease the comment count on the post
+    const post = await this.getPost(comment[0].journalId);
+    if (post) {
       await db.update(journals)
         .set({
-          comments: Math.max(0, journal.comments - 1),
+          comments: Math.max(0, post.comments - 1),
           updatedAt: new Date()
         })
-        .where(eq(journals.id, journal.id));
+        .where(eq(journals.id, post.id));
     }
     
     // Delete the comment
