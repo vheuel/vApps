@@ -123,14 +123,12 @@ export default function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button
-              variant="outline"
-              size="icon"
+            <button
               onClick={handleAuthClick}
-              className="rounded-full"
+              className="p-1 hover:text-primary transition-colors"
             >
               <KeyRound className="h-5 w-5" />
-            </Button>
+            </button>
           )}
 
           {/* Language Selector */}
