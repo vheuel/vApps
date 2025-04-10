@@ -353,17 +353,17 @@ export function PostDetail({ postId }: PostDetailProps) {
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
-                        <span className="font-medium">
+                        <Link href="/profile" className="font-medium hover:underline">
                           {comment.user?.username 
                             ? comment.user.username.charAt(0).toUpperCase() + comment.user.username.slice(1) 
                             : "Unknown user"}
-                        </span>
-                        {comment.user?.isAdmin && (
-                          <MdVerified className="h-4 w-4 text-amber-500 ml-1" title="Admin" />
-                        )}
-                        {!comment.user?.isAdmin && comment.user?.verified && (
-                          <MdVerified className="h-4 w-4 text-blue-500 ml-1" title="Verified User" />
-                        )}
+                          {comment.user?.isAdmin && (
+                            <MdVerified className="h-4 w-4 text-amber-500 ml-1 inline" title="Admin" />
+                          )}
+                          {!comment.user?.isAdmin && comment.user?.verified && (
+                            <MdVerified className="h-4 w-4 text-blue-500 ml-1 inline" title="Verified User" />
+                          )}
+                        </Link>
                         <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">
                           · {formatDistanceToNow(new Date(comment.createdAt)).replace(/^about\s/, '').replace(/\sago$/, '')}
                         </span>

@@ -168,13 +168,16 @@ export function PostsList({
                     </h3>
                   </Link>
                   <div className="flex items-center text-sm text-muted-foreground">
-                    <span>By {user?.username ? user.username.charAt(0).toUpperCase() + user.username.slice(1) : 'Unknown'}</span>
-                    {user?.isAdmin && (
-                      <MdVerified className="h-4 w-4 text-amber-500 ml-1" title="Admin" />
-                    )}
-                    {!user?.isAdmin && user?.verified && (
-                      <MdVerified className="h-4 w-4 text-blue-500 ml-1" title="Verified User" />
-                    )}
+                    <span>By </span>
+                    <Link href="/profile" className="hover:underline ml-1">
+                      {user?.username ? user.username.charAt(0).toUpperCase() + user.username.slice(1) : 'Unknown'}
+                      {user?.isAdmin && (
+                        <MdVerified className="h-4 w-4 text-amber-500 ml-1 inline" title="Admin" />
+                      )}
+                      {!user?.isAdmin && user?.verified && (
+                        <MdVerified className="h-4 w-4 text-blue-500 ml-1 inline" title="Verified User" />
+                      )}
+                    </Link>
                   </div>
                 </div>
                 <div className="flex space-x-1">
