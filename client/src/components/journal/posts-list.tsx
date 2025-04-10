@@ -230,7 +230,7 @@ export function PostsList({
                 disabled={commentMutation.isPending}
               >
                 <MessageSquare className="h-5 w-5 mr-1" />
-                <span>{journal.comments}</span>
+                {journal.comments > 0 && <span>{journal.comments}</span>}
               </button>
               <button 
                 className="flex items-center hover:text-red-500 transition-colors"
@@ -248,7 +248,7 @@ export function PostsList({
                 <Heart 
                   className={`h-5 w-5 mr-1 ${journal.likes % 2 === 1 ? 'fill-red-500 text-red-500' : ''}`} 
                 />
-                <span>{journal.likes}</span>
+                {journal.likes > 0 && <span>{journal.likes}</span>}
               </button>
             </div>
           </div>
