@@ -125,10 +125,10 @@ export function PostsList({
                   <div className="flex items-center">
                     <span className="font-medium">{user?.username ? user.username.charAt(0).toUpperCase() + user.username.slice(1) : ""}</span>
                     {user?.isAdmin && (
-                      <MdVerified className="h-4 w-4 text-blue-500 ml-1" title="Admin" />
+                      <MdVerified className="h-4 w-4 text-amber-500 ml-1" title="Admin" />
                     )}
-                    {user?.verified && (
-                      <MdVerified className="h-4 w-4 text-green-500 ml-1" title="Verified User" />
+                    {!user?.isAdmin && user?.verified && (
+                      <MdVerified className="h-4 w-4 text-blue-500 ml-1" title="Verified User" />
                     )}
                   </div>
                   <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">
