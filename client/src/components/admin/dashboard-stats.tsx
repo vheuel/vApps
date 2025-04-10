@@ -11,7 +11,7 @@ import {
   ShieldCheckIcon,
   TagIcon
 } from "lucide-react";
-import { BarChart, LineChart, DonutChart } from "@/components/ui/charts";
+import { BarChart, LineChart, DonutChart } from "../../components/ui/charts";
 
 export function DashboardStats() {
   const { data: projects, isLoading: isProjectsLoading } = useQuery<Project[]>({
@@ -107,7 +107,7 @@ export function DashboardStats() {
                     data={categoryData}
                     index="name"
                     categories={["value"]}
-                    valueFormatter={(value) => `${value} projects`}
+                    valueFormatter={(value: number) => `${value} projects`}
                     colors={["#3b82f6"]}
                     showLegend={false}
                   />

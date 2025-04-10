@@ -1,12 +1,29 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Project, Category, InsertCategory, SiteSettings, User } from "@shared/schema";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { DashboardLayout } from "@/components/admin/dashboard-layout";
+import { DashboardStats } from "@/components/admin/dashboard-stats";
+import { ProjectsManagement } from "@/components/admin/projects-management";
+import { UsersManagement } from "@/components/admin/users-management";
 import { SiteSettingsForm } from "@/components/admin/site-settings-form";
+import { useState, useEffect } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { Category, InsertCategory, SiteSettings } from "@shared/schema";
+import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CheckIcon, XIcon, Loader2, PlusIcon, PencilIcon, Trash2Icon, ShieldCheck, ShieldX } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { 
+  Loader2, 
+  PlusIcon, 
+  PencilIcon, 
+  Trash2Icon,
+  LayoutDashboard,
+  Clock,
+  Archive,
+  UserCog,
+  BarChart3,
+  Tag,
+  Settings
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -16,8 +33,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { useState, useEffect } from "react";
-import ProjectCard from "@/components/project/project-card";
+import { useLocation } from "wouter";
 
 // Form schema for categories
 const categoryFormSchema = z.object({
@@ -32,85 +48,38 @@ type CategoryFormValues = z.infer<typeof categoryFormSchema>;
 
 export default function AdminPage() {
   const { toast } = useToast();
+  const [location, setLocation] = useLocation();
+  const [activeTab, setActiveTab] = useState("dashboard");
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
+  
+  // Get tab from URL if present
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const tab = searchParams.get("tab");
+    if (tab) {
+      setActiveTab(tab);
+    }
+  }, [location]);
+
+  // Update URL when tab changes
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    if (value === "dashboard") {
+      setLocation("/admin");
+    } else {
+      setLocation(`/admin?tab=${value}`);
+    }
+  };
   
   // Site settings query
   const { data: siteSettings, isLoading: isSettingsLoading, refetch: refetchSettings } = useQuery<SiteSettings>({
     queryKey: ["/api/site-settings"],
   });
-
-  const { data: pendingProjects, isLoading, isError, error } = useQuery<Project[]>({
-    queryKey: ["/api/admin/projects/pending"],
-    refetchOnWindowFocus: true,
-    retry: 3,
-  });
-  
-  // Debugging untuk melihat apakah ada error
-  useEffect(() => {
-    if (isError) {
-      console.error("Error fetching pending projects:", error);
-    }
-    if (pendingProjects) {
-      console.log("Pending projects from query:", pendingProjects);
-    }
-  }, [pendingProjects, isError, error]);
-
-  const { data: allProjects } = useQuery<Project[]>({
-    queryKey: ["/api/projects"],
-  });
   
   const { data: categories, isLoading: isCategoriesLoading } = useQuery<Category[]>({
     queryKey: ["/api/categories"],
-  });
-  
-  const { data: users, isLoading: isUsersLoading } = useQuery<User[]>({
-    queryKey: ["/api/admin/users"],
-  });
-
-  const approveMutation = useMutation({
-    mutationFn: async (id: number) => {
-      const res = await apiRequest("POST", `/api/admin/projects/${id}/approve`, {});
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/projects/pending"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/projects"] });
-      toast({
-        title: "Project approved",
-        description: "The project has been approved and is now live.",
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Failed to approve project",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  });
-
-  const rejectMutation = useMutation({
-    mutationFn: async (id: number) => {
-      const res = await apiRequest("POST", `/api/admin/projects/${id}/reject`, {});
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/projects/pending"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/projects"] });
-      toast({
-        title: "Project rejected",
-        description: "The project has been rejected.",
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Failed to reject project",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
   });
   
   // Category CRUD mutations
@@ -180,352 +149,108 @@ export default function AdminPage() {
       });
     }
   });
-  
-  // User verification mutations
-  const verifyUserMutation = useMutation({
-    mutationFn: async (id: number) => {
-      const res = await apiRequest("POST", `/api/admin/users/${id}/verify`, {});
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
-      toast({
-        title: "User verified",
-        description: "The user has been granted verified status.",
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Failed to verify user",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  });
-  
-  const unverifyUserMutation = useMutation({
-    mutationFn: async (id: number) => {
-      const res = await apiRequest("POST", `/api/admin/users/${id}/unverify`, {});
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
-      toast({
-        title: "User unverified",
-        description: "The user's verified status has been removed.",
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Failed to unverify user",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  });
 
-  // Get category counts for approved projects
-  const getCategoryCounts = () => {
-    if (!allProjects) return {};
-    
-    const approvedProjects = allProjects.filter(p => p.approved);
-    return approvedProjects.reduce((acc, project) => {
-      acc[project.category] = (acc[project.category] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+  const getTabTitle = () => {
+    switch (activeTab) {
+      case "dashboard": return "Dashboard Overview";
+      case "pending": return "Pending Projects";
+      case "approved": return "Approved Projects";
+      case "users": return "User Management";
+      case "stats": return "Analytics & Statistics";
+      case "categories": return "Category Management";
+      case "settings": return "Site Settings";
+      default: return "Admin Dashboard";
+    }
   };
 
-  const categoryCounts = getCategoryCounts();
+  const getTabDescription = () => {
+    switch (activeTab) {
+      case "dashboard": return "Overview of your platform's performance and statistics";
+      case "pending": return "Review and approve user-submitted projects";
+      case "approved": return "Manage verification status of approved projects";
+      case "users": return "Manage user roles and verification status";
+      case "stats": return "Detailed analytics of your platform's performance";
+      case "categories": return "Create and manage project categories";
+      case "settings": return "Configure your site's appearance and settings";
+      default: return "";
+    }
+  };
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-2xl font-bold">{allProjects?.length || 0}</div>
-            <p className="text-muted-foreground">Total Projects</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-2xl font-bold">{allProjects?.filter(p => p.approved).length || 0}</div>
-            <p className="text-muted-foreground">Approved Projects</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-2xl font-bold">{pendingProjects?.length || 0}</div>
-            <p className="text-muted-foreground">Pending Approval</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Tabs defaultValue="pending">
-        <div className="overflow-x-auto pb-1">
-          <TabsList className="w-full mb-4" style={{ minWidth: '700px' }}>
-            <TabsTrigger value="pending" className="flex-1">Pending Projects</TabsTrigger>
-            <TabsTrigger value="approved" className="flex-1">Approved Projects</TabsTrigger>
-            <TabsTrigger value="users" className="flex-1">Manage Users</TabsTrigger>
-            <TabsTrigger value="stats" className="flex-1">Category Stats</TabsTrigger>
-            <TabsTrigger value="categories" className="flex-1">Manage Categories</TabsTrigger>
-            <TabsTrigger value="settings" className="flex-1">Settings</TabsTrigger>
-          </TabsList>
-        </div>
+    <DashboardLayout
+      title={getTabTitle()}
+      description={getTabDescription()}
+    >
+      <Tabs defaultValue={activeTab} value={activeTab} onValueChange={handleTabChange} className="space-y-6">
+        <TabsList className="grid grid-cols-7 max-w-3xl mx-auto mb-6">
+          <TabsTrigger value="dashboard" className="flex items-center gap-2">
+            <LayoutDashboard className="h-4 w-4" />
+            <span className="hidden sm:inline">Overview</span>
+          </TabsTrigger>
+          <TabsTrigger value="pending" className="flex items-center gap-2">
+            <Clock className="h-4 w-4" />
+            <span className="hidden sm:inline">Pending</span>
+          </TabsTrigger>
+          <TabsTrigger value="approved" className="flex items-center gap-2">
+            <Archive className="h-4 w-4" />
+            <span className="hidden sm:inline">Approved</span>
+          </TabsTrigger>
+          <TabsTrigger value="users" className="flex items-center gap-2">
+            <UserCog className="h-4 w-4" />
+            <span className="hidden sm:inline">Users</span>
+          </TabsTrigger>
+          <TabsTrigger value="stats" className="flex items-center gap-2">
+            <BarChart3 className="h-4 w-4" />
+            <span className="hidden sm:inline">Analytics</span>
+          </TabsTrigger>
+          <TabsTrigger value="categories" className="flex items-center gap-2">
+            <Tag className="h-4 w-4" />
+            <span className="hidden sm:inline">Categories</span>
+          </TabsTrigger>
+          <TabsTrigger value="settings" className="flex items-center gap-2">
+            <Settings className="h-4 w-4" />
+            <span className="hidden sm:inline">Settings</span>
+          </TabsTrigger>
+        </TabsList>
         
-        <TabsContent value="pending">
-          <Card>
-            <CardHeader>
-              <CardTitle>Projects Awaiting Approval</CardTitle>
-              <CardDescription>
-                Review and approve or reject user-submitted projects
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {isLoading ? (
-                <div className="space-y-4">
-                  {[...Array(3)].map((_, index) => (
-                    <Skeleton key={index} className="h-24 w-full" />
-                  ))}
-                </div>
-              ) : pendingProjects && pendingProjects.length > 0 ? (
-                <div className="space-y-4">
-                  {pendingProjects.map((project) => (
-                    <div key={project.id}>
-                      <ProjectCard 
-                        project={project}
-                        showAdminActions={project.pending && !project.approved}
-                      />
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <p className="text-muted-foreground">No pending projects to review.</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+        <TabsContent value="dashboard" className="space-y-6">
+          <DashboardStats />
         </TabsContent>
         
-        <TabsContent value="approved">
-          <Card>
-            <CardHeader>
-              <CardTitle>Approved Projects</CardTitle>
-              <CardDescription>
-                Manage verification status of approved projects
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {isLoading ? (
-                <div className="space-y-4">
-                  {[...Array(3)].map((_, index) => (
-                    <Skeleton key={index} className="h-24 w-full" />
-                  ))}
-                </div>
-              ) : allProjects && allProjects.filter(p => p.approved && !p.pending).length > 0 ? (
-                <div className="space-y-4">
-                  {allProjects
-                    .filter(p => p.approved && !p.pending)
-                    .map((project) => (
-                      <div key={project.id}>
-                        <ProjectCard 
-                          project={project}
-                          showAdminActions={true}
-                          showVerificationIcon={true}
-                        />
-                      </div>
-                    ))}
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <p className="text-muted-foreground">No approved projects found.</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+        <TabsContent value="pending" className="space-y-6">
+          <ProjectsManagement />
         </TabsContent>
         
-        <TabsContent value="users">
-          <Card>
-            <CardHeader>
-              <CardTitle>User Management</CardTitle>
-              <CardDescription>
-                Manage user verification status and roles
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {isUsersLoading ? (
-                <div className="space-y-4">
-                  {[...Array(3)].map((_, index) => (
-                    <Skeleton key={index} className="h-16 w-full" />
-                  ))}
-                </div>
-              ) : users && users.length > 0 ? (
-                <div className="space-y-4">
-                  {users.map((user) => (
-                    <div key={user.id} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary">
-                          {user.avatarUrl ? (
-                            <img 
-                              src={user.avatarUrl} 
-                              alt={user.username} 
-                              className="w-10 h-10 rounded-full object-cover"
-                            />
-                          ) : (
-                            <span className="text-lg font-medium">
-                              {user.username.charAt(0).toUpperCase()}
-                            </span>
-                          )}
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-medium">{user.username}</h3>
-                            {user.isAdmin && (
-                              <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-200">
-                                Admin
-                              </Badge>
-                            )}
-                            {user.verified && (
-                              <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200">
-                                Verified
-                              </Badge>
-                            )}
-                          </div>
-                          <p className="text-sm text-muted-foreground">{user.email}</p>
-                        </div>
-                      </div>
-                      {!user.isAdmin && (
-                        <div className="flex space-x-2">
-                          {user.verified ? (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-red-500"
-                              onClick={() => unverifyUserMutation.mutate(user.id)}
-                              disabled={unverifyUserMutation.isPending}
-                            >
-                              {unverifyUserMutation.isPending ? (
-                                <Loader2 className="h-4 w-4 animate-spin mr-1" />
-                              ) : (
-                                <ShieldX className="h-4 w-4 mr-1" />
-                              )}
-                              Remove Verification
-                            </Button>
-                          ) : (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-green-600"
-                              onClick={() => verifyUserMutation.mutate(user.id)}
-                              disabled={verifyUserMutation.isPending}
-                            >
-                              {verifyUserMutation.isPending ? (
-                                <Loader2 className="h-4 w-4 animate-spin mr-1" />
-                              ) : (
-                                <ShieldCheck className="h-4 w-4 mr-1" />
-                              )}
-                              Verify User
-                            </Button>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <p className="text-muted-foreground">No users found.</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+        <TabsContent value="approved" className="space-y-6">
+          <ProjectsManagement />
         </TabsContent>
         
-        <TabsContent value="stats">
-          <Card>
-            <CardHeader>
-              <CardTitle>Category Statistics</CardTitle>
-              <CardDescription>
-                Distribution of approved projects by category
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {Object.entries(categoryCounts).length > 0 ? (
-                  Object.entries(categoryCounts)
-                    .sort((a, b) => b[1] - a[1])
-                    .map(([category, count]) => (
-                      <div key={category}>
-                        <div className="flex justify-between mb-1">
-                          <span className="capitalize">{category}</span>
-                          <span>{count}</span>
-                        </div>
-                        <div className="w-full bg-muted rounded-full h-2.5">
-                          <div 
-                            className="bg-primary h-2.5 rounded-full" 
-                            style={{ 
-                              width: `${(count / (allProjects?.filter(p => p.approved).length || 1)) * 100}%` 
-                            }}
-                          ></div>
-                        </div>
-                      </div>
-                    ))
-                ) : (
-                  <div className="text-center py-8">
-                    <p className="text-muted-foreground">No approved projects to display statistics.</p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+        <TabsContent value="users" className="space-y-6">
+          <UsersManagement />
         </TabsContent>
         
-        <TabsContent value="categories">
+        <TabsContent value="stats" className="space-y-6">
+          <DashboardStats />
+        </TabsContent>
+        
+        <TabsContent value="categories" className="space-y-6">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardHeader className="flex flex-row items-center justify-between">
               <div>
                 <CardTitle>Manage Categories</CardTitle>
                 <CardDescription>
-                  Add, edit, or remove project categories
+                  Add, edit or remove project categories
                 </CardDescription>
               </div>
-              <Dialog open={!!selectedCategory} onOpenChange={(open) => !open && setSelectedCategory(null)}>
-                <DialogTrigger asChild>
-                  <Button size="sm" onClick={() => setSelectedCategory({} as Category)}>
-                    <PlusIcon className="h-4 w-4 mr-1" />
-                    Add Category
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                  <DialogHeader>
-                    <DialogTitle>
-                      {selectedCategory && selectedCategory.id ? "Edit Category" : "Add New Category"}
-                    </DialogTitle>
-                    <DialogDescription>
-                      {selectedCategory && selectedCategory.id
-                        ? "Update the category details below."
-                        : "Create a new category for projects."}
-                    </DialogDescription>
-                  </DialogHeader>
-                  <CategoryForm 
-                    category={selectedCategory} 
-                    onSubmit={(data) => {
-                      if (selectedCategory && selectedCategory.id) {
-                        updateCategoryMutation.mutate({
-                          id: selectedCategory.id,
-                          data
-                        });
-                      } else {
-                        createCategoryMutation.mutate(data);
-                      }
-                    }}
-                    isPending={createCategoryMutation.isPending || updateCategoryMutation.isPending}
-                  />
-                </DialogContent>
-              </Dialog>
+              <DialogTrigger asChild>
+                <Button 
+                  size="sm"
+                  onClick={() => setSelectedCategory(null)}
+                >
+                  <PlusIcon className="h-4 w-4 mr-1" />
+                  Add Category
+                </Button>
+              </DialogTrigger>
             </CardHeader>
             <CardContent>
               {isCategoriesLoading ? (
@@ -535,42 +260,31 @@ export default function AdminPage() {
                   ))}
                 </div>
               ) : categories && categories.length > 0 ? (
-                <div className="space-y-4">
+                <div className="space-y-2">
                   {categories.map((category) => (
                     <div key={category.id} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex items-center gap-3">
-                        {category.icon && (
-                          <div className="flex items-center justify-center w-8 h-8 rounded-md bg-primary/10 text-primary">
-                            <span className="text-lg">{category.icon}</span>
-                          </div>
-                        )}
-                        <div>
-                          <h3 className="font-medium">{category.name}</h3>
-                          <p className="text-sm text-muted-foreground">
-                            {category.description || `Slug: ${category.slug}`}
-                          </p>
-                        </div>
+                      <div>
+                        <h3 className="font-medium">{category.name}</h3>
+                        <p className="text-sm text-muted-foreground">/{category.slug}</p>
                       </div>
                       <div className="flex space-x-2">
                         <Button
-                          size="sm"
+                          size="icon"
                           variant="outline"
                           onClick={() => setSelectedCategory(category)}
                         >
                           <PencilIcon className="h-4 w-4" />
-                          <span className="sr-only">Edit</span>
                         </Button>
                         <Button
-                          size="sm"
+                          size="icon"
                           variant="outline"
-                          className="text-red-500 hover:bg-red-50"
+                          className="text-red-500"
                           onClick={() => {
                             setCategoryToDelete(category);
                             setIsDeleteDialogOpen(true);
                           }}
                         >
                           <Trash2Icon className="h-4 w-4" />
-                          <span className="sr-only">Delete</span>
                         </Button>
                       </div>
                     </div>
@@ -578,22 +292,59 @@ export default function AdminPage() {
                 </div>
               ) : (
                 <div className="text-center py-12">
-                  <p className="text-muted-foreground">No categories found. Add your first category.</p>
+                  <p className="text-muted-foreground">No categories found. Create your first category to get started.</p>
                 </div>
               )}
             </CardContent>
           </Card>
-          
+
+          {/* Category Form Dialog */}
+          <Dialog>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{selectedCategory ? "Edit Category" : "Create New Category"}</DialogTitle>
+                <DialogDescription>
+                  {selectedCategory 
+                    ? "Edit the details of this category" 
+                    : "Add a new category for projects to be classified under"
+                  }
+                </DialogDescription>
+              </DialogHeader>
+              
+              <CategoryForm 
+                category={selectedCategory}
+                onSubmit={(data) => {
+                  if (selectedCategory) {
+                    updateCategoryMutation.mutate({
+                      id: selectedCategory.id,
+                      data
+                    });
+                  } else {
+                    createCategoryMutation.mutate(data);
+                  }
+                }}
+                isSubmitting={createCategoryMutation.isPending || updateCategoryMutation.isPending}
+              />
+            </DialogContent>
+          </Dialog>
+
           {/* Delete Confirmation Dialog */}
           <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Confirm Deletion</DialogTitle>
+                <DialogTitle>Delete Category</DialogTitle>
                 <DialogDescription>
-                  Are you sure you want to delete the category "{categoryToDelete?.name}"? 
-                  This action cannot be undone.
+                  Are you sure you want to delete this category? This action cannot be undone.
                 </DialogDescription>
               </DialogHeader>
+              
+              {categoryToDelete && (
+                <div className="p-4 border rounded-md">
+                  <h3 className="font-medium">{categoryToDelete.name}</h3>
+                  <p className="text-sm text-muted-foreground">/{categoryToDelete.slug}</p>
+                </div>
+              )}
+              
               <DialogFooter>
                 <Button 
                   variant="outline" 
@@ -602,71 +353,60 @@ export default function AdminPage() {
                   Cancel
                 </Button>
                 <Button 
-                  variant="destructive" 
-                  onClick={() => categoryToDelete && deleteCategoryMutation.mutate(categoryToDelete.id)}
+                  variant="destructive"
+                  onClick={() => {
+                    if (categoryToDelete) {
+                      deleteCategoryMutation.mutate(categoryToDelete.id);
+                    }
+                  }}
                   disabled={deleteCategoryMutation.isPending}
                 >
                   {deleteCategoryMutation.isPending ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : null}
-                  Delete
+                  Delete Category
                 </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
         </TabsContent>
         
-        <TabsContent value="settings">
+        <TabsContent value="settings" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Website Settings</CardTitle>
+              <CardTitle>Site Settings</CardTitle>
               <CardDescription>
-                Customize appearance and content of your website
+                Manage your site name, description, colors, and other settings
               </CardDescription>
             </CardHeader>
             <CardContent>
               {isSettingsLoading ? (
                 <div className="space-y-4">
-                  <Skeleton className="h-12 w-full" />
-                  <Skeleton className="h-24 w-full" />
-                  <Skeleton className="h-12 w-full" />
+                  {[...Array(5)].map((_, index) => (
+                    <Skeleton key={index} className="h-12 w-full" />
+                  ))}
                 </div>
               ) : (
                 <SiteSettingsForm 
-                  initialData={siteSettings || {
-                    id: 0,
-                    siteName: "Web3 Project",
-                    logoUrl: "",
-                    primaryColor: "#3B82F6",
-                    footerText: "© 2025 Web3 Project. All Rights Reserved.",
-                    createdAt: null,
-                    updatedAt: null
-                  } as SiteSettings}
-                  onSettingsSaved={() => {
-                    refetchSettings();
-                    // Also refresh the client to apply theme changes
-                    setTimeout(() => {
-                      window.location.reload();
-                    }, 1000);
-                  }}
+                  initialData={siteSettings as SiteSettings} 
+                  onSettingsSaved={() => refetchSettings()}
                 />
               )}
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+    </DashboardLayout>
   );
 }
 
-// Category Form Component
 interface CategoryFormProps {
   category: Category | null;
   onSubmit: (data: CategoryFormValues) => void;
-  isPending: boolean;
+  isSubmitting: boolean;
 }
 
-function CategoryForm({ category, onSubmit, isPending }: CategoryFormProps) {
+function CategoryForm({ category, onSubmit, isSubmitting }: CategoryFormProps) {
   const form = useForm<CategoryFormValues>({
     resolver: zodResolver(categoryFormSchema),
     defaultValues: {
@@ -677,21 +417,17 @@ function CategoryForm({ category, onSubmit, isPending }: CategoryFormProps) {
     },
   });
 
-  function handleSubmit(data: CategoryFormValues) {
-    onSubmit(data);
-  }
-
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 pt-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel>Category Name</FormLabel>
               <FormControl>
-                <Input placeholder="Enter category name" {...field} />
+                <Input placeholder="e.g. DeFi Projects" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -705,10 +441,10 @@ function CategoryForm({ category, onSubmit, isPending }: CategoryFormProps) {
             <FormItem>
               <FormLabel>Slug</FormLabel>
               <FormControl>
-                <Input placeholder="category-slug" {...field} />
+                <Input placeholder="e.g. defi-projects" {...field} />
               </FormControl>
               <FormDescription>
-                Unique identifier used in URLs (lowercase, hyphens only)
+                URL-friendly version of the name. Use only lowercase letters, numbers, and hyphens.
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -722,10 +458,10 @@ function CategoryForm({ category, onSubmit, isPending }: CategoryFormProps) {
             <FormItem>
               <FormLabel>Icon (Optional)</FormLabel>
               <FormControl>
-                <Input placeholder="Enter icon name" {...field} />
+                <Input placeholder="e.g. coinbase" {...field} />
               </FormControl>
               <FormDescription>
-                Lucide icon name or emoji
+                Icon name from Lucide icons or other icon libraries.
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -740,8 +476,7 @@ function CategoryForm({ category, onSubmit, isPending }: CategoryFormProps) {
               <FormLabel>Description (Optional)</FormLabel>
               <FormControl>
                 <Textarea 
-                  placeholder="Enter a brief description of this category" 
-                  className="resize-none" 
+                  placeholder="A short description of this category"
                   {...field} 
                 />
               </FormControl>
@@ -751,11 +486,9 @@ function CategoryForm({ category, onSubmit, isPending }: CategoryFormProps) {
         />
         
         <DialogFooter>
-          <Button type="submit" disabled={isPending}>
-            {isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-1" />
-            ) : null}
-            {category && category.id ? "Update" : "Create"} Category
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {category ? "Update Category" : "Create Category"}
           </Button>
         </DialogFooter>
       </form>

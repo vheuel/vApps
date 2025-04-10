@@ -175,7 +175,20 @@ export function LineChart({
 }
 
 // Custom active shape for donut chart
-const renderActiveShape = (props: any) => {
+const renderActiveShape = (props: {
+  cx: number;
+  cy: number;
+  innerRadius: number;
+  outerRadius: number;
+  startAngle: number;
+  endAngle: number;
+  fill: string;
+  payload: any;
+  percent: number;
+  value: number;
+  name: string;
+  valueFormatter?: (value: number) => string;
+}) => {
   const {
     cx,
     cy,
@@ -232,7 +245,7 @@ export function DonutChart({
     );
   }
 
-  const onPieEnter = (_: any, index: number) => {
+  const onPieEnter = (_: unknown, index: number) => {
     setActiveIndex(index);
   };
 
@@ -241,7 +254,7 @@ export function DonutChart({
       <PieChart>
         <Pie
           activeIndex={activeIndex}
-          activeShape={(props) => renderActiveShape({ ...props, valueFormatter })}
+          activeShape={(props: any) => renderActiveShape({ ...props, valueFormatter })}
           data={data}
           cx="50%"
           cy="50%"
