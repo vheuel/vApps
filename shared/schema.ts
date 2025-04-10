@@ -163,6 +163,50 @@ export const insertCommentSchema = createInsertSchema(comments)
     journalId: true,
   });
 
+// OAuth providers configuration
+export const oauthProviders = pgTable("oauth_providers", {
+  id: serial("id").primaryKey(),
+  provider: varchar("provider", { length: 50 }).notNull().unique(), // google, twitter, telegram
+  clientId: text("client_id").notNull(),
+  clientSecret: text("client_secret").notNull(),
+  redirectUri: text("redirect_uri").notNull(),
+  enabled: boolean("enabled").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertOAuthProviderSchema = createInsertSchema(oauthProviders)
+  .pick({
+    provider: true,
+    clientId: true,
+    clientSecret: true,
+    redirectUri: true,
+    enabled: true
+  });
+
+// User OAuth connections
+export const userOAuthConnections = pgTable("user_oauth_connections", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  provider: varchar("provider", { length: 50 }).notNull(),
+  providerId: text("provider_id").notNull(),
+  accessToken: text("access_token").notNull(),
+  refreshToken: text("refresh_token"),
+  tokenExpiry: timestamp("token_expiry"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertUserOAuthConnectionSchema = createInsertSchema(userOAuthConnections)
+  .pick({
+    userId: true,
+    provider: true,
+    providerId: true,
+    accessToken: true,
+    refreshToken: true,
+    tokenExpiry: true
+  });
+
 export type SiteSettings = typeof siteSettings.$inferSelect;
 export type InsertSiteSettings = z.infer<typeof insertSiteSettingsSchema>;
 // Extend Journal type to include user information
@@ -177,3 +221,7 @@ export type Journal = typeof journals.$inferSelect & {
 export type InsertJournal = z.infer<typeof insertJournalSchema>;
 export type Comment = typeof comments.$inferSelect;
 export type InsertComment = z.infer<typeof insertCommentSchema>;
+export type OAuthProvider = typeof oauthProviders.$inferSelect;
+export type InsertOAuthProvider = z.infer<typeof insertOAuthProviderSchema>;
+export type UserOAuthConnection = typeof userOAuthConnections.$inferSelect;
+export type InsertUserOAuthConnection = z.infer<typeof insertUserOAuthConnectionSchema>;

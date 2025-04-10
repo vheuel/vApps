@@ -1,4 +1,8 @@
-import { users, projects, categories, siteSettings, journals, comments, type User, type InsertUser, type Project, type InsertProject, type Category, type InsertCategory, type SiteSettings, type InsertSiteSettings, type Journal, type InsertJournal, type Comment, type InsertComment } from "@shared/schema";
+import { 
+  users, projects, categories, siteSettings, journals, comments, 
+  type User, type InsertUser, type Project, type InsertProject, type Category, type InsertCategory, 
+  type SiteSettings, type InsertSiteSettings, type Journal, type InsertJournal, type Comment, type InsertComment
+} from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
 import connectPg from "connect-pg-simple";
@@ -757,5 +761,4 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
-// Menggunakan DatabaseStorage untuk penyimpanan data
 export const storage = new DatabaseStorage();
