@@ -2,12 +2,13 @@ import { useEffect, useState, useRef } from "react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import ProjectCard from "@/components/project/project-card";
-import { Project, Category } from "@shared/schema";
+import { Project, Category, Journal } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
-import { ChevronRight, ArrowRight, Gift, Wallet, BarChart3, Search, Wrench, ImageIcon, TrendingUp, GitBranch, MessageCircle, CheckCircle, ExternalLink } from "lucide-react";
+import { ChevronRight, ArrowRight, Gift, Wallet, BarChart3, Search, Wrench, ImageIcon, TrendingUp, GitBranch, MessageCircle, CheckCircle, ExternalLink, CalendarIcon, Clock } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/card";
+import { formatDistanceToNow } from "date-fns";
 
 export default function HomePage() {
   const { user } = useAuth();
@@ -17,6 +18,11 @@ export default function HomePage() {
 
   const { data: categories, isLoading: isCategoriesLoading } = useQuery<Category[]>({
     queryKey: ["/api/categories"],
+  });
+
+  const { data: featuredJournals, isLoading: isJournalsLoading } = useQuery<Journal[]>({
+    queryKey: ["/api/journals/featured"],
+    refetchOnWindowFocus: false,
   });
 
   // Function to get projects by category slug
@@ -85,61 +91,83 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Featured Articles/News Section (TON.app uses for market info) */}
+      {/* Featured Journals Section */}
       <section className="py-6 px-4">
         <div className="container mx-auto">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-medium">Featured Content</h2>
+            <Button variant="ghost" size="sm" asChild className="text-blue-500 hover:text-blue-600">
+              <Link href="/journals" className="flex items-center text-sm">
+                View all journals
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </Link>
+            </Button>
           </div>
 
           <div className="flex overflow-x-auto pb-4 -mx-4 px-4 gap-4 snap-x snap-mandatory touch-pan-x hide-scrollbar">
-            {/* Featured Article 1 */}
-            <Card className="flex-shrink-0 w-full sm:w-80 min-h-[260px] snap-start overflow-hidden relative bg-cover bg-center" style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1639322537504-6427a16b0a28?q=80&w=500&auto=format&fit=crop")' }}>
-              <div className="absolute inset-0 bg-black/50"></div>
-              <div className="relative p-4 text-white h-full flex flex-col justify-between">
-                <div className="bg-white/20 text-white px-2 py-1 rounded-md text-xs self-start backdrop-blur-sm">
-                  Interview
-                </div>
-                <div className="mt-auto">
-                  <h3 className="text-lg font-bold mb-1">Accelerating the Future: Building the Ecosystem for Startups</h3>
-                  <p className="text-sm text-white/80 line-clamp-2">
-                    How blockchain technology is transforming startup ecosystems and creating new opportunities.
+            {isJournalsLoading ? (
+              // Loading state for journals
+              <>
+                {[...Array(3)].map((_, index) => (
+                  <Card key={index} className="flex-shrink-0 w-full sm:w-80 min-h-[260px] snap-start overflow-hidden relative">
+                    <div className="p-4 h-full flex flex-col">
+                      <Skeleton className="h-4 w-20 mb-4" />
+                      <Skeleton className="h-32 w-full mb-4" />
+                      <div className="mt-auto">
+                        <Skeleton className="h-6 w-3/4 mb-2" />
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-full mt-1" />
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </>
+            ) : !featuredJournals || featuredJournals.length === 0 ? (
+              // No featured journals state
+              <Card className="flex-shrink-0 w-full sm:w-80 min-h-[260px] snap-start overflow-hidden relative">
+                <div className="p-6 h-full flex flex-col items-center justify-center text-center">
+                  <h3 className="text-lg font-medium mb-2">No Featured Journals</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    There are no featured journal entries at the moment.
                   </p>
+                  <Button asChild size="sm">
+                    <Link href="/journals">Browse Journals</Link>
+                  </Button>
                 </div>
-              </div>
-            </Card>
-
-            {/* Featured Article 2 */}
-            <Card className="flex-shrink-0 w-full sm:w-80 min-h-[260px] snap-start overflow-hidden relative bg-cover bg-center" style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=500&auto=format&fit=crop")' }}>
-              <div className="absolute inset-0 bg-black/50"></div>
-              <div className="relative p-4 text-white h-full flex flex-col justify-between">
-                <div className="bg-white/20 text-white px-2 py-1 rounded-md text-xs self-start backdrop-blur-sm">
-                  Interview
-                </div>
-                <div className="mt-auto">
-                  <h3 className="text-lg font-bold mb-1">How Blockchain Technology Makes Crypto More Accessible</h3>
-                  <p className="text-sm text-white/80 line-clamp-2">
-                    A conversation about improving blockchain accessibility and user experience.
-                  </p>
-                </div>
-              </div>
-            </Card>
-
-            {/* Featured Article 3 */}
-            <Card className="flex-shrink-0 w-full sm:w-80 min-h-[260px] snap-start overflow-hidden relative bg-cover bg-center" style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1642104704074-907c0698cbd9?q=80&w=500&auto=format&fit=crop")' }}>
-              <div className="absolute inset-0 bg-black/50"></div>
-              <div className="relative p-4 text-white h-full flex flex-col justify-between">
-                <div className="bg-white/20 text-white px-2 py-1 rounded-md text-xs self-start backdrop-blur-sm">
-                  News
-                </div>
-                <div className="mt-auto">
-                  <h3 className="text-lg font-bold mb-1">The Rise of DeFi: Transforming Financial Landscape</h3>
-                  <p className="text-sm text-white/80 line-clamp-2">
-                    Exploring how decentralized finance is changing traditional financial systems and creating new opportunities.
-                  </p>
-                </div>
-              </div>
-            </Card>
+              </Card>
+            ) : (
+              // Featured journals
+              featuredJournals.map((journal) => (
+                <Card 
+                  key={journal.id} 
+                  className="flex-shrink-0 w-full sm:w-80 min-h-[260px] snap-start overflow-hidden relative bg-cover bg-center" 
+                  style={{ 
+                    backgroundImage: journal.coverImage 
+                      ? `url("${journal.coverImage}")` 
+                      : 'linear-gradient(to right, #4f46e5, #2563eb)'
+                  }}
+                >
+                  <div className="absolute inset-0 bg-black/50"></div>
+                  <div className="relative p-4 text-white h-full flex flex-col justify-between">
+                    <div className="bg-white/20 text-white px-2 py-1 rounded-md text-xs self-start backdrop-blur-sm">
+                      Journal
+                    </div>
+                    <div className="mt-auto">
+                      <Link href={`/journal/${journal.id}`}>
+                        <h3 className="text-lg font-bold mb-1 hover:underline">{journal.title}</h3>
+                      </Link>
+                      <p className="text-sm text-white/80 line-clamp-2">
+                        {journal.excerpt || journal.content.substring(0, 120) + "..."}
+                      </p>
+                      <div className="flex items-center mt-2 text-xs text-white/70">
+                        <CalendarIcon className="h-3 w-3 mr-1" />
+                        <span>{formatDistanceToNow(new Date(journal.createdAt))}</span>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              ))
+            )}
           </div>
         </div>
       </section>
