@@ -473,12 +473,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // New endpoint: Posts (same as journals)
+  app.get("/api/posts", async (req, res) => {
+    try {
+      const posts = await storage.getAllJournals();
+      res.status(200).json(posts);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching posts" });
+    }
+  });
+
   app.get("/api/journals/featured", async (req, res) => {
     try {
       const journals = await storage.getFeaturedJournals();
       res.status(200).json(journals);
     } catch (error) {
       res.status(500).json({ message: "Error fetching featured journals" });
+    }
+  });
+
+  // New endpoint: Featured posts (same as journals)
+  app.get("/api/posts/featured", async (req, res) => {
+    try {
+      const posts = await storage.getFeaturedJournals();
+      res.status(200).json(posts);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching featured posts" });
     }
   });
 
@@ -500,6 +520,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // New endpoint: Get post by ID (same as journal)
+  app.get("/api/posts/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid post ID" });
+      }
+      
+      const post = await storage.getJournal(id);
+      if (!post) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+      
+      res.status(200).json(post);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching post" });
+    }
+  });
+
   app.get("/api/user/journals", async (req, res) => {
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Not authenticated" });
@@ -510,6 +549,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(200).json(journals);
     } catch (error) {
       res.status(500).json({ message: "Error fetching user journals" });
+    }
+  });
+
+  // New endpoint: Get user posts (same as journals)
+  app.get("/api/user/posts", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    try {
+      const posts = await storage.getJournalsByUser(req.user.id);
+      res.status(200).json(posts);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching user posts" });
     }
   });
 

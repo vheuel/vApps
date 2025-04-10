@@ -20,8 +20,8 @@ export default function HomePage() {
     queryKey: ["/api/categories"],
   });
 
-  const { data: featuredJournals, isLoading: isJournalsLoading } = useQuery<Journal[]>({
-    queryKey: ["/api/journals/featured"],
+  const { data: featuredPosts, isLoading: isPostsLoading } = useQuery<Journal[]>({
+    queryKey: ["/api/posts/featured"],
     refetchOnWindowFocus: false,
   });
 
@@ -91,7 +91,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Featured Journals Section */}
+      {/* Featured Posts Section */}
       <section className="py-6 px-4">
         <div className="container mx-auto">
           <div className="flex items-center justify-between mb-4">
@@ -99,8 +99,8 @@ export default function HomePage() {
           </div>
 
           <div className="flex overflow-x-auto pb-4 -mx-4 px-4 gap-4 snap-x snap-mandatory touch-pan-x hide-scrollbar">
-            {isJournalsLoading ? (
-              // Loading state for journals
+            {isPostsLoading ? (
+              // Loading state for posts
               <>
                 {[...Array(3)].map((_, index) => (
                   <Card key={index} className="flex-shrink-0 w-full sm:w-80 min-h-[260px] snap-start overflow-hidden relative">
@@ -116,28 +116,28 @@ export default function HomePage() {
                   </Card>
                 ))}
               </>
-            ) : !featuredJournals || featuredJournals.length === 0 ? (
-              // No featured journals state
+            ) : !featuredPosts || featuredPosts.length === 0 ? (
+              // No featured posts state
               <Card className="flex-shrink-0 w-full sm:w-80 min-h-[260px] snap-start overflow-hidden relative">
                 <div className="p-6 h-full flex flex-col items-center justify-center text-center">
-                  <h3 className="text-lg font-medium mb-2">No Featured Journals</h3>
+                  <h3 className="text-lg font-medium mb-2">No Featured Posts</h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    There are no featured journal entries at the moment.
+                    There are no featured posts at the moment.
                   </p>
                   <Button asChild size="sm">
-                    <Link href="/journals">Browse Journals</Link>
+                    <Link href="/posts">Browse Posts</Link>
                   </Button>
                 </div>
               </Card>
             ) : (
-              // Featured journals
-              featuredJournals.map((journal) => (
+              // Featured posts
+              featuredPosts.map((post: Journal) => (
                 <Card 
-                  key={journal.id} 
+                  key={post.id} 
                   className="flex-shrink-0 w-full sm:w-80 min-h-[260px] snap-start overflow-hidden relative bg-cover bg-center" 
                   style={{ 
-                    backgroundImage: journal.coverImage 
-                      ? `url("${journal.coverImage}")` 
+                    backgroundImage: post.coverImage 
+                      ? `url("${post.coverImage}")` 
                       : 'linear-gradient(to right, #4f46e5, #2563eb)'
                   }}
                 >
@@ -146,20 +146,20 @@ export default function HomePage() {
                     <div className="bg-white/20 text-white px-2 py-1 rounded-md text-xs self-start backdrop-blur-sm">
                       {(() => {
                         // Cari hashtag pertama dalam content
-                        const hashtag = journal.content.match(/#(\w+)/);
+                        const hashtag = post.content.match(/#(\w+)/);
                         return hashtag ? hashtag[1] : "Posts";
                       })()}
                     </div>
                     <div className="mt-auto">
-                      <Link href={`/journals/${journal.id}`}>
-                        <h3 className="text-lg font-bold mb-1 hover:underline">{journal.title}</h3>
+                      <Link href={`/posts/${post.id}`}>
+                        <h3 className="text-lg font-bold mb-1 hover:underline">{post.title}</h3>
                       </Link>
                       <p className="text-sm text-white/80 line-clamp-2">
-                        {journal.excerpt || journal.content.substring(0, 120) + "..."}
+                        {post.excerpt || post.content.substring(0, 120) + "..."}
                       </p>
                       <div className="flex items-center mt-2 text-xs text-white/70">
                         <CalendarIcon className="h-3 w-3 mr-1" />
-                        <span>{formatDistanceToNow(new Date(journal.createdAt)).replace(/^about\s/, '').replace(/\sago$/, '')}</span>
+                        <span>{formatDistanceToNow(new Date(post.createdAt)).replace(/^about\s/, '').replace(/\sago$/, '')}</span>
                       </div>
                     </div>
                   </div>
