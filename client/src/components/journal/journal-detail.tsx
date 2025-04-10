@@ -6,7 +6,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { formatDistanceToNow } from "date-fns";
 import { Link } from "wouter";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Calendar, User, Clock, MessageSquare, Heart, Send } from "lucide-react";
+import { ArrowLeft, Calendar, User, Clock, MessageSquare, Heart, Send, Trash } from "lucide-react";
 import { MdVerified } from "react-icons/md";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"; 
 import { Input } from "@/components/ui/input";
@@ -37,37 +37,16 @@ export function JournalDetail({ journalId }: JournalDetailProps) {
     refetchOnWindowFocus: false,
   });
   
-  // Mock comments data to demonstrate UI
-  // Dalam implementasi sebenarnya, ini akan mengambil data dari API
-  const mockComments = [
-    {
-      id: 1,
-      content: "Ini adalah contoh komentar pertama pada post ini.",
-      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(), // 5 jam yang lalu
-      user: {
-        username: "commenter1",
-        avatarUrl: null,
-        isAdmin: false,
-        verified: true
-      }
-    },
-    {
-      id: 2,
-      content: "Saya sangat setuju dengan post ini! Informasi yang sangat bermanfaat.",
-      createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30 menit yang lalu
-      user: {
-        username: "admin",
-        avatarUrl: null,
-        isAdmin: true,
-        verified: true
-      }
-    }
-  ];
-
-  // Get comments (using mock data for demonstration)
-  // Tidak menggunakan query ke API karena endpoint belum tersedia
-  const isCommentsLoading = false;
-  const comments = mockComments;
+  // Get comments from the API
+  const { 
+    data: comments = [], 
+    isLoading: isCommentsLoading,
+    refetch: refetchComments
+  } = useQuery<any[]>({
+    queryKey: [`/api/journals/${journalId}/comments`],
+    enabled: !!journalId,
+    refetchOnWindowFocus: false,
+  });
   
   // Add like functionality
   const likeMutation = useMutation({
@@ -119,32 +98,12 @@ export function JournalDetail({ journalId }: JournalDetailProps) {
     }
   });
   
-  // Add comment functionality (lokal karena tidak ada API yang tersedia)
+  // Add comment functionality using real API
   const commentMutation = useMutation({
     mutationFn: async (content: string) => {
-      // Simulasi API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Tambahkan komentar baru ke mockComments
-      mockComments.unshift({
-        id: Date.now(),
-        content: content,
-        createdAt: new Date().toISOString(),
-        user: user ? {
-          username: user.username,
-          avatarUrl: user.avatarUrl,
-          isAdmin: user.isAdmin,
-          verified: user.verified
-        } : {
-          username: "anonym",
-          avatarUrl: null,
-          isAdmin: false,
-          verified: false
-        }
+      const res = await apiRequest("POST", `/api/journals/${journalId}/comment`, {
+        content
       });
-      
-      // Tetap panggil API untuk mencatat penambahan komentar
-      const res = await apiRequest("POST", `/api/journals/${journalId}/comment`);
       if (!res.ok) {
         throw new Error("Failed to add comment");
       }
@@ -152,7 +111,8 @@ export function JournalDetail({ journalId }: JournalDetailProps) {
     },
     onSuccess: () => {
       setCommentText(""); // Clear input field
-      refetch();
+      refetchComments(); // Refresh comments list
+      refetch(); // Refresh journal details (to update comment count)
       toast({
         title: "Success",
         description: "Comment added successfully",
@@ -162,6 +122,32 @@ export function JournalDetail({ journalId }: JournalDetailProps) {
       toast({
         title: "Error",
         description: error.message || "Could not add comment",
+        variant: "destructive"
+      });
+    }
+  });
+  
+  // Delete comment functionality
+  const deleteCommentMutation = useMutation({
+    mutationFn: async (commentId: number) => {
+      const res = await apiRequest("DELETE", `/api/comments/${commentId}`);
+      if (!res.ok) {
+        throw new Error("Failed to delete comment");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      refetchComments(); // Refresh comments list
+      refetch(); // Refresh journal details (to update comment count)
+      toast({
+        title: "Success",
+        description: "Comment deleted successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Could not delete comment",
         variant: "destructive"
       });
     }
@@ -346,22 +332,42 @@ export function JournalDetail({ journalId }: JournalDetailProps) {
                     </AvatarFallback>
                   )}
                 </Avatar>
-                <div>
-                  <div className="flex items-center">
-                    <span className="font-medium">
-                      {comment.user?.username 
-                        ? comment.user.username.charAt(0).toUpperCase() + comment.user.username.slice(1) 
-                        : "Unknown user"}
-                    </span>
-                    {comment.user?.isAdmin && (
-                      <MdVerified className="h-4 w-4 text-amber-500 ml-1" title="Admin" />
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <span className="font-medium">
+                        {comment.user?.username 
+                          ? comment.user.username.charAt(0).toUpperCase() + comment.user.username.slice(1) 
+                          : "Unknown user"}
+                      </span>
+                      {comment.user?.isAdmin && (
+                        <MdVerified className="h-4 w-4 text-amber-500 ml-1" title="Admin" />
+                      )}
+                      {!comment.user?.isAdmin && comment.user?.verified && (
+                        <MdVerified className="h-4 w-4 text-blue-500 ml-1" title="Verified User" />
+                      )}
+                      <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">
+                        · {formatDistanceToNow(new Date(comment.createdAt)).replace(/^about\s/, '').replace(/\sago$/, '')}
+                      </span>
+                    </div>
+                    
+                    {/* Delete comment button - only show if user owns comment or is admin */}
+                    {user && (user.id === comment.userId || user.isAdmin) && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
+                        onClick={() => {
+                          if (confirm('Are you sure you want to delete this comment?')) {
+                            deleteCommentMutation.mutate(comment.id);
+                          }
+                        }}
+                        disabled={deleteCommentMutation.isPending}
+                      >
+                        <Trash className="h-4 w-4" />
+                        <span className="sr-only">Delete comment</span>
+                      </Button>
                     )}
-                    {!comment.user?.isAdmin && comment.user?.verified && (
-                      <MdVerified className="h-4 w-4 text-blue-500 ml-1" title="Verified User" />
-                    )}
-                    <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">
-                      · {formatDistanceToNow(new Date(comment.createdAt)).replace(/^about\s/, '').replace(/\sago$/, '')}
-                    </span>
                   </div>
                   <p className="mt-1">{comment.content}</p>
                 </div>

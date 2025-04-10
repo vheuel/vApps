@@ -475,11 +475,20 @@ export class DatabaseStorage implements IStorage {
     return comment;
   }
 
-  async deleteComment(id: number): Promise<boolean> {
+  async deleteComment(id: number, userId?: number): Promise<boolean> {
     // Get the comment first to get the journalId
     const comment = await db.select().from(comments).where(eq(comments.id, id));
     if (comment.length === 0) {
       return false;
+    }
+    
+    // If userId is provided, check comment owner or admin
+    if (userId !== undefined) {
+      const user = await this.getUser(userId);
+      // If not admin and not comment owner, can't delete
+      if (!user?.isAdmin && comment[0].userId !== userId) {
+        return false;
+      }
     }
     
     // Decrease the comment count on the journal

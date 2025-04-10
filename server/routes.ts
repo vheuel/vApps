@@ -681,20 +681,100 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Add a comment to a journal
   app.post("/api/journals/:id/comment", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid journal ID" });
       }
       
-      const journal = await storage.addComment(id);
+      const journal = await storage.getJournal(id);
       if (!journal) {
         return res.status(404).json({ message: "Journal not found" });
       }
       
-      res.status(200).json(journal);
+      // Ambil konten komentar dari body request
+      const content = req.body.content;
+      if (!content || typeof content !== 'string' || content.trim() === '') {
+        return res.status(400).json({ message: "Comment content is required" });
+      }
+      
+      // Buat komentar baru
+      const comment = await storage.createComment({
+        content: content.trim(),
+        journalId: id
+      }, req.user.id);
+      
+      res.status(201).json(comment);
     } catch (error) {
-      res.status(500).json({ message: "Error commenting on journal" });
+      console.error("Error creating comment:", error);
+      res.status(500).json({ message: "Error creating comment" });
+    }
+  });
+  
+  // Get all comments for a journal
+  app.get("/api/journals/:id/comments", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid journal ID" });
+      }
+      
+      const journal = await storage.getJournal(id);
+      if (!journal) {
+        return res.status(404).json({ message: "Journal not found" });
+      }
+      
+      const comments = await storage.getCommentsByJournalId(id);
+      
+      // Untuk setiap komentar, ambil detail pengguna yang mengomentari
+      const commentsWithUserDetails = await Promise.all(
+        comments.map(async (comment) => {
+          const user = await storage.getUser(comment.userId);
+          return {
+            ...comment,
+            user: user ? {
+              username: user.username,
+              avatarUrl: user.avatarUrl,
+              isAdmin: user.isAdmin,
+              verified: user.verified
+            } : null
+          };
+        })
+      );
+      
+      res.status(200).json(commentsWithUserDetails);
+    } catch (error) {
+      console.error("Error fetching comments:", error);
+      res.status(500).json({ message: "Error fetching comments" });
+    }
+  });
+  
+  // Delete a comment
+  app.delete("/api/comments/:id", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid comment ID" });
+      }
+      
+      // Use updated deleteComment method with userId for permission checking
+      const success = await storage.deleteComment(id, req.user.id);
+      if (!success) {
+        return res.status(404).json({ message: "Comment not found or you're not authorized to delete it" });
+      }
+      
+      res.status(200).json({ message: "Comment deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+      res.status(500).json({ message: "Error deleting comment" });
     }
   });
 
