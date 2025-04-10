@@ -49,26 +49,28 @@ export function PostDetail({ postId }: PostDetailProps) {
     refetchOnWindowFocus: false,
   });
   
-  // Effect to scroll and focus on the post title when post data is loaded
+  // Effect to add a subtle highlight effect to the post title when loaded
   useEffect(() => {
+    // Only proceed if post is loaded and title element exists
     if (post && titleRef.current) {
-      // Scroll to the title element
-      titleRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      
-      // Set focus to the title for accessibility
-      titleRef.current.focus();
-      
-      // For better user experience, we can also add a subtle highlight effect
-      titleRef.current.classList.add('post-title-focus');
-      
-      // Remove the highlight effect after a short delay
-      const timeoutId = setTimeout(() => {
+      // Wait for the DOM to be fully ready
+      const highlightTimeout = setTimeout(() => {
         if (titleRef.current) {
-          titleRef.current.classList.remove('post-title-focus');
+          // Apply the highlight animation class
+          titleRef.current.classList.add('post-title-focus');
+          
+          // Remove the animation class after it completes
+          const cleanupTimeout = setTimeout(() => {
+            if (titleRef.current) {
+              titleRef.current.classList.remove('post-title-focus');
+            }
+          }, 2500);
+          
+          return () => clearTimeout(cleanupTimeout);
         }
-      }, 1500);
+      }, 300);
       
-      return () => clearTimeout(timeoutId);
+      return () => clearTimeout(highlightTimeout);
     }
   }, [post]);
   
