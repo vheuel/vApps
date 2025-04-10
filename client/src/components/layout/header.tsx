@@ -123,12 +123,14 @@ export default function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <button
-              onClick={handleAuthClick}
-              className="p-1 hover:text-primary transition-colors"
-            >
-              <KeyRound className="h-5 w-5" />
-            </button>
+            location !== "/login" && (
+              <button
+                onClick={handleAuthClick}
+                className="p-1 hover:text-primary transition-colors"
+              >
+                <KeyRound className="h-5 w-5" />
+              </button>
+            )
           )}
 
           {/* Language Selector */}
@@ -211,7 +213,7 @@ export default function Header() {
                 </Button>
               </>
             )}
-            {!user && (
+            {!user && location !== "/login" && (
               <Button
                 variant="default"
                 onClick={() => {
