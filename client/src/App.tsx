@@ -38,7 +38,7 @@ function App() {
             <ProtectedRoute path="/submit" component={SubmitProjectPage} />
             <AdminRoute path="/admin" component={AdminPage} />
             <Route path="/journals" component={JournalsPage} />
-            <Route path="/journal/:id" component={JournalDetailPage} />
+            <Route path="/journals/:id" component={JournalDetailPage} />
             <Route component={NotFound} />
           </Switch>
         </main>

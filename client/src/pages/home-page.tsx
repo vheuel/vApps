@@ -147,7 +147,7 @@ export default function HomePage() {
                       Journal
                     </div>
                     <div className="mt-auto">
-                      <Link href={`/journal/${journal.id}`}>
+                      <Link href={`/journals/${journal.id}`}>
                         <h3 className="text-lg font-bold mb-1 hover:underline">{journal.title}</h3>
                       </Link>
                       <p className="text-sm text-white/80 line-clamp-2">
