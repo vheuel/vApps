@@ -3,6 +3,7 @@ import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import HomePage from "@/pages/home-page";
 import AuthPage from "@/pages/auth-page";
+import LoginPage from "@/pages/login-page";
 import ProfilePage from "@/pages/profile-page";
 import EditProfilePage from "@/pages/edit-profile-page";
 import SubmitProjectPage from "@/pages/submit-project-page";
@@ -28,6 +29,7 @@ function App() {
           <Switch>
             <Route path="/" component={HomePage} />
             <Route path="/auth" component={AuthPage} />
+            <Route path="/login" component={LoginPage} />
             <Route path="/category/:category" component={CategoryPage} />
             <Route path="/docs" component={DocumentationPage} />
             <Route path="/terms" component={TermsPage} />
