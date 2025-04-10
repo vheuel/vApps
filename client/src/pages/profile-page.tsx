@@ -650,17 +650,6 @@ export default function ProfilePage() {
         ) : activeTab === "journal" ? (
           // Posts Tab Content
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <div className="mb-4 flex justify-between items-center">
-              <h2 className="text-xl font-semibold">My Posts</h2>
-              <Button 
-                onClick={() => navigate("/journals")}
-                variant="outline"
-                size="sm"
-              >
-                <Link href="/journals">Manage Posts</Link>
-              </Button>
-            </div>
-            
             <JournalList 
               userId={user.id} 
               showManageOptions={false} 
