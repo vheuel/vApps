@@ -8,7 +8,7 @@ import session from "express-session";
 import createMemoryStore from "memorystore";
 import connectPg from "connect-pg-simple";
 import { db } from "./db";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, sql } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import { pool } from "./db";
 
@@ -128,13 +128,18 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    const result = await db.select().from(users).where(eq(users.username, username));
+    // Convert username to lowercase for case-insensitive comparison
+    const result = await db.select().from(users).where(
+      sql`lower(${users.username}) = ${username.toLowerCase()}`
+    );
     return result.length ? result[0] : undefined;
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
-    // Menggunakan LOWER untuk case-insensitive email matching
-    const result = await db.select().from(users).where(sql`LOWER(${users.email}) = LOWER(${email})`);
+    // Menggunakan toLowerCase untuk case-insensitive email matching
+    const result = await db.select().from(users).where(
+      sql`lower(${users.email}) = ${email.toLowerCase()}`
+    );
     return result.length ? result[0] : undefined;
   }
 
