@@ -1336,7 +1336,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // User Stats API endpoint
+  // User Stats API endpoint - public endpoint
   app.get("/api/users/:username/stats", async (req, res) => {
     try {
       const { username } = req.params;

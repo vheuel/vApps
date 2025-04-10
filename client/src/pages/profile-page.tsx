@@ -124,7 +124,7 @@ export default function ProfilePage({ params }: { params: { username: string } }
     enabled: !!profileUser?.id, // Only fetch if we have a profileUser
   });
   
-  // Mengambil statistik pengguna
+  // Mengambil statistik pengguna (endpoint publik, tidak memerlukan login)
   const { data: userStats, isLoading: isLoadingStats } = useQuery<UserWithStats>({
     queryKey: ["/api/users", username, "stats"],
     refetchOnWindowFocus: false,
