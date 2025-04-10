@@ -245,7 +245,7 @@ export default function ProfilePage() {
               <MdVerified className="h-5 w-5 text-amber-500 ml-2" title="Admin" />
             )}
             {!user.isAdmin && user.verified && (
-              <MdVerified className="h-5 w-5 text-green-500 ml-2" title="Verified User" />
+              <MdVerified className="h-5 w-5 text-blue-500 ml-2" title="Verified User" />
             )}
           </div>
           
