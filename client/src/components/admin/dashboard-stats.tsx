@@ -127,7 +127,7 @@ export function DashboardStats() {
                     ]}
                     category="value"
                     index="name"
-                    valueFormatter={(value) => `${value} users`}
+                    valueFormatter={(value: number) => `${value} users`}
                     colors={["#94a3b8", "#3b82f6", "#f59e0b"]}
                   />
                 </div>
