@@ -414,28 +414,32 @@ export function JournalDetail({ journalId }: JournalDetailProps) {
 
       {/* Delete confirmation dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Delete Comment</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete this comment? This action cannot be undone.
+        <DialogContent className="sm:max-w-sm mx-4 rounded-lg">
+          <DialogHeader className="text-center">
+            <DialogTitle className="text-xl">Delete Comment</DialogTitle>
+            <DialogDescription className="text-center">
+              Are you sure you want to delete this comment?
+              <br />
+              This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="flex justify-center gap-4">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => setIsDeleteDialogOpen(false)}
-            >
-              Cancel
-            </Button>
+          <DialogFooter className="flex flex-col gap-2 mt-2">
             <Button
               type="button"
               variant="destructive"
               onClick={handleDeleteComment}
+              className="w-full py-6 text-base"
               disabled={deleteCommentMutation.isPending}
             >
               {deleteCommentMutation.isPending ? "Deleting..." : "Delete"}
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setIsDeleteDialogOpen(false)}
+              className="w-full py-6 text-base bg-gray-100 hover:bg-gray-200 text-black"
+            >
+              Cancel
             </Button>
           </DialogFooter>
         </DialogContent>
