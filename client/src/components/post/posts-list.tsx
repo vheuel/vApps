@@ -26,32 +26,41 @@ import { useState } from "react";
 
 interface PostsListProps {
   userId?: number;
+  username?: string;
   limit?: number;
   showManageOptions?: boolean;
   onEdit?: (post: Journal) => void;
   showAdminOptions?: boolean;
+  showPostForm?: boolean;
 }
 
 export function PostsList({
   userId,
+  username,
   limit,
   showManageOptions = false,
   onEdit,
   showAdminOptions = false,
+  showPostForm = false,
 }: PostsListProps) {
   const { toast } = useToast();
   const { user } = useAuth();
   const isAdmin = user?.isAdmin;
 
-  // Choose the appropriate query based on whether a userId is provided
-  // If the userId matches the logged-in user's ID, use /api/user/posts
-  // Otherwise, use /api/user/{userId}/posts for other users' posts
-  const queryKey = 
-    userId 
-      ? (userId === user?.id) 
-        ? [`/api/user/posts`] 
-        : [`/api/user/${userId}/posts`]
-      : [`/api/posts`];
+  // Choose the appropriate query based on whether a userId or username is provided
+  // If the user is viewing their own posts, use /api/user/posts
+  // Otherwise use the appropriate endpoint
+  let queryKey;
+  
+  if (username) {
+    queryKey = [`/api/users/${username}/posts`];
+  } else if (userId) {
+    queryKey = (userId === user?.id) 
+      ? [`/api/user/posts`] 
+      : [`/api/user/${userId}/posts`];
+  } else {
+    queryKey = [`/api/posts`];
+  }
 
   const { data: posts, isLoading } = useQuery<Journal[]>({
     queryKey,
@@ -249,8 +258,9 @@ export function PostsList({
         <div key={post.id} className="border-b border-gray-200 dark:border-gray-700 pb-4 mb-2 last:border-0">
           <div className="flex items-start gap-3">
             {/* User Avatar */}
-            <Link href={`/profile/${post.userId}`}>
+            <Link href={`/profile/${post.user?.username || post.userId}`}>
               <Avatar className="h-10 w-10">
+                {post.user?.avatarUrl && <AvatarImage src={post.user.avatarUrl} />}
                 <AvatarFallback className="bg-gray-200">
                   {post.user?.username ? post.user.username.charAt(0).toUpperCase() : 'U'}
                 </AvatarFallback>
@@ -262,7 +272,7 @@ export function PostsList({
               {/* Post Header */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
-                  <Link href={`/profile/${post.userId}`} className="font-semibold hover:underline">
+                  <Link href={`/profile/${post.user?.username || post.userId}`} className="font-semibold hover:underline">
                     {post.user?.username 
                       ? post.user.username.charAt(0).toUpperCase() + post.user.username.slice(1) 
                       : 'Username'}

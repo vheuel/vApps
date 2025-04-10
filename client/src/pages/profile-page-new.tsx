@@ -196,7 +196,7 @@ export default function ProfilePage({ params }: { params: { username: string } }
   const approvedProjects = projects?.filter(p => p.approved).length || 0;
   const pendingProjects = projects?.filter(p => p.pending).length || 0;
   const verifiedProjects = projects?.filter(p => p.verified).length || 0;
-  
+
   // Check if current user is owner of the profile
   const isOwner = currentUser && currentUser.id === profileUser.id;
 
@@ -401,16 +401,16 @@ export default function ProfilePage({ params }: { params: { username: string } }
                     <div className="flex items-start justify-between">
                       <div className="flex">
                         <Avatar className="h-10 w-10 mr-3 bg-sky-200">
-                          {user.avatarUrl ? (
-                            <AvatarImage src={user.avatarUrl} alt={user.username} />
+                          {profileUser.avatarUrl ? (
+                            <AvatarImage src={profileUser.avatarUrl} alt={profileUser.username} />
                           ) : (
-                            <AvatarFallback className="bg-sky-200">{user.username.charAt(0).toUpperCase()}</AvatarFallback>
+                            <AvatarFallback className="bg-sky-200">{profileUser.username.charAt(0).toUpperCase()}</AvatarFallback>
                           )}
                         </Avatar>
                         <div>
                           <div className="flex items-center">
-                            <span className="font-semibold">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
-                            <UserBadge isAdmin={user.isAdmin} isVerified={user.verified} />
+                            <span className="font-semibold">{profileUser.username.charAt(0).toUpperCase() + profileUser.username.slice(1)}</span>
+                            <UserBadge isAdmin={profileUser.isAdmin} isVerified={profileUser.verified} />
                             <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">
                               · {formatTimeCompact(project.createdAt)}
                             </span>
@@ -433,9 +433,11 @@ export default function ProfilePage({ params }: { params: { username: string } }
                           </div>
                         </div>
                       </div>
-                      <button onClick={() => handleEditProject(project)}>
-                        <MoreVertical className="h-5 w-5 text-gray-500" />
-                      </button>
+                      {isOwner && (
+                        <button onClick={() => handleEditProject(project)}>
+                          <MoreVertical className="h-5 w-5 text-gray-500" />
+                        </button>
+                      )}
                     </div>
                     
                     {/* Project Card */}
@@ -464,8 +466,6 @@ export default function ProfilePage({ params }: { params: { username: string } }
                         </div>
                       </div>
                     </div>
-                    
-                    {/* Interaction Buttons - Removed as per request */}
                   </div>
                 ))}
               </div>
@@ -475,33 +475,41 @@ export default function ProfilePage({ params }: { params: { username: string } }
                   <Eye className="h-12 w-12 text-gray-400" />
                 </div>
                 <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">No projects found</h3>
-                <p className="text-gray-500 dark:text-gray-400 mb-4">You haven't submitted any projects yet.</p>
-                <Button onClick={() => navigate("/submit-project")}>
-                  Submit a project
-                </Button>
+                <p className="text-gray-500 dark:text-gray-400 mb-4">
+                  {isOwner 
+                    ? "You haven't submitted any projects yet." 
+                    : `${profileUser.username} hasn't submitted any projects yet.`}
+                </p>
+                {isOwner && (
+                  <Button onClick={() => navigate("/submit-project")}>
+                    Submit a project
+                  </Button>
+                )}
               </div>
             )}
           </>
+        ) : activeTab === "journal" ? (
+          <PostsList username={username} showManageOptions={isOwner} />
         ) : activeTab === "activity" ? (
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <div className="space-y-4">
               {/* Activity untuk avatar */}
-              {user.avatarUrl && (
+              {profileUser.avatarUrl && (
                 <div className="flex items-start space-x-3 pb-4 border-b dark:border-gray-700">
                   <div className="p-2 rounded-full bg-blue-100 dark:bg-blue-900">
                     <Image className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                   </div>
                   <div className="space-y-1">
                     <div className="flex items-center">
-                      <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
-                      <UserBadge isAdmin={user.isAdmin} isVerified={user.verified} />
+                      <span className="font-medium">{profileUser.username.charAt(0).toUpperCase() + profileUser.username.slice(1)}</span>
+                      <UserBadge isAdmin={profileUser.isAdmin} isVerified={profileUser.verified} />
                       <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· {formatTimeCompact(new Date(Date.now() - 3600000 * 0.5))}</span>
                     </div>
                     <p className="text-gray-600 dark:text-gray-300">Update foto profil</p>
                     {/* Menampilkan preview gambar avatar */}
                     <div className="mt-2 overflow-hidden rounded-md">
                       <img 
-                        src={user.avatarUrl} 
+                        src={profileUser.avatarUrl} 
                         alt="Profile Avatar" 
                         className="w-16 h-16 object-cover"
                       />
@@ -511,22 +519,22 @@ export default function ProfilePage({ params }: { params: { username: string } }
               )}
 
               {/* Activity untuk header image */}
-              {user.headerImage && (
+              {profileUser.headerImage && (
                 <div className="flex items-start space-x-3 pb-4 border-b dark:border-gray-700">
                   <div className="p-2 rounded-full bg-purple-100 dark:bg-purple-900">
                     <Image className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                   </div>
                   <div className="space-y-1">
                     <div className="flex items-center">
-                      <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
-                      <UserBadge isAdmin={user.isAdmin} isVerified={user.verified} />
+                      <span className="font-medium">{profileUser.username.charAt(0).toUpperCase() + profileUser.username.slice(1)}</span>
+                      <UserBadge isAdmin={profileUser.isAdmin} isVerified={profileUser.verified} />
                       <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· {formatTimeCompact(new Date(Date.now() - 3600000 * 1.5))}</span>
                     </div>
                     <p className="text-gray-600 dark:text-gray-300">Update header image</p>
                     {/* Menampilkan preview header image */}
                     <div className="mt-2 overflow-hidden rounded-md">
                       <img 
-                        src={user.headerImage} 
+                        src={profileUser.headerImage} 
                         alt="Header Image" 
                         className="w-full h-32 object-cover"
                       />
@@ -536,173 +544,116 @@ export default function ProfilePage({ params }: { params: { username: string } }
               )}
 
               {/* Activity untuk bio */}
-              {user.bio && (
+              {profileUser.bio && (
                 <div className="flex items-start space-x-3 pb-4 border-b dark:border-gray-700">
                   <div className="p-2 rounded-full bg-green-100 dark:bg-green-900">
                     <Edit className="h-5 w-5 text-green-600 dark:text-green-400" />
                   </div>
                   <div className="space-y-1">
                     <div className="flex items-center">
-                      <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
-                      <UserBadge isAdmin={user.isAdmin} isVerified={user.verified} />
-                      <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· {formatTimeCompact(new Date(Date.now() - 3600000 * 3))}</span>
+                      <span className="font-medium">{profileUser.username.charAt(0).toUpperCase() + profileUser.username.slice(1)}</span>
+                      <UserBadge isAdmin={profileUser.isAdmin} isVerified={profileUser.verified} />
+                      <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· {formatTimeCompact(new Date(Date.now() - 3600000 * 2.5))}</span>
                     </div>
-                    <p className="text-gray-600 dark:text-gray-300">Update bio</p>
-                    {/* Menampilkan bio content */}
+                    <p className="text-gray-600 dark:text-gray-300">Updated bio</p>
                     <div className="mt-2 p-3 bg-gray-50 dark:bg-gray-700 rounded-md">
-                      <p className="text-gray-700 dark:text-gray-300">{user.bio}</p>
+                      <p className="text-gray-700 dark:text-gray-300">{profileUser.bio}</p>
                     </div>
                   </div>
                 </div>
               )}
-
+              
               {/* Activity untuk website */}
-              {user.website && (
+              {profileUser.website && (
                 <div className="flex items-start space-x-3 pb-4 border-b dark:border-gray-700">
-                  <div className="p-2 rounded-full bg-pink-100 dark:bg-pink-900">
-                    <Link2 className="h-5 w-5 text-pink-600 dark:text-pink-400" />
+                  <div className="p-2 rounded-full bg-yellow-100 dark:bg-yellow-900">
+                    <Link2 className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
                   </div>
                   <div className="space-y-1">
                     <div className="flex items-center">
-                      <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
-                      <UserBadge isAdmin={user.isAdmin} isVerified={user.verified} />
-                      <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· {formatTimeCompact(new Date(Date.now() - 3600000 * 5))}</span>
+                      <span className="font-medium">{profileUser.username.charAt(0).toUpperCase() + profileUser.username.slice(1)}</span>
+                      <UserBadge isAdmin={profileUser.isAdmin} isVerified={profileUser.verified} />
+                      <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· {formatTimeCompact(new Date(Date.now() - 3600000 * 3.5))}</span>
                     </div>
-                    <p className="text-gray-600 dark:text-gray-300">
-                      Update website to <a href={user.website} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{user.website}</a>
-                    </p>
+                    <p className="text-gray-600 dark:text-gray-300">Added website</p>
+                    <div className="mt-2">
+                      <a 
+                        href={profileUser.website} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:underline"
+                      >
+                        {profileUser.website}
+                      </a>
+                    </div>
                   </div>
                 </div>
               )}
-
-              {/* Activity untuk location */}
-              {user.location && (
-                <div className="flex items-start space-x-3 pb-4 border-b dark:border-gray-700">
-                  <div className="p-2 rounded-full bg-amber-100 dark:bg-amber-900">
-                    <MapPin className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                  </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center">
-                      <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
-                      <UserBadge isAdmin={user.isAdmin} isVerified={user.verified} />
-                      <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· {formatTimeCompact(new Date(Date.now() - 3600000 * 7))}</span>
-                    </div>
-                    <p className="text-gray-600 dark:text-gray-300">
-                      Update location to {user.location}
-                    </p>
-                  </div>
-                </div>
-              )}
-
+              
               {/* Activity untuk company */}
-              {user.company && (
+              {profileUser.company && (
                 <div className="flex items-start space-x-3 pb-4 border-b dark:border-gray-700">
                   <div className="p-2 rounded-full bg-cyan-100 dark:bg-cyan-900">
                     <BriefcaseIcon className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
                   </div>
                   <div className="space-y-1">
                     <div className="flex items-center">
-                      <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
-                      <UserBadge isAdmin={user.isAdmin} isVerified={user.verified} />
-                      <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· {formatTimeCompact(new Date(Date.now() - 3600000 * 12))}</span>
+                      <span className="font-medium">{profileUser.username.charAt(0).toUpperCase() + profileUser.username.slice(1)}</span>
+                      <UserBadge isAdmin={profileUser.isAdmin} isVerified={profileUser.verified} />
+                      <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· {formatTimeCompact(new Date(Date.now() - 3600000 * 4.5))}</span>
                     </div>
-                    <p className="text-gray-600 dark:text-gray-300">
-                      Update perusahaan to {user.company}
-                    </p>
+                    <p className="text-gray-600 dark:text-gray-300">Added company/organization</p>
+                    <div className="mt-2 p-3 bg-gray-50 dark:bg-gray-700 rounded-md">
+                      <p className="text-gray-700 dark:text-gray-300">{profileUser.company}</p>
+                    </div>
                   </div>
                 </div>
               )}
-
-              {/* Project activities */}
-              {projects && projects.length > 0 && (
-                [...projects]
-                .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-                .slice(0, 5) // Show only the last 5 projects
-                .map((project) => (
-                  <div key={`activity-${project.id}`} className="flex items-start space-x-3 pb-4 border-b dark:border-gray-700">
-                    <div className="p-2 rounded-full bg-indigo-100 dark:bg-indigo-900">
-                      {project.verified ? (
-                        <Star className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
-                      ) : (
-                        <Share2 className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                      )}
+              
+              {/* Activity untuk lokasi */}
+              {profileUser.location && (
+                <div className="flex items-start space-x-3 pb-4 border-b dark:border-gray-700">
+                  <div className="p-2 rounded-full bg-indigo-100 dark:bg-indigo-900">
+                    <MapPin className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center">
+                      <span className="font-medium">{profileUser.username.charAt(0).toUpperCase() + profileUser.username.slice(1)}</span>
+                      <UserBadge isAdmin={profileUser.isAdmin} isVerified={profileUser.verified} />
+                      <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· {formatTimeCompact(new Date(Date.now() - 3600000 * 5.5))}</span>
                     </div>
-                    <div className="space-y-1">
-                      <div className="flex items-center">
-                        <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
-                        <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· {formatTimeCompact(project.createdAt)}</span>
-                      </div>
-                      <p className="text-gray-600 dark:text-gray-300">
-                        {project.verified ? "Got verified for " : "Submitted "} 
-                        <Link href={`/category/${project.category}`} className="text-blue-500 hover:underline">{project.name}</Link>
-                      </p>
-                      {project.verified && (
-                        <div className="mt-1 text-sm text-green-600 dark:text-green-400 flex items-center">
-                          <Check className="h-4 w-4 mr-1" /> Verified project
-                        </div>
-                      )}
+                    <p className="text-gray-600 dark:text-gray-300">Added location</p>
+                    <div className="mt-2 p-3 bg-gray-50 dark:bg-gray-700 rounded-md">
+                      <p className="text-gray-700 dark:text-gray-300">{profileUser.location}</p>
                     </div>
                   </div>
-                ))
+                </div>
               )}
-
-              {/* Joined activity */}
-              <div className="flex items-start space-x-3">
-                <div className="p-2 rounded-full bg-teal-100 dark:bg-teal-900">
-                  <UserIcon className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+              
+              {/* Activity untuk account creation */}
+              <div className="flex items-start space-x-3 pb-4">
+                <div className="p-2 rounded-full bg-pink-100 dark:bg-pink-900">
+                  <Star className="h-5 w-5 text-pink-600 dark:text-pink-400" />
                 </div>
                 <div className="space-y-1">
                   <div className="flex items-center">
-                    <span className="font-medium">{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</span>
-                    <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· {user.memberSince ? format(new Date(user.memberSince), 'MMMM yyyy') : 'Recently'}</span>
+                    <span className="font-medium">{profileUser.username.charAt(0).toUpperCase() + profileUser.username.slice(1)}</span>
+                    <UserBadge isAdmin={profileUser.isAdmin} isVerified={profileUser.verified} />
+                    <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">· {profileUser.memberSince ? formatTimeCompact(profileUser.memberSince) : "Recently"}</span>
                   </div>
-                  <p className="text-gray-600 dark:text-gray-300">
-                    Joined the platform
-                  </p>
+                  <p className="text-gray-600 dark:text-gray-300">Joined vApps</p>
                 </div>
               </div>
-
-              {/* Show empty state if no activity */}
-              {(!user.avatarUrl && !user.bio && !user.location && !user.website && !user.company && 
-                (!projects || projects.length === 0)) && (
-                <p className="text-gray-500 dark:text-gray-400 text-center py-4">Belum ada aktivitas.</p>
-              )}
             </div>
           </div>
-        ) : activeTab === "portfolio" ? (
-          // Portfolio Tab Content
-          <PortfolioTab />
-        ) : activeTab === "journal" ? (
-          // Posts Tab Content
-          <div>
-            <div className="space-y-6">
-              {isLoading ? (
-                <div className="space-y-4">
-                  {[...Array(3)].map((_, index) => (
-                    <Skeleton key={index} className="h-32 w-full" />
-                  ))}
-                </div>
-              ) : (
-                <div className="space-y-6">
-                  {/* Mendapatkan journals dari query JournalList */}
-                  <div className="space-y-6">
-                    {/* Menggunakan query journals yang ada dari JournalList component */}
-                    <div className="space-y-6">
-                      {user && user.id && (
-                        <PostsList userId={user.id} />
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        ) : null}
+        ) : (
+          <PortfolioTab profileUser={profileUser} />
+        )}
       </div>
-
+      
       {/* Edit Project Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Edit Project</DialogTitle>
           </DialogHeader>
@@ -711,7 +662,6 @@ export default function ProfilePage({ params }: { params: { username: string } }
               defaultValues={editProject}
               onSubmit={handleSubmitEdit}
               isSubmitting={updateProjectMutation.isPending}
-              mode="edit"
             />
           )}
         </DialogContent>

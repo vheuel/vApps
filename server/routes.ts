@@ -583,6 +583,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Error fetching user posts" });
     }
   });
+  
+  // Get user profile by username (public)
+  app.get("/api/users/:username", async (req, res) => {
+    try {
+      const { username } = req.params;
+      const user = await storage.getUserByUsername(username);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Jangan tampilkan password dan informasi sensitif lainnya
+      const { password, ...publicUserInfo } = user;
+      
+      // Jika user login adalah admin atau user yang sama, tampilkan semua informasi (kecuali password)
+      if (req.user && (req.user.isAdmin || req.user.id === user.id)) {
+        return res.json(publicUserInfo);
+      }
+      
+      // Jika tidak login atau user lain, jangan tampilkan email
+      const { email, ...publicInfo } = publicUserInfo;
+      res.json(publicInfo);
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+  
+  // Get user projects by username (public)
+  app.get("/api/users/:username/projects", async (req, res) => {
+    try {
+      const { username } = req.params;
+      const user = await storage.getUserByUsername(username);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      const projects = await storage.getProjectsByUser(user.id);
+      
+      // Jika user yang login adalah pemilik atau admin, tampilkan semua proyek
+      if (req.user && (req.user.isAdmin || req.user.id === user.id)) {
+        return res.json(projects);
+      }
+      
+      // Jika tidak login atau user lain, hanya tampilkan proyek yang disetujui
+      const approvedProjects = projects.filter(project => project.approved);
+      res.json(approvedProjects);
+    } catch (error) {
+      console.error("Error fetching user projects:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+  
+  // Get user posts by username (public)
+  app.get("/api/users/:username/posts", async (req, res) => {
+    try {
+      const { username } = req.params;
+      const user = await storage.getUserByUsername(username);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      const posts = await storage.getPostsByUser(user.id);
+      res.json(posts);
+    } catch (error) {
+      console.error("Error fetching user posts:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
 
   app.post("/api/journals", async (req, res) => {
     if (!req.isAuthenticated()) {
