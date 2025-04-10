@@ -165,7 +165,15 @@ export const insertCommentSchema = createInsertSchema(comments)
 
 export type SiteSettings = typeof siteSettings.$inferSelect;
 export type InsertSiteSettings = z.infer<typeof insertSiteSettingsSchema>;
-export type Journal = typeof journals.$inferSelect;
+// Extend Journal type to include user information
+export type Journal = typeof journals.$inferSelect & {
+  user?: {
+    username: string;
+    avatarUrl: string | null;
+    isAdmin: boolean;
+    verified: boolean;
+  } | null;
+};
 export type InsertJournal = z.infer<typeof insertJournalSchema>;
 export type Comment = typeof comments.$inferSelect;
 export type InsertComment = z.infer<typeof insertCommentSchema>;

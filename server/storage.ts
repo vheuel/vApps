@@ -299,7 +299,21 @@ export class DatabaseStorage implements IStorage {
   // Journal/Blog management methods
   async getJournal(id: number): Promise<Journal | undefined> {
     const result = await db.select().from(journals).where(eq(journals.id, id));
-    return result.length ? result[0] : undefined;
+    if (!result.length) return undefined;
+    
+    // Tambahkan informasi user ke journal
+    const journal = result[0];
+    const user = await this.getUser(journal.userId);
+    
+    return {
+      ...journal,
+      user: user ? {
+        username: user.username,
+        avatarUrl: user.avatarUrl,
+        isAdmin: user.isAdmin,
+        verified: user.verified
+      } : null
+    };
   }
 
   async createJournal(insertJournal: InsertJournal, userId: number): Promise<Journal> {
@@ -311,7 +325,18 @@ export class DatabaseStorage implements IStorage {
         featured: insertJournal.featured !== undefined ? insertJournal.featured : false
       })
       .returning();
-    return journal;
+    
+    // Tambahkan informasi user
+    const user = await this.getUser(userId);
+    return {
+      ...journal,
+      user: user ? {
+        username: user.username,
+        avatarUrl: user.avatarUrl,
+        isAdmin: user.isAdmin,
+        verified: user.verified
+      } : null
+    };
   }
 
   async updateJournal(id: number, updates: Partial<InsertJournal>): Promise<Journal | undefined> {
@@ -322,7 +347,20 @@ export class DatabaseStorage implements IStorage {
       })
       .where(eq(journals.id, id))
       .returning();
-    return updatedJournal;
+    
+    if (!updatedJournal) return undefined;
+    
+    // Tambahkan informasi user
+    const user = await this.getUser(updatedJournal.userId);
+    return {
+      ...updatedJournal,
+      user: user ? {
+        username: user.username,
+        avatarUrl: user.avatarUrl,
+        isAdmin: user.isAdmin,
+        verified: user.verified
+      } : null
+    };
   }
 
   async deleteJournal(id: number): Promise<boolean> {
@@ -331,21 +369,53 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getJournalsByUser(userId: number): Promise<Journal[]> {
-    return db.select()
+    const posts = await db.select()
       .from(journals)
       .where(eq(journals.userId, userId))
       .orderBy(desc(journals.createdAt));
+    
+    // Untuk setiap post, dapatkan info user dan tambahkan ke post
+    const postsWithUsers = await Promise.all(posts.map(async (post) => {
+      const user = await this.getUser(post.userId);
+      return {
+        ...post,
+        user: user ? {
+          username: user.username,
+          avatarUrl: user.avatarUrl,
+          isAdmin: user.isAdmin,
+          verified: user.verified
+        } : null
+      };
+    }));
+    
+    return postsWithUsers;
   }
 
   async getAllJournals(): Promise<Journal[]> {
-    return db.select()
+    const posts = await db.select()
       .from(journals)
       .where(eq(journals.published, true))
       .orderBy(desc(journals.createdAt));
+    
+    // Untuk setiap post, dapatkan info user dan tambahkan ke post
+    const postsWithUsers = await Promise.all(posts.map(async (post) => {
+      const user = await this.getUser(post.userId);
+      return {
+        ...post,
+        user: user ? {
+          username: user.username,
+          avatarUrl: user.avatarUrl,
+          isAdmin: user.isAdmin,
+          verified: user.verified
+        } : null
+      };
+    }));
+    
+    return postsWithUsers;
   }
 
   async getFeaturedJournals(): Promise<Journal[]> {
-    return db.select()
+    const posts = await db.select()
       .from(journals)
       .where(
         and(
@@ -354,6 +424,22 @@ export class DatabaseStorage implements IStorage {
         )
       )
       .orderBy(desc(journals.createdAt));
+    
+    // Untuk setiap post, dapatkan info user dan tambahkan ke post
+    const postsWithUsers = await Promise.all(posts.map(async (post) => {
+      const user = await this.getUser(post.userId);
+      return {
+        ...post,
+        user: user ? {
+          username: user.username,
+          avatarUrl: user.avatarUrl,
+          isAdmin: user.isAdmin,
+          verified: user.verified
+        } : null
+      };
+    }));
+    
+    return postsWithUsers;
   }
 
   async setJournalAsFeatured(id: number, featured: boolean): Promise<Journal | undefined> {
@@ -364,7 +450,20 @@ export class DatabaseStorage implements IStorage {
       })
       .where(eq(journals.id, id))
       .returning();
-    return updatedJournal;
+      
+    if (!updatedJournal) return undefined;
+    
+    // Tambahkan informasi user
+    const user = await this.getUser(updatedJournal.userId);
+    return {
+      ...updatedJournal,
+      user: user ? {
+        username: user.username,
+        avatarUrl: user.avatarUrl,
+        isAdmin: user.isAdmin,
+        verified: user.verified
+      } : null
+    };
   }
   
   async likeJournal(id: number): Promise<Journal | undefined> {
@@ -380,7 +479,20 @@ export class DatabaseStorage implements IStorage {
       })
       .where(eq(journals.id, id))
       .returning();
-    return updatedJournal;
+      
+    if (!updatedJournal) return undefined;
+    
+    // Tambahkan informasi user
+    const user = await this.getUser(updatedJournal.userId);
+    return {
+      ...updatedJournal,
+      user: user ? {
+        username: user.username,
+        avatarUrl: user.avatarUrl,
+        isAdmin: user.isAdmin,
+        verified: user.verified
+      } : null
+    };
   }
   
   async unlikeJournal(id: number): Promise<Journal | undefined> {
@@ -398,7 +510,20 @@ export class DatabaseStorage implements IStorage {
       })
       .where(eq(journals.id, id))
       .returning();
-    return updatedJournal;
+      
+    if (!updatedJournal) return undefined;
+    
+    // Tambahkan informasi user
+    const user = await this.getUser(updatedJournal.userId);
+    return {
+      ...updatedJournal,
+      user: user ? {
+        username: user.username,
+        avatarUrl: user.avatarUrl,
+        isAdmin: user.isAdmin,
+        verified: user.verified
+      } : null
+    };
   }
   
   async addComment(id: number): Promise<Journal | undefined> {
@@ -414,7 +539,20 @@ export class DatabaseStorage implements IStorage {
       })
       .where(eq(journals.id, id))
       .returning();
-    return updatedJournal;
+      
+    if (!updatedJournal) return undefined;
+    
+    // Tambahkan informasi user
+    const user = await this.getUser(updatedJournal.userId);
+    return {
+      ...updatedJournal,
+      user: user ? {
+        username: user.username,
+        avatarUrl: user.avatarUrl,
+        isAdmin: user.isAdmin,
+        verified: user.verified
+      } : null
+    };
   }
 
   // Site settings management methods
