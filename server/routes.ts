@@ -492,12 +492,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Featured posts endpoint
+  // Featured posts endpoint - optimized
   app.get("/api/posts/featured", async (req, res) => {
     try {
+      // Use cached feature posts if available within the last minute
       const posts = await storage.getFeaturedPosts();
       res.status(200).json(posts);
     } catch (error) {
+      console.error("Error fetching featured posts:", error);
       res.status(500).json({ message: "Error fetching featured posts" });
     }
   });

@@ -461,7 +461,21 @@ export class DatabaseStorage implements IStorage {
     return this.getAllPosts();
   }
 
+  // Use a simple in-memory cache to improve performance
+  private featuredPostsCache: { data: Journal[] | null; timestamp: number } = { 
+    data: null, 
+    timestamp: 0 
+  };
+  private CACHE_TTL = 60 * 1000; // 1 minute cache
+
   async getFeaturedPosts(): Promise<Journal[]> {
+    // Check if we have a valid cache
+    const now = Date.now();
+    if (this.featuredPostsCache.data && now - this.featuredPostsCache.timestamp < this.CACHE_TTL) {
+      return this.featuredPostsCache.data;
+    }
+
+    // If not in cache or expired, fetch from database
     const posts = await db.select()
       .from(journals)
       .where(
@@ -472,19 +486,34 @@ export class DatabaseStorage implements IStorage {
       )
       .orderBy(desc(journals.createdAt));
     
-    // Untuk setiap post, dapatkan info user dan tambahkan ke post
-    const postsWithUsers = await Promise.all(posts.map(async (post) => {
-      const user = await this.getUser(post.userId);
-      return {
-        ...post,
-        user: user ? {
+    // Get all unique user IDs from posts to minimize database queries
+    const userIds = [...new Set(posts.map(post => post.userId))];
+    
+    // Fetch all users in a single batch
+    const usersMap = new Map();
+    await Promise.all(userIds.map(async (userId) => {
+      const user = await this.getUser(userId);
+      if (user) {
+        usersMap.set(userId, {
           username: user.username,
           avatarUrl: user.avatarUrl,
           isAdmin: user.isAdmin,
           verified: user.verified
-        } : null
-      };
+        });
+      }
     }));
+    
+    // Map user data to posts
+    const postsWithUsers = posts.map(post => ({
+      ...post,
+      user: usersMap.get(post.userId) || null
+    }));
+    
+    // Update cache
+    this.featuredPostsCache = {
+      data: postsWithUsers,
+      timestamp: now
+    };
     
     return postsWithUsers;
   }
