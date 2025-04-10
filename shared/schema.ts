@@ -117,5 +117,34 @@ export type InsertProject = z.infer<typeof insertProjectSchema>;
 export type Category = typeof categories.$inferSelect;
 export type InsertCategory = z.infer<typeof insertCategorySchema>;
 export type CategorySlug = z.infer<typeof categoryEnum>;
+// Journal blogs
+export const journals = pgTable("journals", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  excerpt: text("excerpt"),
+  coverImage: text("cover_image"),
+  userId: integer("user_id").notNull(),
+  published: boolean("published").default(true).notNull(),
+  featured: boolean("featured").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertJournalSchema = createInsertSchema(journals)
+  .pick({
+    title: true,
+    content: true,
+    excerpt: true,
+    coverImage: true,
+    published: true,
+    featured: true
+  })
+  .extend({
+    excerpt: z.string().max(300, { message: "Excerpt cannot exceed 300 characters" }).optional(),
+  });
+
 export type SiteSettings = typeof siteSettings.$inferSelect;
 export type InsertSiteSettings = z.infer<typeof insertSiteSettingsSchema>;
+export type Journal = typeof journals.$inferSelect;
+export type InsertJournal = z.infer<typeof insertJournalSchema>;

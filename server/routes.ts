@@ -4,7 +4,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, hashPassword, comparePasswords } from "./auth";
 import { z } from "zod";
-import { insertProjectSchema, insertCategorySchema, insertSiteSettingsSchema } from "@shared/schema";
+import { insertProjectSchema, insertCategorySchema, insertSiteSettingsSchema, insertJournalSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup authentication routes
@@ -460,6 +460,184 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       console.error("Error updating site settings:", error);
       res.status(500).json({ message: "Error updating site settings" });
+    }
+  });
+
+  // Journal API endpoints
+  app.get("/api/journals", async (req, res) => {
+    try {
+      const journals = await storage.getAllJournals();
+      res.status(200).json(journals);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching journals" });
+    }
+  });
+
+  app.get("/api/journals/featured", async (req, res) => {
+    try {
+      const journals = await storage.getFeaturedJournals();
+      res.status(200).json(journals);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching featured journals" });
+    }
+  });
+
+  app.get("/api/journals/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid journal ID" });
+      }
+      
+      const journal = await storage.getJournal(id);
+      if (!journal) {
+        return res.status(404).json({ message: "Journal not found" });
+      }
+      
+      res.status(200).json(journal);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching journal" });
+    }
+  });
+
+  app.get("/api/user/journals", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    try {
+      const journals = await storage.getJournalsByUser(req.user.id);
+      res.status(200).json(journals);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching user journals" });
+    }
+  });
+
+  app.post("/api/journals", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const validatedData = insertJournalSchema.parse(req.body);
+      const journal = await storage.createJournal(validatedData, req.user.id);
+      res.status(201).json(journal);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          message: "Validation error",
+          errors: error.errors,
+        });
+      }
+      res.status(500).json({ message: "Error creating journal" });
+    }
+  });
+
+  app.put("/api/journals/:id", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid journal ID" });
+      }
+      
+      const journal = await storage.getJournal(id);
+      if (!journal) {
+        return res.status(404).json({ message: "Journal not found" });
+      }
+      
+      // Check if user owns the journal or is admin
+      if (journal.userId !== req.user.id && !req.user.isAdmin) {
+        return res.status(403).json({ message: "Not authorized to update this journal" });
+      }
+      
+      const validatedData = insertJournalSchema.partial().parse(req.body);
+      const updatedJournal = await storage.updateJournal(id, validatedData);
+      res.status(200).json(updatedJournal);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Validation error", 
+          errors: error.errors 
+        });
+      }
+      res.status(500).json({ message: "Error updating journal" });
+    }
+  });
+
+  app.delete("/api/journals/:id", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid journal ID" });
+      }
+      
+      const journal = await storage.getJournal(id);
+      if (!journal) {
+        return res.status(404).json({ message: "Journal not found" });
+      }
+      
+      // Check if user owns the journal or is admin
+      if (journal.userId !== req.user.id && !req.user.isAdmin) {
+        return res.status(403).json({ message: "Not authorized to delete this journal" });
+      }
+      
+      await storage.deleteJournal(id);
+      res.status(200).json({ message: "Journal deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Error deleting journal" });
+    }
+  });
+
+  // Admin journal management endpoints
+  app.post("/api/admin/journals/:id/feature", async (req, res) => {
+    if (!req.isAuthenticated() || !req.user.isAdmin) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+    
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid journal ID" });
+      }
+      
+      const journal = await storage.setJournalAsFeatured(id, true);
+      if (!journal) {
+        return res.status(404).json({ message: "Journal not found" });
+      }
+      
+      res.status(200).json(journal);
+    } catch (error) {
+      res.status(500).json({ message: "Error featuring journal" });
+    }
+  });
+
+  app.post("/api/admin/journals/:id/unfeature", async (req, res) => {
+    if (!req.isAuthenticated() || !req.user.isAdmin) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+    
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid journal ID" });
+      }
+      
+      const journal = await storage.setJournalAsFeatured(id, false);
+      if (!journal) {
+        return res.status(404).json({ message: "Journal not found" });
+      }
+      
+      res.status(200).json(journal);
+    } catch (error) {
+      res.status(500).json({ message: "Error unfeaturing journal" });
     }
   });
 

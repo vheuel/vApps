@@ -1,4 +1,4 @@
-import { users, projects, categories, siteSettings, type User, type InsertUser, type Project, type InsertProject, type Category, type InsertCategory, type SiteSettings, type InsertSiteSettings } from "@shared/schema";
+import { users, projects, categories, siteSettings, journals, type User, type InsertUser, type Project, type InsertProject, type Category, type InsertCategory, type SiteSettings, type InsertSiteSettings, type Journal, type InsertJournal } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
 import connectPg from "connect-pg-simple";
@@ -31,6 +31,16 @@ export interface IStorage {
   rejectProject(id: number): Promise<Project | undefined>;
   verifyProject(id: number): Promise<Project | undefined>;
   unverifyProject(id: number): Promise<Project | undefined>;
+  
+  // Journal/Blog management
+  getJournal(id: number): Promise<Journal | undefined>;
+  createJournal(journal: InsertJournal, userId: number): Promise<Journal>;
+  updateJournal(id: number, journal: Partial<InsertJournal>): Promise<Journal | undefined>;
+  deleteJournal(id: number): Promise<boolean>;
+  getJournalsByUser(userId: number): Promise<Journal[]>;
+  getAllJournals(): Promise<Journal[]>;
+  getFeaturedJournals(): Promise<Journal[]>;
+  setJournalAsFeatured(id: number, featured: boolean): Promise<Journal | undefined>;
   
   // Category management
   getCategories(): Promise<Category[]>;
@@ -255,6 +265,77 @@ export class DatabaseStorage implements IStorage {
     return true;
   }
   
+  // Journal/Blog management methods
+  async getJournal(id: number): Promise<Journal | undefined> {
+    const result = await db.select().from(journals).where(eq(journals.id, id));
+    return result.length ? result[0] : undefined;
+  }
+
+  async createJournal(insertJournal: InsertJournal, userId: number): Promise<Journal> {
+    const [journal] = await db.insert(journals)
+      .values({
+        ...insertJournal,
+        userId,
+        published: insertJournal.published !== undefined ? insertJournal.published : true,
+        featured: insertJournal.featured !== undefined ? insertJournal.featured : false
+      })
+      .returning();
+    return journal;
+  }
+
+  async updateJournal(id: number, updates: Partial<InsertJournal>): Promise<Journal | undefined> {
+    const [updatedJournal] = await db.update(journals)
+      .set({
+        ...updates,
+        updatedAt: new Date()
+      })
+      .where(eq(journals.id, id))
+      .returning();
+    return updatedJournal;
+  }
+
+  async deleteJournal(id: number): Promise<boolean> {
+    await db.delete(journals).where(eq(journals.id, id));
+    return true;
+  }
+
+  async getJournalsByUser(userId: number): Promise<Journal[]> {
+    return db.select()
+      .from(journals)
+      .where(eq(journals.userId, userId))
+      .orderBy(desc(journals.createdAt));
+  }
+
+  async getAllJournals(): Promise<Journal[]> {
+    return db.select()
+      .from(journals)
+      .where(eq(journals.published, true))
+      .orderBy(desc(journals.createdAt));
+  }
+
+  async getFeaturedJournals(): Promise<Journal[]> {
+    return db.select()
+      .from(journals)
+      .where(
+        and(
+          eq(journals.published, true),
+          eq(journals.featured, true)
+        )
+      )
+      .orderBy(desc(journals.createdAt));
+  }
+
+  async setJournalAsFeatured(id: number, featured: boolean): Promise<Journal | undefined> {
+    const [updatedJournal] = await db.update(journals)
+      .set({
+        featured,
+        updatedAt: new Date()
+      })
+      .where(eq(journals.id, id))
+      .returning();
+    return updatedJournal;
+  }
+
   // Site settings management methods
   async getSiteSettings(): Promise<SiteSettings | undefined> {
     const result = await db.select().from(siteSettings).limit(1);
