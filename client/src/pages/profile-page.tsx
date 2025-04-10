@@ -198,7 +198,7 @@ export default function ProfilePage({ params }: { params: { username: string } }
   const verifiedProjects = projects?.filter(p => p.verified).length || 0;
 
   // Check if current user is owner of the profile
-  const isOwner = currentUser && currentUser.id === profileUser.id;
+  const isOwner = currentUser && currentUser.id === profileUser.id ? true : undefined;
 
   return (
     <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
@@ -662,6 +662,7 @@ export default function ProfilePage({ params }: { params: { username: string } }
               defaultValues={editProject}
               onSubmit={handleSubmitEdit}
               isSubmitting={updateProjectMutation.isPending}
+              mode="edit"
             />
           )}
         </DialogContent>
