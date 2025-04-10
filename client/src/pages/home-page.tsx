@@ -93,35 +93,6 @@ export default function HomePage() {
           </div>
 
           <div className="flex overflow-x-auto pb-4 -mx-4 px-4 gap-4 snap-x snap-mandatory touch-pan-x hide-scrollbar">
-            {/* Market Data Card */}
-            <Card className="flex-shrink-0 w-full sm:w-80 min-h-[260px] snap-start overflow-hidden relative bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30">
-              <div className="p-4">
-                <div className="mb-4">
-                  <div className="text-lg font-bold">TON</div>
-                  <div className="text-2xl font-bold">$2.98</div>
-                  <div className="text-red-500 text-sm">-0.81%</div>
-                </div>
-
-                <div className="mt-4 text-sm text-muted-foreground">
-                  <div className="flex justify-between mb-1">
-                    <span>Rank</span>
-                    <span className="font-medium">#12</span>
-                  </div>
-                  <div className="flex justify-between mb-1">
-                    <span>Market Cap</span>
-                    <span className="font-medium">$7B</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Volume</span>
-                    <span className="font-medium">$2M</span>
-                  </div>
-                </div>
-
-                {/* Simplified price chart (just for visual) */}
-                <div className="h-16 mt-4 bg-gradient-to-r from-red-100 to-red-200 dark:from-red-900/20 dark:to-red-800/20 rounded-lg opacity-70"></div>
-              </div>
-            </Card>
-
             {/* Featured Article 1 */}
             <Card className="flex-shrink-0 w-full sm:w-80 min-h-[260px] snap-start overflow-hidden relative bg-cover bg-center" style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1639322537504-6427a16b0a28?q=80&w=500&auto=format&fit=crop")' }}>
               <div className="absolute inset-0 bg-black/50"></div>
