@@ -9,6 +9,7 @@ import { useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { MessageSquare, Heart, Link2, MoreVertical, CheckCircle } from "lucide-react";
 import { MdVerified } from "react-icons/md";
+import { useToast } from "@/hooks/use-toast";
 
 interface PostsListProps {
   userId?: number;
@@ -20,6 +21,7 @@ export function PostsList({
   limit = 10,
 }: PostsListProps) {
   const { user } = useAuth();
+  const { toast } = useToast();
 
   const queryKey = userId 
     ? [`/api/user/journals`] 
@@ -28,6 +30,60 @@ export function PostsList({
   const { data: journals, isLoading } = useQuery<Journal[]>({
     queryKey,
     refetchOnWindowFocus: false,
+  });
+  
+  // Add like functionality
+  const likeMutation = useMutation({
+    mutationFn: async (journalId: number) => {
+      const res = await apiRequest("POST", `/api/journals/${journalId}/like`);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Could not like post",
+        variant: "destructive"
+      });
+    }
+  });
+  
+  // Add unlike functionality
+  const unlikeMutation = useMutation({
+    mutationFn: async (journalId: number) => {
+      const res = await apiRequest("POST", `/api/journals/${journalId}/unlike`);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Could not unlike post",
+        variant: "destructive"
+      });
+    }
+  });
+  
+  // Add comment functionality
+  const commentMutation = useMutation({
+    mutationFn: async (journalId: number) => {
+      const res = await apiRequest("POST", `/api/journals/${journalId}/comment`);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Could not add comment",
+        variant: "destructive"
+      });
+    }
   });
 
   // Fungsi untuk mendeteksi dan format URL dalam teks
@@ -168,13 +224,31 @@ export function PostsList({
           {/* Interaction buttons */}
           <div className="flex items-center justify-between text-gray-500 dark:text-gray-400 pt-2">
             <div className="flex items-center space-x-6">
-              <button className="flex items-center">
+              <button 
+                className="flex items-center hover:text-blue-500 transition-colors"
+                onClick={() => commentMutation.mutate(journal.id)}
+                disabled={commentMutation.isPending}
+              >
                 <MessageSquare className="h-5 w-5 mr-1" />
-                <span>1</span>
+                <span>{journal.comments}</span>
               </button>
-              <button className="flex items-center">
-                <Heart className="h-5 w-5 mr-1" />
-                <span>2</span>
+              <button 
+                className="flex items-center hover:text-red-500 transition-colors"
+                onClick={() => {
+                  // Jika jumlah likes adalah genap, kita tambahkan like
+                  // Jika ganjil, kita unlike (implementasi sederhana)
+                  if (journal.likes % 2 === 0) {
+                    likeMutation.mutate(journal.id);
+                  } else {
+                    unlikeMutation.mutate(journal.id);
+                  }
+                }}
+                disabled={likeMutation.isPending || unlikeMutation.isPending}
+              >
+                <Heart 
+                  className={`h-5 w-5 mr-1 ${journal.likes % 2 === 1 ? 'fill-red-500 text-red-500' : ''}`} 
+                />
+                <span>{journal.likes}</span>
               </button>
             </div>
           </div>

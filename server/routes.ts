@@ -640,6 +640,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Error unfeaturing journal" });
     }
   });
+  
+  // Like a journal
+  app.post("/api/journals/:id/like", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid journal ID" });
+      }
+      
+      const journal = await storage.likeJournal(id);
+      if (!journal) {
+        return res.status(404).json({ message: "Journal not found" });
+      }
+      
+      res.status(200).json(journal);
+    } catch (error) {
+      res.status(500).json({ message: "Error liking journal" });
+    }
+  });
+  
+  // Unlike a journal
+  app.post("/api/journals/:id/unlike", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid journal ID" });
+      }
+      
+      const journal = await storage.unlikeJournal(id);
+      if (!journal) {
+        return res.status(404).json({ message: "Journal not found" });
+      }
+      
+      res.status(200).json(journal);
+    } catch (error) {
+      res.status(500).json({ message: "Error unliking journal" });
+    }
+  });
+  
+  // Add a comment to a journal
+  app.post("/api/journals/:id/comment", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid journal ID" });
+      }
+      
+      const journal = await storage.addComment(id);
+      if (!journal) {
+        return res.status(404).json({ message: "Journal not found" });
+      }
+      
+      res.status(200).json(journal);
+    } catch (error) {
+      res.status(500).json({ message: "Error commenting on journal" });
+    }
+  });
 
   // User management endpoints for admin
   app.get("/api/admin/users", async (req, res) => {

@@ -128,6 +128,8 @@ export const journals = pgTable("journals", {
   userId: integer("user_id").notNull(),
   published: boolean("published").default(true).notNull(),
   featured: boolean("featured").default(false).notNull(),
+  likes: integer("likes").default(0).notNull(),
+  comments: integer("comments").default(0).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

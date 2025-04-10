@@ -44,6 +44,9 @@ export interface IStorage {
   getAllJournals(): Promise<Journal[]>;
   getFeaturedJournals(): Promise<Journal[]>;
   setJournalAsFeatured(id: number, featured: boolean): Promise<Journal | undefined>;
+  likeJournal(id: number): Promise<Journal | undefined>;
+  unlikeJournal(id: number): Promise<Journal | undefined>;
+  addComment(id: number): Promise<Journal | undefined>;
   
   // Category management
   getCategories(): Promise<Category[]>;
@@ -352,6 +355,56 @@ export class DatabaseStorage implements IStorage {
     const [updatedJournal] = await db.update(journals)
       .set({
         featured,
+        updatedAt: new Date()
+      })
+      .where(eq(journals.id, id))
+      .returning();
+    return updatedJournal;
+  }
+  
+  async likeJournal(id: number): Promise<Journal | undefined> {
+    // Ambil nilai likes saat ini
+    const journal = await this.getJournal(id);
+    if (!journal) return undefined;
+    
+    // Tambahkan 1 ke nilai likes
+    const [updatedJournal] = await db.update(journals)
+      .set({
+        likes: journal.likes + 1,
+        updatedAt: new Date()
+      })
+      .where(eq(journals.id, id))
+      .returning();
+    return updatedJournal;
+  }
+  
+  async unlikeJournal(id: number): Promise<Journal | undefined> {
+    // Ambil nilai likes saat ini
+    const journal = await this.getJournal(id);
+    if (!journal) return undefined;
+    
+    // Kurangi 1 dari nilai likes, tapi jangan sampai negatif
+    const newLikes = Math.max(0, journal.likes - 1);
+    
+    const [updatedJournal] = await db.update(journals)
+      .set({
+        likes: newLikes,
+        updatedAt: new Date()
+      })
+      .where(eq(journals.id, id))
+      .returning();
+    return updatedJournal;
+  }
+  
+  async addComment(id: number): Promise<Journal | undefined> {
+    // Ambil nilai comments saat ini
+    const journal = await this.getJournal(id);
+    if (!journal) return undefined;
+    
+    // Tambahkan 1 ke nilai comments
+    const [updatedJournal] = await db.update(journals)
+      .set({
+        comments: journal.comments + 1,
         updatedAt: new Date()
       })
       .where(eq(journals.id, id))

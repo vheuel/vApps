@@ -397,17 +397,7 @@ export default function ProfilePage() {
                       </div>
                     </div>
                     
-                    {/* Interaction Buttons - Simplified, all aligned to the right */}
-                    <div className="mt-3 flex items-center justify-end space-x-4 text-gray-500 dark:text-gray-400">
-                      <button className="p-2 hover:text-blue-500 flex items-center">
-                        <MessageSquare className="h-5 w-5 mr-1" />
-                        <span>1</span>
-                      </button>
-                      <button className="p-2 hover:text-red-500 flex items-center">
-                        <Heart className="h-5 w-5" />
-                        <span className="ml-1">1</span>
-                      </button>
-                    </div>
+                    {/* Interaction Buttons - Removed as per request */}
                   </div>
                 ))}
               </div>
