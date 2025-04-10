@@ -59,26 +59,11 @@ export default function AuthPage() {
         <div className="order-first md:order-last">
           <div className="text-center md:text-left space-y-6">
             <h1 className="text-3xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-600">
-              Access Your Account
+              vApps
             </h1>
             <p className="text-muted-foreground text-xl font-light leading-relaxed">
-              Sign in to access your profile, manage projects, and connect with the Web3 community.
+              by Vheüel
             </p>
-            
-            <div className="flex flex-col space-y-3 mt-4">
-              <div className="flex items-center space-x-2">
-                <CheckCircle className="h-5 w-5 text-green-500" />
-                <p className="text-muted-foreground">Secure authentication</p>
-              </div>
-              <div className="flex items-center space-x-2">
-                <CheckCircle className="h-5 w-5 text-green-500" />
-                <p className="text-muted-foreground">Personalized dashboard</p>
-              </div>
-              <div className="flex items-center space-x-2">
-                <CheckCircle className="h-5 w-5 text-green-500" />
-                <p className="text-muted-foreground">Project management tools</p>
-              </div>
-            </div>
           </div>
         </div>
       </div>
