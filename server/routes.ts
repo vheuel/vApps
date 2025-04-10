@@ -5,6 +5,7 @@ import { storage } from "./storage";
 import { setupAuth, hashPassword, comparePasswords } from "./auth";
 import { z } from "zod";
 import { insertProjectSchema, insertCategorySchema, insertSiteSettingsSchema, insertJournalSchema } from "@shared/schema";
+import { oauthRouter } from "./oauth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup authentication routes
@@ -1149,6 +1150,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Error unverifying user" });
     }
   });
+
+  // Setup OAuth routes
+  app.use("/api/oauth", oauthRouter);
 
   const httpServer = createServer(app);
   return httpServer;
