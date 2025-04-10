@@ -50,7 +50,7 @@ export function ConfirmDialog({
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className="sm:max-w-sm mx-6 px-6 py-6 rounded-lg border-0"
+        className="max-w-[85%] sm:max-w-sm mx-auto px-6 py-6 rounded-lg border-0"
         onInteractOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
       >
