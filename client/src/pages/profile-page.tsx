@@ -436,32 +436,20 @@ export default function ProfilePage() {
                       </div>
                     </div>
                     
-                    {/* Interaction Buttons */}
-                    <div className="mt-3 flex items-center justify-between text-gray-500 dark:text-gray-400">
-                      <div className="flex items-center">
-                        <button className="p-2 hover:text-blue-500 flex items-center">
-                          <MessageSquare className="h-5 w-5 mr-1" />
-                          <span>1</span>
-                        </button>
-                        <button className="p-2 hover:text-blue-500 flex items-center">
-                          <Zap className="h-5 w-5 mr-1" />
-                          <span>1</span>
-                        </button>
-                      </div>
-                      <div className="flex items-center">
-                        <button className="p-2 hover:text-red-500">
-                          <Heart className="h-5 w-5" />
-                        </button>
-                        <button className="p-2 hover:text-yellow-500">
-                          <Star className="h-5 w-5" />
-                        </button>
-                        <button className="p-2 hover:text-blue-500">
-                          <Bookmark className="h-5 w-5" />
-                        </button>
-                        <button className="p-2 hover:text-green-500">
-                          <RotateCw className="h-5 w-5" />
-                        </button>
-                      </div>
+                    {/* Interaction Buttons - Simplified */}
+                    <div className="mt-3 flex items-center space-x-2 text-gray-500 dark:text-gray-400">
+                      <button className="p-2 hover:text-blue-500 flex items-center">
+                        <MessageSquare className="h-5 w-5 mr-1" />
+                        <span>1</span>
+                      </button>
+                      <button className="p-2 hover:text-blue-500 flex items-center">
+                        <Zap className="h-5 w-5 mr-1" />
+                        <span>1</span>
+                      </button>
+                      <div className="flex-grow"></div>
+                      <button className="p-2 hover:text-red-500">
+                        <Heart className="h-5 w-5" />
+                      </button>
                     </div>
                   </div>
                 ))}
