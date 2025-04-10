@@ -389,9 +389,9 @@ export function JournalDetail({ journalId }: JournalDetailProps) {
                               <span className="sr-only">More options</span>
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
+                          <DropdownMenuContent align="end" className="min-w-[100px]">
                             <DropdownMenuItem 
-                              className="text-destructive" 
+                              className="text-destructive text-center justify-center" 
                               onClick={() => {
                                 setCommentToDelete(comment.id);
                                 setIsDeleteDialogOpen(true);
