@@ -53,12 +53,13 @@ export function PostsList({
     refetchOnWindowFocus: false,
   });
   
-  // Query for the user data if userId is provided
-  const { data: postAuthor } = useQuery({
+  // This query disabled - we'll use post.user info instead of separate query
+  // since we already have user info in the post object
+  /*const { data: postAuthor } = useQuery({
     queryKey: userId ? [`/api/user/${userId}`] : ['skip-query'],
     enabled: !!userId,
     refetchOnWindowFocus: false,
-  });
+  });*/
 
   // Mutation for deleting a post
   const deleteMutation = useMutation({
@@ -203,17 +204,32 @@ export function PostsList({
 
   // Function to parse content and highlight hashtags and links
   const parseContent = (content: string) => {
+    if (!content) return null;
+    
     // First split content into chunks by space
     const chunks = content.split(/(\s+)/);
     
     return chunks.map((chunk, idx) => {
       // Check if chunk is a hashtag
       if (chunk.startsWith('#')) {
-        return <span key={idx} className="text-purple-500">{chunk}</span>;
+        return <span key={idx} className="text-purple-500 font-medium hover:underline cursor-pointer">{chunk}</span>;
       }
       // Check if chunk is a URL
       else if (chunk.match(/^(http|https):\/\/[^\s]+$/)) {
-        return <a key={idx} href={chunk} target="_blank" rel="noopener noreferrer" className="text-pink-500 hover:underline">{chunk}</a>;
+        // Shorten the URL for display if it's too long
+        const displayUrl = chunk.length > 30 ? chunk.substring(0, 27) + '...' : chunk;
+        return (
+          <a 
+            key={idx} 
+            href={chunk} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="text-pink-500 hover:underline break-all"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {displayUrl}
+          </a>
+        );
       }
       // Regular text
       else {
@@ -230,13 +246,9 @@ export function PostsList({
             {/* User Avatar */}
             <Link href={`/profile/${post.userId}`}>
               <Avatar className="h-10 w-10">
-                {postAuthor?.avatarUrl ? (
-                  <AvatarImage src={postAuthor.avatarUrl} alt={postAuthor.username} />
-                ) : (
-                  <AvatarFallback className="bg-gray-200">
-                    {postAuthor?.username ? postAuthor.username.charAt(0).toUpperCase() : 'U'}
-                  </AvatarFallback>
-                )}
+                <AvatarFallback className="bg-gray-200">
+                  {user?.username ? user.username.charAt(0).toUpperCase() : 'U'}
+                </AvatarFallback>
               </Avatar>
             </Link>
             
@@ -246,13 +258,13 @@ export function PostsList({
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <Link href={`/profile/${post.userId}`} className="font-semibold hover:underline">
-                    {postAuthor?.username 
-                      ? postAuthor.username.charAt(0).toUpperCase() + postAuthor.username.slice(1) 
+                    {user?.username 
+                      ? user.username.charAt(0).toUpperCase() + user.username.slice(1) 
                       : 'Username'}
-                    {postAuthor?.isAdmin && (
+                    {user?.isAdmin && (
                       <MdVerified className="h-4 w-4 text-amber-500 ml-1 inline" title="Admin" />
                     )}
-                    {!postAuthor?.isAdmin && postAuthor?.verified && (
+                    {!user?.isAdmin && user?.verified && (
                       <MdVerified className="h-4 w-4 text-blue-500 ml-1 inline" title="Verified User" />
                     )}
                   </Link>
@@ -330,14 +342,17 @@ export function PostsList({
               
               {/* Post Actions */}
               <div className="flex items-center justify-between mt-3 text-gray-500">
-                <button className="flex items-center hover:text-blue-500">
+                <button className="flex items-center hover:text-blue-500 group">
                   <MessageSquare className="h-5 w-5" />
+                  {post.comments > 0 && (
+                    <span className="ml-1 text-xs group-hover:text-blue-500">{post.comments}</span>
+                  )}
                 </button>
-                <button className="flex items-center hover:text-green-500">
+                <button className="flex items-center hover:text-green-500 group">
                   <ArrowRight className="h-5 w-5" />
                 </button>
                 <button 
-                  className={`flex items-center hover:text-red-500 ${post.likes > 0 ? 'text-red-500' : ''}`}
+                  className={`flex items-center hover:text-red-500 group ${post.likes > 0 ? 'text-red-500' : ''}`}
                   onClick={() => {
                     if (post.likes === 0) {
                       likeMutation.mutate(post.id);
@@ -347,11 +362,14 @@ export function PostsList({
                   }}
                 >
                   <Heart className={`h-5 w-5 ${post.likes > 0 ? 'fill-red-500' : ''}`} />
+                  {post.likes > 0 && (
+                    <span className="ml-1 text-xs group-hover:text-red-500">{post.likes}</span>
+                  )}
                 </button>
-                <button className="flex items-center hover:text-blue-500">
+                <button className="flex items-center hover:text-blue-500 group">
                   <Share2 className="h-5 w-5" />
                 </button>
-                <button className="flex items-center hover:text-yellow-500">
+                <button className="flex items-center hover:text-yellow-500 group">
                   <Bookmark className="h-5 w-5" />
                 </button>
               </div>
