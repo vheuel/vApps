@@ -1,4 +1,5 @@
 import { Switch, Route } from "wouter";
+import { useState, useEffect } from "react";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import HomePage from "@/pages/home-page";
@@ -21,6 +22,22 @@ import { AdminRoute } from "./lib/protected-route";
 import { AuthProvider } from "./hooks/use-auth";
 
 function App() {
+  // State untuk mengontrol rendering footer
+  const [showFooter, setShowFooter] = useState(false);
+  
+  // Effect untuk menampilkan footer setelah konten utama dimuat
+  useEffect(() => {
+    // Tunda rendering footer untuk memastikan halaman utama dirender terlebih dahulu
+    const timer = setTimeout(() => {
+      setShowFooter(true);
+    }, 300); // Tunda 300ms
+    
+    // Reset scroll position ke top saat navigasi
+    window.scrollTo(0, 0);
+    
+    return () => clearTimeout(timer);
+  }, []);
+  
   return (
     <AuthProvider>
       <div className="flex flex-col min-h-screen">
@@ -46,7 +63,7 @@ function App() {
             <Route component={NotFound} />
           </Switch>
         </main>
-        <Footer />
+        {showFooter && <Footer />}
       </div>
     </AuthProvider>
   );

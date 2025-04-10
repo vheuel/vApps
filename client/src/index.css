@@ -7,8 +7,24 @@
     @apply border-border;
   }
 
+  html {
+    overflow-anchor: none; /* Prevent jumping caused by removing content */
+    height: 100%;
+    scroll-behavior: smooth;
+    scroll-padding-top: 80px; /* Kompensasi untuk header */
+  }
+  
   body {
     @apply font-sans antialiased bg-background text-foreground;
+    min-height: 100%;
+    overscroll-behavior-y: none; /* Mencegah scroll bouncing pada mobile */
+  }
+  
+  /* Atur ulang scroll positioning untuk browser modern */
+  @supports (overflow-anchor: auto) {
+    html {
+      overflow-anchor: auto;
+    }
   }
 }
 
