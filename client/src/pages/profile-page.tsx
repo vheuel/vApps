@@ -442,10 +442,6 @@ export default function ProfilePage() {
                         <MessageSquare className="h-5 w-5 mr-1" />
                         <span>1</span>
                       </button>
-                      <button className="p-2 hover:text-blue-500 flex items-center">
-                        <Zap className="h-5 w-5 mr-1" />
-                        <span>1</span>
-                      </button>
                       <div className="flex-grow"></div>
                       <button className="p-2 hover:text-red-500">
                         <Heart className="h-5 w-5" />
