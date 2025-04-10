@@ -3,16 +3,7 @@ import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { ModeToggle } from "@/components/ui/mode-toggle";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LoginForm } from "@/components/auth/login-form";
-import { RegisterForm } from "@/components/auth/register-form";
-import { Search, GlobeIcon, User, Menu, X, MoonIcon, SunIcon } from "lucide-react";
+import { Search, Menu, X } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,10 +17,8 @@ import { useQuery } from "@tanstack/react-query";
 import { SiteSettings } from "@shared/schema";
 
 export default function Header() {
-  const [location] = useLocation();
+  const [location, navigate] = useLocation();
   const { user, logout } = useAuth();
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [activeAuthTab, setActiveAuthTab] = useState("login");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   // Get site settings
@@ -39,10 +28,10 @@ export default function Header() {
 
   const handleAuthClick = () => {
     if (user) {
-      // If user is logged in, don't show login modal
+      // If user is logged in, don't navigate
       return;
     }
-    setIsLoginModalOpen(true);
+    navigate("/login");
   };
 
   const handleLogout = () => {
@@ -148,8 +137,7 @@ export default function Header() {
             </Button>
           )}
 
-          {/* Language Selector */}
-
+          {/* Theme Selector */}
           <ModeToggle />
 
           {/* Mobile menu button */}
@@ -229,54 +217,35 @@ export default function Header() {
               </>
             )}
             {!user && (
-              <Button
-                variant="default"
-                onClick={() => {
-                  setIsLoginModalOpen(true);
-                  setMobileMenuOpen(false);
-                }}
-                className="text-white"
-                style={{ 
-                  backgroundColor: siteSettings?.primaryColor || "#3B82F6",
-                }}
-              >
-                Login / Register
-              </Button>
+              <div className="flex flex-col gap-2">
+                <Button
+                  variant="default"
+                  onClick={() => {
+                    navigate("/login");
+                    setMobileMenuOpen(false);
+                  }}
+                  className="text-white w-full"
+                  style={{ 
+                    backgroundColor: siteSettings?.primaryColor || "#3B82F6",
+                  }}
+                >
+                  Login
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    navigate("/register");
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full"
+                >
+                  Register
+                </Button>
+              </div>
             )}
           </nav>
         </div>
       )}
-
-      {/* Login/Register Modal */}
-      <Dialog open={isLoginModalOpen} onOpenChange={setIsLoginModalOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center text-2xl font-bold">
-              {activeAuthTab === "login" ? "Login" : "Register"}
-            </DialogTitle>
-          </DialogHeader>
-          <Tabs
-            defaultValue="login"
-            value={activeAuthTab}
-            onValueChange={setActiveAuthTab}
-            className="w-full"
-          >
-            <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="login">Login</TabsTrigger>
-              <TabsTrigger value="register">Register</TabsTrigger>
-            </TabsList>
-            <TabsContent value="login">
-              <LoginForm onLoginSuccess={() => setIsLoginModalOpen(false)} />
-            </TabsContent>
-            <TabsContent value="register">
-              <RegisterForm onRegisterSuccess={() => setIsLoginModalOpen(false)} />
-            </TabsContent>
-          </Tabs>
-          <div className="text-center text-sm text-muted-foreground pt-4 border-t">
-            {siteSettings?.footerText || "© 2025 vApps by Vheüel. All rights reserved."}
-          </div>
-        </DialogContent>
-      </Dialog>
     </header>
   );
 }
