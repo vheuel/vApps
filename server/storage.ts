@@ -1,7 +1,8 @@
 import { 
-  users, projects, categories, siteSettings, journals, comments, 
+  users, projects, categories, siteSettings, journals, comments, oauthProviders, userOAuthConnections,
   type User, type InsertUser, type Project, type InsertProject, type Category, type InsertCategory, 
-  type SiteSettings, type InsertSiteSettings, type Journal, type InsertJournal, type Comment, type InsertComment
+  type SiteSettings, type InsertSiteSettings, type Journal, type InsertJournal, type Comment, type InsertComment,
+  type OAuthProvider, type InsertOAuthProvider, type UserOAuthConnection, type InsertUserOAuthConnection
 } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
@@ -85,6 +86,23 @@ export interface IStorage {
   // Site settings management
   getSiteSettings(): Promise<SiteSettings | undefined>;
   updateSiteSettings(settings: Partial<InsertSiteSettings>): Promise<SiteSettings>;
+  
+  // OAuth Provider management
+  getOAuthProviders(): Promise<OAuthProvider[]>;
+  getOAuthProvider(id: number): Promise<OAuthProvider | undefined>;
+  getOAuthProviderByName(provider: string): Promise<OAuthProvider | undefined>;
+  createOAuthProvider(provider: InsertOAuthProvider): Promise<OAuthProvider>;
+  updateOAuthProvider(id: number, provider: Partial<InsertOAuthProvider>): Promise<OAuthProvider | undefined>;
+  deleteOAuthProvider(id: number): Promise<boolean>;
+  enableOAuthProvider(id: number): Promise<OAuthProvider | undefined>;
+  disableOAuthProvider(id: number): Promise<OAuthProvider | undefined>;
+  
+  // User OAuth connections
+  getUserOAuthConnections(userId: number): Promise<UserOAuthConnection[]>;
+  getUserOAuthConnectionByProvider(userId: number, provider: string): Promise<UserOAuthConnection | undefined>;
+  createUserOAuthConnection(connection: InsertUserOAuthConnection): Promise<UserOAuthConnection>;
+  deleteUserOAuthConnection(id: number): Promise<boolean>;
+  findUserByOAuthProvider(provider: string, providerId: string): Promise<User | undefined>;
   
   // Session store
   sessionStore: any; // Using any type to fix typescript error
@@ -491,7 +509,7 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(journals.createdAt));
     
     // Get all unique user IDs from posts to minimize database queries
-    const userIds = [...new Set(posts.map(post => post.userId))];
+    const userIds = Array.from(new Set(posts.map(post => post.userId)));
     
     // Fetch all users in a single batch
     const usersMap = new Map();
@@ -595,12 +613,10 @@ export class DatabaseStorage implements IStorage {
     const post = await this.getPost(id);
     if (!post) return undefined;
     
-    // Kurangi 1 dari nilai likes, tapi jangan sampai negatif
-    const newLikes = Math.max(0, post.likes - 1);
-    
+    // Kurangi 1 dari nilai likes, tapi jangan sampai di bawah 0
     const [updatedPost] = await db.update(journals)
       .set({
-        likes: newLikes,
+        likes: Math.max(0, post.likes - 1),
         updatedAt: new Date()
       })
       .where(eq(journals.id, id))
@@ -659,43 +675,40 @@ export class DatabaseStorage implements IStorage {
   async addComment(id: number): Promise<Journal | undefined> {
     return this.addCommentToPost(id);
   }
-
-  // Site settings management methods
+  
+  // Site Settings management
   async getSiteSettings(): Promise<SiteSettings | undefined> {
-    const result = await db.select().from(siteSettings).limit(1);
-    return result.length ? result[0] : undefined;
+    const settings = await db.select().from(siteSettings);
+    return settings.length ? settings[0] : undefined;
   }
   
-  async updateSiteSettings(settings: Partial<InsertSiteSettings>): Promise<SiteSettings> {
+  async updateSiteSettings(updateData: Partial<InsertSiteSettings>): Promise<SiteSettings> {
     // Check if settings already exist
-    const existingSettings = await this.getSiteSettings();
+    const existing = await this.getSiteSettings();
     
-    if (existingSettings) {
+    if (existing) {
       // Update existing settings
-      const [updatedSettings] = await db.update(siteSettings)
+      const [updated] = await db.update(siteSettings)
         .set({
-          ...settings,
+          ...updateData,
           updatedAt: new Date()
         })
-        .where(eq(siteSettings.id, existingSettings.id))
+        .where(eq(siteSettings.id, existing.id))
         .returning();
-      return updatedSettings;
+      return updated;
     } else {
       // Create new settings
-      const [newSettings] = await db.insert(siteSettings)
+      const [created] = await db.insert(siteSettings)
         .values({
-          ...settings,
-          siteName: settings.siteName || "Web3 Project",
-          logoUrl: settings.logoUrl || "",
-          primaryColor: settings.primaryColor || "#3B82F6",
-          footerText: settings.footerText || "© 2025 Web3 Project. All Rights Reserved."
+          ...updateData,
+          updatedAt: new Date()
         })
         .returning();
-      return newSettings;
+      return created;
     }
   }
-
-  // Comment management methods
+  
+  // Comment methods
   async getCommentsByPostId(postId: number): Promise<Comment[]> {
     return db.select()
       .from(comments)
@@ -707,17 +720,16 @@ export class DatabaseStorage implements IStorage {
   async getCommentsByJournalId(journalId: number): Promise<Comment[]> {
     return this.getCommentsByPostId(journalId);
   }
-
+  
   async createCommentForPost(insertComment: InsertComment, userId: number): Promise<Comment> {
     const [comment] = await db.insert(comments)
       .values({
         ...insertComment,
-        userId,
-        journalId: insertComment.journalId,
+        userId
       })
       .returning();
-      
-    // Update post comments count
+    
+    // Update the comment count on the post
     await this.addCommentToPost(insertComment.journalId);
     
     return comment;
@@ -727,37 +739,126 @@ export class DatabaseStorage implements IStorage {
   async createComment(insertComment: InsertComment, userId: number): Promise<Comment> {
     return this.createCommentForPost(insertComment, userId);
   }
-
+  
   async deleteComment(id: number, userId?: number): Promise<boolean> {
-    // Get the comment first to get the journalId/postId
-    const comment = await db.select().from(comments).where(eq(comments.id, id));
-    if (comment.length === 0) {
-      return false;
-    }
-    
-    // If userId is provided, check comment owner or admin
+    // Optionally check if the comment belongs to the user if userId is provided
     if (userId !== undefined) {
-      const user = await this.getUser(userId);
-      // If not admin and not comment owner, can't delete
-      if (!user?.isAdmin && comment[0].userId !== userId) {
+      const [comment] = await db.select()
+        .from(comments)
+        .where(
+          and(
+            eq(comments.id, id),
+            eq(comments.userId, userId)
+          )
+        );
+      
+      if (!comment) {
+        // Comment doesn't exist or doesn't belong to the user
         return false;
       }
-    }
-    
-    // Decrease the comment count on the post
-    const post = await this.getPost(comment[0].journalId);
-    if (post) {
-      await db.update(journals)
-        .set({
-          comments: Math.max(0, post.comments - 1),
-          updatedAt: new Date()
-        })
-        .where(eq(journals.id, post.id));
     }
     
     // Delete the comment
     await db.delete(comments).where(eq(comments.id, id));
     return true;
+  }
+
+  // OAuth Provider management
+  async getOAuthProviders(): Promise<OAuthProvider[]> {
+    return db.select().from(oauthProviders);
+  }
+
+  async getOAuthProvider(id: number): Promise<OAuthProvider | undefined> {
+    const result = await db.select().from(oauthProviders).where(eq(oauthProviders.id, id));
+    return result.length ? result[0] : undefined;
+  }
+
+  async getOAuthProviderByName(provider: string): Promise<OAuthProvider | undefined> {
+    const result = await db.select().from(oauthProviders).where(eq(oauthProviders.provider, provider));
+    return result.length ? result[0] : undefined;
+  }
+
+  async createOAuthProvider(provider: InsertOAuthProvider): Promise<OAuthProvider> {
+    const [newProvider] = await db.insert(oauthProviders).values(provider).returning();
+    return newProvider;
+  }
+
+  async updateOAuthProvider(id: number, updates: Partial<InsertOAuthProvider>): Promise<OAuthProvider | undefined> {
+    const [updatedProvider] = await db.update(oauthProviders)
+      .set({
+        ...updates,
+        updatedAt: new Date()
+      })
+      .where(eq(oauthProviders.id, id))
+      .returning();
+    return updatedProvider;
+  }
+
+  async deleteOAuthProvider(id: number): Promise<boolean> {
+    await db.delete(oauthProviders).where(eq(oauthProviders.id, id));
+    return true;
+  }
+
+  async enableOAuthProvider(id: number): Promise<OAuthProvider | undefined> {
+    const [updatedProvider] = await db.update(oauthProviders)
+      .set({ enabled: true })
+      .where(eq(oauthProviders.id, id))
+      .returning();
+    return updatedProvider;
+  }
+
+  async disableOAuthProvider(id: number): Promise<OAuthProvider | undefined> {
+    const [updatedProvider] = await db.update(oauthProviders)
+      .set({ enabled: false })
+      .where(eq(oauthProviders.id, id))
+      .returning();
+    return updatedProvider;
+  }
+
+  // User OAuth connections management
+  async getUserOAuthConnections(userId: number): Promise<UserOAuthConnection[]> {
+    return db.select()
+      .from(userOAuthConnections)
+      .where(eq(userOAuthConnections.userId, userId));
+  }
+
+  async getUserOAuthConnectionByProvider(userId: number, provider: string): Promise<UserOAuthConnection | undefined> {
+    const result = await db.select()
+      .from(userOAuthConnections)
+      .where(
+        and(
+          eq(userOAuthConnections.userId, userId),
+          eq(userOAuthConnections.provider, provider)
+        )
+      );
+    return result.length ? result[0] : undefined;
+  }
+
+  async createUserOAuthConnection(connection: InsertUserOAuthConnection): Promise<UserOAuthConnection> {
+    const [newConnection] = await db.insert(userOAuthConnections).values(connection).returning();
+    return newConnection;
+  }
+
+  async deleteUserOAuthConnection(id: number): Promise<boolean> {
+    await db.delete(userOAuthConnections).where(eq(userOAuthConnections.id, id));
+    return true;
+  }
+
+  async findUserByOAuthProvider(provider: string, providerId: string): Promise<User | undefined> {
+    // Find the connection first
+    const result = await db.select()
+      .from(userOAuthConnections)
+      .where(
+        and(
+          eq(userOAuthConnections.provider, provider),
+          eq(userOAuthConnections.providerId, providerId)
+        )
+      );
+    
+    if (!result.length) return undefined;
+    
+    // Then get the user
+    return this.getUser(result[0].userId);
   }
 }
 
