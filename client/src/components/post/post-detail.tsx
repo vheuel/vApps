@@ -230,7 +230,7 @@ export function PostDetail({ postId }: PostDetailProps) {
               {formatDistanceToNow(new Date(post.createdAt)).replace(/^about\s/, '').replace(/\sago$/, '')}
             </span>
             {author ? (
-              <Link href="/profile" className="flex items-center hover:underline">
+              <Link href={`/profile/${author.username || ''}`} className="flex items-center hover:underline">
                 <User className="h-4 w-4 mr-1" />
                 {author.username || "Unknown author"}
                 {author.isAdmin && (
@@ -353,7 +353,7 @@ export function PostDetail({ postId }: PostDetailProps) {
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
-                        <Link href="/profile" className="font-medium hover:underline">
+                        <Link href={`/profile/${comment.user?.username || ''}`} className="font-medium hover:underline">
                           {comment.user?.username 
                             ? comment.user.username.charAt(0).toUpperCase() + comment.user.username.slice(1) 
                             : "Unknown user"}

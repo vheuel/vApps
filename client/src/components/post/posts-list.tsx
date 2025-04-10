@@ -258,7 +258,7 @@ export function PostsList({
         <div key={post.id} className="border-b border-gray-200 dark:border-gray-700 pb-4 mb-2 last:border-0">
           <div className="flex items-start gap-3">
             {/* User Avatar */}
-            <Link href={`/profile/${post.user?.username || post.userId}`}>
+            <Link href={`/profile/${post.user?.username || ''}`}>
               <Avatar className="h-10 w-10">
                 {post.user?.avatarUrl && <AvatarImage src={post.user.avatarUrl} />}
                 <AvatarFallback className="bg-gray-200">
@@ -272,7 +272,7 @@ export function PostsList({
               {/* Post Header */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
-                  <Link href={`/profile/${post.user?.username || post.userId}`} className="font-semibold hover:underline">
+                  <Link href={`/profile/${post.user?.username || ''}`} className="font-semibold hover:underline">
                     {post.user?.username 
                       ? post.user.username.charAt(0).toUpperCase() + post.user.username.slice(1) 
                       : 'Username'}
