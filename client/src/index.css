@@ -30,4 +30,26 @@
   .hide-scrollbar::-webkit-scrollbar {
     display: none;
   }
+  
+  /* Add highlight effect for post titles when focused */
+  .post-title-focus {
+    animation: highlight-title 1.5s ease;
+  }
+
+  @keyframes highlight-title {
+    0% {
+      background-color: rgba(59, 130, 246, 0.1);
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+      border-radius: 4px;
+    }
+    50% {
+      background-color: rgba(59, 130, 246, 0.05);
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.05);
+      border-radius: 4px;
+    }
+    100% {
+      background-color: transparent;
+      box-shadow: none;
+    }
+  }
 }
