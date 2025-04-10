@@ -19,7 +19,7 @@ import { EyeIcon, EyeOffIcon, Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
 const loginFormSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email" }),
+  emailOrUsername: z.string().min(3, { message: "Please enter a valid email or username" }),
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
   rememberMe: z.boolean().optional(),
 });
@@ -45,7 +45,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps = {}) {
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
-      email: "",
+      emailOrUsername: "",
       password: "",
       rememberMe: false,
     },
@@ -58,13 +58,13 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps = {}) {
       if (onLoginSuccess) {
         onLoginSuccess();
       }
-      // Arahkan ke halaman profil
-      navigate('/profile');
+      // Arahkan ke halaman profil dengan username
+      navigate(`/profile/${user.username}`);
     }
   }, [user, isLoading, navigate, onLoginSuccess]);
 
   const onSubmit = async (values: LoginFormValues) => {
-    await login(values.email, values.password);
+    await login(values.emailOrUsername, values.password);
   };
   
   // Fungsi untuk login dengan OAuth provider
@@ -85,15 +85,15 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps = {}) {
       
         <FormField
           control={form.control}
-          name="email"
+          name="emailOrUsername"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>Email or Username</FormLabel>
               <FormControl>
                 <Input
-                  type="email"
-                  placeholder="name@example.com"
-                  autoComplete="email"
+                  type="text"
+                  placeholder="name@example.com or username"
+                  autoComplete="username"
                   {...field}
                 />
               </FormControl>

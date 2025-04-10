@@ -44,28 +44,40 @@ export function setupAuth(app: Express) {
   passport.use(
     new LocalStrategy(
       {
-        usernameField: "email", // Use email as the username field
+        usernameField: "emailOrUsername", // Supports both email and username
         passwordField: "password"
       },
-      async (email, password, done) => {
+      async (emailOrUsername, password, done) => {
         try {
-          console.log("Login attempt with email:", email);
-          const user = await storage.getUserByEmail(email);
+          console.log("Login attempt with:", emailOrUsername);
+          
+          // Check if the input is email or username
+          let user = null;
+          
+          // Check if the input includes @ character, treat as email
+          if (emailOrUsername.includes('@')) {
+            console.log("Attempting login with email:", emailOrUsername);
+            user = await storage.getUserByEmail(emailOrUsername);
+          } else {
+            // Otherwise treat as username
+            console.log("Attempting login with username:", emailOrUsername);
+            user = await storage.getUserByUsername(emailOrUsername);
+          }
           
           if (!user) {
-            console.log("User not found with email:", email);
-            return done(null, false, { message: "Invalid email or password" });
+            console.log("User not found with:", emailOrUsername);
+            return done(null, false, { message: "Invalid username/email or password" });
           }
           
           const passwordMatch = await comparePasswords(password, user.password);
           console.log("Password match result:", passwordMatch);
           
           if (!passwordMatch) {
-            console.log("Password does not match for user:", email);
-            return done(null, false, { message: "Invalid email or password" });
+            console.log("Password does not match for user:", emailOrUsername);
+            return done(null, false, { message: "Invalid username/email or password" });
           }
           
-          console.log("Login successful for user:", email);
+          console.log("Login successful for user:", emailOrUsername);
           return done(null, user);
         } catch (error) {
           console.error("Login error:", error);
