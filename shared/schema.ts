@@ -147,7 +147,25 @@ export const insertJournalSchema = createInsertSchema(journals)
     excerpt: z.string().max(300, { message: "Excerpt cannot exceed 300 characters" }).optional(),
   });
 
+// Comments model
+export const comments = pgTable("comments", {
+  id: serial("id").primaryKey(),
+  content: text("content").notNull(),
+  journalId: integer("journal_id").notNull(),
+  userId: integer("user_id").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertCommentSchema = createInsertSchema(comments)
+  .pick({
+    content: true,
+    journalId: true,
+  });
+
 export type SiteSettings = typeof siteSettings.$inferSelect;
 export type InsertSiteSettings = z.infer<typeof insertSiteSettingsSchema>;
 export type Journal = typeof journals.$inferSelect;
 export type InsertJournal = z.infer<typeof insertJournalSchema>;
+export type Comment = typeof comments.$inferSelect;
+export type InsertComment = z.infer<typeof insertCommentSchema>;

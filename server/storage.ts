@@ -1,4 +1,4 @@
-import { users, projects, categories, siteSettings, journals, type User, type InsertUser, type Project, type InsertProject, type Category, type InsertCategory, type SiteSettings, type InsertSiteSettings, type Journal, type InsertJournal } from "@shared/schema";
+import { users, projects, categories, siteSettings, journals, comments, type User, type InsertUser, type Project, type InsertProject, type Category, type InsertCategory, type SiteSettings, type InsertSiteSettings, type Journal, type InsertJournal, type Comment, type InsertComment } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
 import connectPg from "connect-pg-simple";
@@ -47,6 +47,11 @@ export interface IStorage {
   likeJournal(id: number): Promise<Journal | undefined>;
   unlikeJournal(id: number): Promise<Journal | undefined>;
   addComment(id: number): Promise<Journal | undefined>;
+  
+  // Comment management
+  getCommentsByJournalId(journalId: number): Promise<Comment[]>;
+  createComment(comment: InsertComment, userId: number): Promise<Comment>;
+  deleteComment(id: number): Promise<boolean>;
   
   // Category management
   getCategories(): Promise<Category[]>;
@@ -445,6 +450,52 @@ export class DatabaseStorage implements IStorage {
         .returning();
       return newSettings;
     }
+  }
+
+  // Comment management methods
+  async getCommentsByJournalId(journalId: number): Promise<Comment[]> {
+    return db.select()
+      .from(comments)
+      .where(eq(comments.journalId, journalId))
+      .orderBy(desc(comments.createdAt));
+  }
+
+  async createComment(insertComment: InsertComment, userId: number): Promise<Comment> {
+    const [comment] = await db.insert(comments)
+      .values({
+        ...insertComment,
+        userId,
+        journalId: insertComment.journalId,
+      })
+      .returning();
+      
+    // Update journal comments count
+    await this.addComment(insertComment.journalId);
+    
+    return comment;
+  }
+
+  async deleteComment(id: number): Promise<boolean> {
+    // Get the comment first to get the journalId
+    const comment = await db.select().from(comments).where(eq(comments.id, id));
+    if (comment.length === 0) {
+      return false;
+    }
+    
+    // Decrease the comment count on the journal
+    const journal = await this.getJournal(comment[0].journalId);
+    if (journal) {
+      await db.update(journals)
+        .set({
+          comments: Math.max(0, journal.comments - 1),
+          updatedAt: new Date()
+        })
+        .where(eq(journals.id, journal.id));
+    }
+    
+    // Delete the comment
+    await db.delete(comments).where(eq(comments.id, id));
+    return true;
   }
 }
 
