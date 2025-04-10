@@ -33,7 +33,7 @@ export function ConfirmDialog({
 }: ConfirmDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="max-w-[85%] sm:max-w-sm mx-auto">
+      <AlertDialogContent className="max-w-[85%] sm:max-w-sm mx-auto rounded-xl">
         <AlertDialogHeader className="text-center">
           <AlertDialogTitle className="text-xl font-bold">{title}</AlertDialogTitle>
           <AlertDialogDescription 
@@ -46,7 +46,7 @@ export function ConfirmDialog({
             variant="destructive" 
             onClick={onConfirm} 
             disabled={isLoading}
-            className="w-full py-6 text-base"
+            className="w-full py-6 text-base rounded-lg"
           >
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {confirmText}
@@ -55,7 +55,7 @@ export function ConfirmDialog({
             type="button"
             variant="secondary"
             onClick={() => onOpenChange(false)}
-            className="w-full py-6 text-base bg-gray-100 hover:bg-gray-200 text-black"
+            className="w-full py-6 text-base bg-gray-100 hover:bg-gray-200 text-black rounded-lg"
           >
             {cancelText}
           </Button>

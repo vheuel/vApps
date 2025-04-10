@@ -230,7 +230,7 @@ export function PostDetail({ postId }: PostDetailProps) {
               {formatDistanceToNow(new Date(post.createdAt)).replace(/^about\s/, '').replace(/\sago$/, '')}
             </span>
             {author ? (
-              <span className="flex items-center">
+              <Link href="/profile" className="flex items-center hover:underline">
                 <User className="h-4 w-4 mr-1" />
                 {author.username || "Unknown author"}
                 {author.isAdmin && (
@@ -239,7 +239,7 @@ export function PostDetail({ postId }: PostDetailProps) {
                 {!author.isAdmin && author.verified && (
                   <MdVerified className="h-4 w-4 text-blue-500 ml-1" title="Verified User" />
                 )}
-              </span>
+              </Link>
             ) : isAuthorLoading ? (
               <Skeleton className="h-4 w-24" />
             ) : null}

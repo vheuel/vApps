@@ -50,7 +50,7 @@ export function ConfirmDialog({
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className="max-w-[85%] sm:max-w-sm mx-auto px-6 py-6 rounded-lg border-0"
+        className="max-w-[85%] sm:max-w-sm mx-auto px-6 py-6 rounded-xl border-0"
         onInteractOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
       >
@@ -69,7 +69,7 @@ export function ConfirmDialog({
             type="button"
             variant="destructive"
             onClick={onConfirm}
-            className="w-full py-6 text-base"
+            className="w-full py-6 text-base rounded-lg"
             disabled={isLoading}
           >
             {isLoading ? "Processing..." : confirmText}
@@ -78,7 +78,7 @@ export function ConfirmDialog({
             type="button"
             variant="secondary"
             onClick={() => onOpenChange(false)}
-            className="w-full py-6 text-base bg-gray-100 hover:bg-gray-200 text-black"
+            className="w-full py-6 text-base bg-gray-100 hover:bg-gray-200 text-black rounded-lg"
           >
             {cancelText}
           </Button>
