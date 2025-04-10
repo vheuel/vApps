@@ -1,14 +1,16 @@
 import { 
   users, projects, categories, siteSettings, journals, comments, oauthProviders, userOAuthConnections,
+  userFollowers, userCoins,
   type User, type InsertUser, type Project, type InsertProject, type Category, type InsertCategory, 
   type SiteSettings, type InsertSiteSettings, type Journal, type InsertJournal, type Comment, type InsertComment,
-  type OAuthProvider, type InsertOAuthProvider, type UserOAuthConnection, type InsertUserOAuthConnection
+  type OAuthProvider, type InsertOAuthProvider, type UserOAuthConnection, type InsertUserOAuthConnection,
+  type UserFollower, type InsertUserFollower, type UserCoin, type InsertUserCoin, type UserWithStats
 } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
 import connectPg from "connect-pg-simple";
 import { db } from "./db";
-import { eq, and, desc, sql } from "drizzle-orm";
+import { eq, and, desc, sql, inArray } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import { pool } from "./db";
 
@@ -133,6 +135,243 @@ export class DatabaseStorage implements IStorage {
     
     // We'll skip auto-creating admin user since we already have one
     // This section was causing issues with the duplicate username constraint
+  }
+  
+  // Follow system methods
+  async followUser(followerId: number, followingId: number): Promise<boolean> {
+    try {
+      // Verify that the users exist
+      const follower = await this.getUser(followerId);
+      const following = await this.getUser(followingId);
+      
+      if (!follower || !following) {
+        return false;
+      }
+      
+      // Check if already following
+      const isAlreadyFollowing = await this.isFollowing(followerId, followingId);
+      if (isAlreadyFollowing) {
+        return true; // Already following, no need to insert again
+      }
+      
+      // Create the follow relationship
+      await db.insert(userFollowers).values({
+        followerId,
+        followingId,
+      });
+      
+      return true;
+    } catch (error) {
+      console.error("Error in followUser:", error);
+      return false;
+    }
+  }
+  
+  async unfollowUser(followerId: number, followingId: number): Promise<boolean> {
+    try {
+      await db.delete(userFollowers)
+        .where(
+          and(
+            eq(userFollowers.followerId, followerId),
+            eq(userFollowers.followingId, followingId)
+          )
+        );
+      
+      return true;
+    } catch (error) {
+      console.error("Error in unfollowUser:", error);
+      return false;
+    }
+  }
+  
+  async isFollowing(followerId: number, followingId: number): Promise<boolean> {
+    try {
+      const result = await db.select()
+        .from(userFollowers)
+        .where(
+          and(
+            eq(userFollowers.followerId, followerId),
+            eq(userFollowers.followingId, followingId)
+          )
+        );
+      
+      return result.length > 0;
+    } catch (error) {
+      console.error("Error in isFollowing:", error);
+      return false;
+    }
+  }
+  
+  async getFollowers(userId: number): Promise<User[]> {
+    try {
+      // Find all users who are following the given user
+      const followers = await db.select({
+        followerId: userFollowers.followerId
+      })
+      .from(userFollowers)
+      .where(eq(userFollowers.followingId, userId));
+      
+      // Get the actual user objects
+      const followerIds = followers.map(f => f.followerId);
+      
+      if (followerIds.length === 0) {
+        return [];
+      }
+      
+      const followerUsers = await db.select()
+        .from(users)
+        .where(inArray(users.id, followerIds));
+      
+      return followerUsers;
+    } catch (error) {
+      console.error("Error in getFollowers:", error);
+      return [];
+    }
+  }
+  
+  async getFollowing(userId: number): Promise<User[]> {
+    try {
+      // Find all users the given user is following
+      const following = await db.select({
+        followingId: userFollowers.followingId
+      })
+      .from(userFollowers)
+      .where(eq(userFollowers.followerId, userId));
+      
+      // Get the actual user objects
+      const followingIds = following.map(f => f.followingId);
+      
+      if (followingIds.length === 0) {
+        return [];
+      }
+      
+      const followingUsers = await db.select()
+        .from(users)
+        .where(inArray(users.id, followingIds));
+      
+      return followingUsers;
+    } catch (error) {
+      console.error("Error in getFollowing:", error);
+      return [];
+    }
+  }
+  
+  async getFollowersCount(userId: number): Promise<number> {
+    try {
+      const followers = await db.select({
+        count: sql<number>`count(*)`
+      })
+      .from(userFollowers)
+      .where(eq(userFollowers.followingId, userId));
+      
+      return followers[0]?.count || 0;
+    } catch (error) {
+      console.error("Error in getFollowersCount:", error);
+      return 0;
+    }
+  }
+  
+  async getFollowingCount(userId: number): Promise<number> {
+    try {
+      const following = await db.select({
+        count: sql<number>`count(*)`
+      })
+      .from(userFollowers)
+      .where(eq(userFollowers.followerId, userId));
+      
+      return following[0]?.count || 0;
+    } catch (error) {
+      console.error("Error in getFollowingCount:", error);
+      return 0;
+    }
+  }
+  
+  // User stats methods
+  async getUserStats(userId: number): Promise<UserWithStats | undefined> {
+    try {
+      const user = await this.getUser(userId);
+      if (!user) return undefined;
+      
+      // Get counts
+      const followersCount = await this.getFollowersCount(userId);
+      const followingCount = await this.getFollowingCount(userId);
+      
+      // Get posts count
+      const postsResult = await db.select({
+        count: sql<number>`count(*)`
+      })
+      .from(journals)
+      .where(eq(journals.userId, userId));
+      const postsCount = postsResult[0]?.count || 0;
+      
+      // Get projects count
+      const projectsResult = await db.select({
+        count: sql<number>`count(*)`
+      })
+      .from(projects)
+      .where(eq(projects.userId, userId));
+      const projectsCount = projectsResult[0]?.count || 0;
+      
+      // Get user coins
+      const coins = await this.getUserCoins(userId);
+      
+      return {
+        ...user,
+        _count: {
+          followers: followersCount,
+          following: followingCount,
+          posts: postsCount,
+          projects: projectsCount
+        },
+        coins
+      };
+    } catch (error) {
+      console.error("Error in getUserStats:", error);
+      return undefined;
+    }
+  }
+  
+  async getUserCoins(userId: number): Promise<number> {
+    try {
+      // Check if user has a coins record
+      const coinsRecord = await db.select()
+        .from(userCoins)
+        .where(eq(userCoins.userId, userId));
+      
+      if (coinsRecord.length > 0) {
+        return coinsRecord[0].amount;
+      }
+      
+      // If no record exists, create one with 0 coins
+      await db.insert(userCoins).values({
+        userId,
+        amount: 0
+      });
+      
+      return 0;
+    } catch (error) {
+      console.error("Error in getUserCoins:", error);
+      return 0;
+    }
+  }
+  
+  async addUserCoins(userId: number, amount: number): Promise<number> {
+    try {
+      // Get current coins
+      const currentCoins = await this.getUserCoins(userId);
+      const newAmount = currentCoins + amount;
+      
+      // Update coins
+      const [updatedCoins] = await db.update(userCoins)
+        .set({ amount: newAmount, updatedAt: new Date() })
+        .where(eq(userCoins.userId, userId))
+        .returning();
+      
+      return updatedCoins ? updatedCoins.amount : newAmount;
+    } catch (error) {
+      console.error("Error in addUserCoins:", error);
+      return 0;
+    }
   }
 
   // User management methods
