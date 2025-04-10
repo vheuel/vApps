@@ -23,12 +23,20 @@ export function PostsList({
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const queryKey = userId 
-    ? [`/api/user/journals`] 
-    : [`/api/journals`];
+  const mainQueryKey = userId 
+    ? ['api', 'user', 'journals'] 
+    : ['api', 'journals'];
 
-  const { data: journals, isLoading } = useQuery<Journal[]>({
-    queryKey,
+  const { data: journals, isLoading, refetch } = useQuery<Journal[]>({
+    queryKey: mainQueryKey,
+    queryFn: async () => {
+      const url = userId ? "/api/user/journals" : "/api/journals";
+      const res = await fetch(url);
+      if (!res.ok) {
+        throw new Error("Failed to fetch journals");
+      }
+      return res.json();
+    },
     refetchOnWindowFocus: false,
   });
   
@@ -36,10 +44,18 @@ export function PostsList({
   const likeMutation = useMutation({
     mutationFn: async (journalId: number) => {
       const res = await apiRequest("POST", `/api/journals/${journalId}/like`);
+      if (!res.ok) {
+        throw new Error("Failed to like post");
+      }
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey });
+      // Langsung refetch data
+      refetch();
+      toast({
+        title: "Success",
+        description: "Post liked successfully",
+      });
     },
     onError: (error: Error) => {
       toast({
@@ -54,10 +70,18 @@ export function PostsList({
   const unlikeMutation = useMutation({
     mutationFn: async (journalId: number) => {
       const res = await apiRequest("POST", `/api/journals/${journalId}/unlike`);
+      if (!res.ok) {
+        throw new Error("Failed to unlike post");
+      }
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey });
+      // Langsung refetch data
+      refetch();
+      toast({
+        title: "Success",
+        description: "Post unliked successfully",
+      });
     },
     onError: (error: Error) => {
       toast({
@@ -72,10 +96,18 @@ export function PostsList({
   const commentMutation = useMutation({
     mutationFn: async (journalId: number) => {
       const res = await apiRequest("POST", `/api/journals/${journalId}/comment`);
+      if (!res.ok) {
+        throw new Error("Failed to comment on post");
+      }
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey });
+      // Langsung refetch data
+      refetch();
+      toast({
+        title: "Success",
+        description: "Comment added successfully",
+      });
     },
     onError: (error: Error) => {
       toast({
