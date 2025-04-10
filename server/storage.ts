@@ -487,8 +487,7 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(journals.createdAt));
     
     // Get all unique user IDs from posts to minimize database queries
-    const userIdsSet = new Set(posts.map(post => post.userId));
-    const userIds = Array.from(userIdsSet);
+    const userIds = [...new Set(posts.map(post => post.userId))];
     
     // Fetch all users in a single batch
     const usersMap = new Map();

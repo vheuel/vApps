@@ -1,8 +1,10 @@
 import { useEffect } from "react";
-import { Link, useLocation } from "wouter";
+import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LoginForm } from "@/components/auth/login-form";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { RegisterForm } from "@/components/auth/register-form";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function AuthPage() {
   const [_, navigate] = useLocation();
@@ -24,28 +26,31 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="container mx-auto py-12 px-4">
+    <div className="container mx-auto py-8 px-4">
       <div className="grid md:grid-cols-2 gap-8 items-center max-w-6xl mx-auto">
-        {/* Login form section */}
+        {/* Form section */}
         <div>
-          <Card className="shadow-lg border-primary/10">
+          <Card>
             <CardHeader className="space-y-1">
-              <CardTitle className="text-2xl font-bold">Login to vApps</CardTitle>
+              <CardTitle className="text-2xl font-bold">Welcome to EARN App</CardTitle>
               <CardDescription>
-                Enter your credentials to access your account
+                Sign in to your account or create a new one to start contributing
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <LoginForm />
+              <Tabs defaultValue="login" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-4">
+                  <TabsTrigger value="login">Login</TabsTrigger>
+                  <TabsTrigger value="register">Register</TabsTrigger>
+                </TabsList>
+                <TabsContent value="login">
+                  <LoginForm />
+                </TabsContent>
+                <TabsContent value="register">
+                  <RegisterForm />
+                </TabsContent>
+              </Tabs>
             </CardContent>
-            <CardFooter className="flex flex-col space-y-4 border-t pt-6">
-              <div className="text-sm text-center">
-                Don't have an account?{" "}
-                <Link href="/register" className="text-primary font-medium hover:underline">
-                  Create an account
-                </Link>
-              </div>
-            </CardFooter>
           </Card>
         </div>
 
@@ -53,12 +58,12 @@ export default function AuthPage() {
         <div className="order-first md:order-last">
           <div className="text-center md:text-left space-y-4">
             <h1 className="text-3xl md:text-4xl font-bold">
-              Welcome to vApps by Vheüel
+              Join the Web3 Community Catalog
             </h1>
             <p className="text-muted-foreground text-lg">
-              vApps is a community-driven platform for discovering and sharing the best Web3 applications, wallets, exchanges, and more.
+              EARN App is a community-driven platform for discovering and sharing the best Web3 applications, wallets, exchanges, and more.
             </p>
-            <ul className="space-y-3 md:list-disc md:pl-5">
+            <ul className="space-y-2 md:list-disc md:pl-5">
               <li className="text-muted-foreground">Discover new Web3 projects across all categories</li>
               <li className="text-muted-foreground">Submit your own projects to the community</li>
               <li className="text-muted-foreground">Keep track of all your submissions</li>

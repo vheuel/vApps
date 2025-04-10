@@ -3,7 +3,6 @@ import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import HomePage from "@/pages/home-page";
 import AuthPage from "@/pages/auth-page";
-import RegisterPage from "@/pages/register-page";
 import ProfilePage from "@/pages/profile-page";
 import EditProfilePage from "@/pages/edit-profile-page";
 import SubmitProjectPage from "@/pages/submit-project-page";
@@ -28,9 +27,7 @@ function App() {
         <main className="flex-grow">
           <Switch>
             <Route path="/" component={HomePage} />
-            <Route path="/login" component={AuthPage} />
-            <Route path="/register" component={RegisterPage} />
-            <Route path="/auth" component={AuthPage} /> {/* Untuk backward compatibility */}
+            <Route path="/auth" component={AuthPage} />
             <Route path="/category/:category" component={CategoryPage} />
             <Route path="/docs" component={DocumentationPage} />
             <Route path="/terms" component={TermsPage} />
