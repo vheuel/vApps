@@ -1311,6 +1311,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Alias untuk /is-following untuk kompatibilitas UI
+  app.get("/api/users/:username/follow-status", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    try {
+      // @ts-ignore
+      const followerId = req.user.id;
+      const { username } = req.params;
+      
+      // Get the user to check
+      const userToCheck = await storage.getUserByUsername(username);
+      if (!userToCheck) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      const isFollowing = await storage.isFollowing(followerId, userToCheck.id);
+      res.status(200).json({ isFollowing });
+    } catch (error) {
+      console.error("Error checking follow status:", error);
+      res.status(500).json({ message: "Error checking follow status" });
+    }
+  });
+  
   // User Stats API endpoint
   app.get("/api/users/:username/stats", async (req, res) => {
     try {
