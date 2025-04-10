@@ -128,19 +128,21 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    // Convert username to lowercase for case-insensitive comparison
-    const result = await db.select().from(users).where(
-      sql`lower(${users.username}) = ${username.toLowerCase()}`
+    // Convert to lowercase for comparison - using simpler implementation with string operation
+    const allUsers = await db.select().from(users);
+    const user = allUsers.find(u => 
+      u.username.toLowerCase() === username.toLowerCase()
     );
-    return result.length ? result[0] : undefined;
+    return user;
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
-    // Menggunakan toLowerCase untuk case-insensitive email matching
-    const result = await db.select().from(users).where(
-      sql`lower(${users.email}) = ${email.toLowerCase()}`
+    // Using a simpler implementation for case-insensitive email matching
+    const allUsers = await db.select().from(users);
+    const user = allUsers.find(u => 
+      u.email.toLowerCase() === email.toLowerCase()
     );
-    return result.length ? result[0] : undefined;
+    return user;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
