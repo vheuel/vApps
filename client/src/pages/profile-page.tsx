@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { JournalList } from "@/components/journal/journal-list";
+import { QuickJournalForm } from "@/components/journal/quick-journal-form";
 
 import ProjectForm from "@/components/project/project-form";
 import { format, differenceInMinutes, differenceInHours, differenceInDays, differenceInMonths, differenceInYears } from "date-fns";
@@ -352,6 +353,9 @@ export default function ProfilePage() {
       <div className="container mx-auto py-4 px-4">
         {activeTab === "project" ? (
           <>
+            {/* Quick Journal Form */}
+            <QuickJournalForm />
+            
             {isLoading ? (
               <div className="space-y-4">
                 {[...Array(3)].map((_, index) => (
