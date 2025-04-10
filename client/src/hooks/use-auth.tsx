@@ -6,7 +6,7 @@ type AuthContextType = {
   user: User | null;
   isLoading: boolean;
   error: Error | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (emailOrUsername: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   register: (user: InsertUser) => Promise<void>;
   update: (data: Partial<User>) => Promise<void>;
@@ -30,14 +30,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<Error | null>(null);
 
   // Login function
-  const login = async (email: string, password: string) => {
+  const login = async (emailOrUsername: string, password: string) => {
     setIsLoading(true);
     setError(null);
     try {
       const response = await fetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ emailOrUsername, password }),
         credentials: 'include',
       });
 

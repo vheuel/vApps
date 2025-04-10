@@ -55,25 +55,72 @@ function formatTimeCompact(date: Date | string | number): string {
   return formattedDate;
 }
 
-export default function ProfilePage() {
-  const { user, update } = useAuth();
+export default function ProfilePage({ params }: { params: { username: string } }) {
+  const { user: currentUser } = useAuth();
   const { toast } = useToast();
   const [_, navigate] = useLocation();
   const [editProject, setEditProject] = useState<Project | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("journal");
+  const [profileUser, setProfileUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   
-  // Memuat ulang data pengguna hanya saat komponen pertama kali dimuat
+  const username = params?.username;
+  
+  // Mengambil data profil pengguna berdasarkan username
   useEffect(() => {
-    // Kita tidak perlu secara eksplisit memperbarui data user karena sudah dihandle oleh AuthProvider
-    // Data user sudah dimuat dari /api/user saat navigasi ke halaman profil
-    // Menghapus pemanggilan update() yang menyebabkan refresh loop
-  }, []);
+    const fetchUserProfile = async () => {
+      try {
+        setLoading(true);
+        
+        // Jika user yang login melihat profilnya sendiri
+        if (currentUser && currentUser.username === username) {
+          setProfileUser(currentUser);
+          setLoading(false);
+          return;
+        }
+        
+        // Fetch profile for the specified username
+        const response = await fetch(`/api/users/${username}`);
+        
+        if (!response.ok) {
+          if (response.status === 404) {
+            toast({
+              title: "User not found",
+              description: "The requested user profile doesn't exist.",
+              variant: "destructive",
+            });
+            navigate("/");
+            return;
+          }
+          throw new Error("Failed to fetch user profile");
+        }
+        
+        const userData = await response.json();
+        setProfileUser(userData);
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load user profile. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    if (username) {
+      fetchUserProfile();
+    }
+  }, [username, currentUser, toast, navigate]);
 
+  // Mengambil proyek-proyek pengguna
   const { data: projects, isLoading, isError, error } = useQuery<Project[]>({
-    queryKey: ["/api/user/projects"],
+    queryKey: ["/api/user/projects", profileUser?.id],
     refetchOnWindowFocus: false,
     retry: 3,
+    enabled: !!profileUser?.id, // Only fetch if we have a profileUser
   });
 
   // Untuk menyimpan tab yang aktif di local storage
@@ -126,8 +173,21 @@ export default function ProfilePage() {
     }
   };
 
-  if (!user) {
-    navigate("/auth");
+  // Show loading state while fetching user profile
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-gray-500">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // If profile not found
+  if (!profileUser && !loading) {
+    navigate("/");
     return null;
   }
 
