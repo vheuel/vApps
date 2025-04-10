@@ -117,23 +117,8 @@ export class DatabaseStorage implements IStorage {
       createTableIfMissing: true
     });
     
-    // Check if admin user exists, if not create one
-    this.getUserByEmail("admin@earnapp.com").then(async (adminUser) => {
-      if (!adminUser) {
-        const hashedPassword = await bcrypt.hash("admin123", 10);
-        
-        const user = await this.createUser({
-          username: "admin",
-          email: "admin@earnapp.com",
-          password: hashedPassword
-        });
-        
-        // Make the user an admin
-        await db.update(users)
-          .set({ isAdmin: true })
-          .where(eq(users.id, user.id));
-      }
-    });
+    // We'll skip auto-creating admin user since we already have one
+    // This section was causing issues with the duplicate username constraint
   }
 
   // User management methods
