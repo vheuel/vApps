@@ -10,7 +10,7 @@ import { ArrowLeft, Calendar, User, Clock, MessageSquare, Heart, Send, MoreVerti
 import { MdVerified } from "react-icons/md";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"; 
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
@@ -33,6 +33,9 @@ export function PostDetail({ postId }: PostDetailProps) {
   const [commentToDelete, setCommentToDelete] = useState<number | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   
+  // Create a ref for the post title element
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  
   // Get post data
   const { data: post, isLoading, error, refetch } = useQuery<Journal>({
     queryKey: [`/api/posts/${postId}`],
@@ -45,6 +48,29 @@ export function PostDetail({ postId }: PostDetailProps) {
     enabled: !!post?.userId,
     refetchOnWindowFocus: false,
   });
+  
+  // Effect to scroll and focus on the post title when post data is loaded
+  useEffect(() => {
+    if (post && titleRef.current) {
+      // Scroll to the title element
+      titleRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      
+      // Set focus to the title for accessibility
+      titleRef.current.focus();
+      
+      // For better user experience, we can also add a subtle highlight effect
+      titleRef.current.classList.add('post-title-focus');
+      
+      // Remove the highlight effect after a short delay
+      const timeoutId = setTimeout(() => {
+        if (titleRef.current) {
+          titleRef.current.classList.remove('post-title-focus');
+        }
+      }, 1500);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [post]);
   
   // Get comments from the API
   const { 
@@ -218,7 +244,13 @@ export function PostDetail({ postId }: PostDetailProps) {
             </div>
           )}
 
-          <h1 className="text-3xl font-bold">{post.title}</h1>
+          <h1 
+            ref={titleRef} 
+            tabIndex={-1} 
+            className="text-3xl font-bold focus:outline-none"
+          >
+            {post.title}
+          </h1>
           
           <div className="flex flex-wrap items-center mt-4 space-x-4 text-sm text-muted-foreground">
             <span className="flex items-center">
