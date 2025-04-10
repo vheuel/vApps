@@ -7,6 +7,7 @@ import { formatDistanceToNow } from "date-fns";
 import { Link } from "wouter";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Calendar, User, Clock } from "lucide-react";
+import { MdVerified } from "react-icons/md";
 
 interface JournalDetailProps {
   journalId: number;
@@ -19,7 +20,7 @@ export function JournalDetail({ journalId }: JournalDetailProps) {
   });
 
   // Get author details
-  const { data: author, isLoading: isAuthorLoading } = useQuery<{ username: string }>({
+  const { data: author, isLoading: isAuthorLoading } = useQuery<{ username: string, isAdmin: boolean, verified: boolean }>({
     queryKey: [`/api/user/${journal?.userId}`],
     enabled: !!journal?.userId,
     refetchOnWindowFocus: false,
@@ -97,6 +98,12 @@ export function JournalDetail({ journalId }: JournalDetailProps) {
             <span className="flex items-center">
               <User className="h-4 w-4 mr-1" />
               {author.username || "Unknown author"}
+              {author.isAdmin && (
+                <MdVerified className="h-4 w-4 text-amber-500 ml-1" title="Admin" />
+              )}
+              {!author.isAdmin && author.verified && (
+                <MdVerified className="h-4 w-4 text-blue-500 ml-1" title="Verified User" />
+              )}
             </span>
           ) : isAuthorLoading ? (
             <Skeleton className="h-4 w-24" />

@@ -7,6 +7,7 @@ import { formatDistanceToNow } from "date-fns";
 import { Link } from "wouter";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Edit, Trash2, Calendar, Clock, Star, StarOff } from "lucide-react";
+import { MdVerified } from "react-icons/md";
 import { useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -158,11 +159,22 @@ export function JournalList({
             )}
             <div className="p-4">
               <div className="flex justify-between items-start">
-                <Link href={`/journal/${journal.id}`}>
-                  <h3 className="text-xl font-semibold hover:text-primary cursor-pointer">
-                    {journal.title}
-                  </h3>
-                </Link>
+                <div>
+                  <Link href={`/journal/${journal.id}`}>
+                    <h3 className="text-xl font-semibold hover:text-primary cursor-pointer">
+                      {journal.title}
+                    </h3>
+                  </Link>
+                  <div className="flex items-center text-sm text-muted-foreground">
+                    <span>By {user?.username ? user.username.charAt(0).toUpperCase() + user.username.slice(1) : 'Unknown'}</span>
+                    {user?.isAdmin && (
+                      <MdVerified className="h-4 w-4 text-amber-500 ml-1" title="Admin" />
+                    )}
+                    {!user?.isAdmin && user?.verified && (
+                      <MdVerified className="h-4 w-4 text-blue-500 ml-1" title="Verified User" />
+                    )}
+                  </div>
+                </div>
                 <div className="flex space-x-1">
                   {journal.featured && (
                     <Badge variant="secondary" className="bg-amber-100 text-amber-800 dark:bg-amber-800/20 dark:text-amber-500">
