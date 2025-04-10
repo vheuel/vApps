@@ -162,7 +162,7 @@ export function PostsList({
             <div className="p-4">
               <div className="flex justify-between items-start">
                 <div>
-                  <Link href={`/post/${post.id}`}>
+                  <Link href={`/posts/${post.id}`}>
                     <h3 className="text-xl font-semibold hover:text-primary cursor-pointer">
                       {post.title}
                     </h3>
